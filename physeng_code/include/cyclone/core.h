@@ -110,7 +110,7 @@ namespace cyclone {
 ///<VectorIntro
     /**
      * Holds the value for energy under which a body will be put to
-     * sleep. This is a global value for the whole solution.  By
+     * sleep. This is a global value for the whole solution. By
      * default it is 0.1, which is fine for simulation when gravity is
      * about 20 units per second squared, masses are about one, and
      * other forces are around that of gravity. It may need tweaking
@@ -942,7 +942,7 @@ namespace cyclone {
 ///>Matrix3;Matrix3Intro
     /**
      * Holds an inertia tensor, consisting of a 3x3 row-major matrix.
-     * This matrix is not padding to produce an aligned structure, since
+     * This matrix is not padded to produce an aligned structure, since
      * it is most commonly used with a mass (single real) and two 
      * damping coefficients to make the 12-element characteristics array
      * of a rigid body.

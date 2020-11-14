@@ -25,7 +25,7 @@ namespace cyclone {
 
 	/**
 	 * Keeps track of one random stream: i.e. a seed and its output.
-	 * This is used to get random numbers. Rather than a funcion, this
+	 * This is used to get random numbers. Rather than a function, this
 	 * allows there to be several streams of repeatable random numbers
 	 * at the same time. Uses the RandRotB algorithm.
 	 */

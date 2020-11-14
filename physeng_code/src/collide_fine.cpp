@@ -269,7 +269,7 @@ unsigned CollisionDetector::sphereAndSphere(
 
 /**
  * This function checks if the two boxes overlap
- * along the given axis, returning the ammount of overlap. 
+ * along the given axis, returning the amount of overlap. 
  * The final parameter toCentre
  * is used to pass in the vector between the boxes centre
  * points, to avoid having to recalculate it each time.
@@ -546,7 +546,7 @@ unsigned CollisionDetector::boxAndBox(
         /**/
 
         // So we have a point and a direction for the colliding edges.
-        // We need to find out point of closes approach of the two 
+        // We need to find out point of closest approach of the two 
         // line-segments.
         Vector3 vertex = contactPoint(
             ptOnOneEdge, oneAxis, one.halfSize[oneAxisIndex],

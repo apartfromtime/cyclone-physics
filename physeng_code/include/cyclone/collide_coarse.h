@@ -173,11 +173,10 @@ namespace cyclone {
 
 ///>BVHRemove
         /**
-         * Deltes this node, removing it first from the hierarchy, along 
-         * with its associated
-         * rigid body and child nodes. This method deletes the node 
-         * and all its children (but obviously not the rigid bodies). This
-         * also has the effect of deleting the sibling of this node, and
+         * Deletes this node, removing it first from the hierarchy, along 
+         * with its associated rigid body and child nodes. This method deletes
+         * the node and all its children (but obviously not the rigid bodies).
+         * This also has the effect of deleting the sibling of this node, and
          * changing the parent node so that it contains the data currently
          * in that sibling. Finally it forces the hierarchy above the
          * current node to reconsider its bounding volume.
@@ -248,7 +247,7 @@ namespace cyclone {
                 this, newVolume, newBody
                 );
 
-            // And we now loose the body (we're no longer a leaf)
+            // And we now lose the body (we're no longer a leaf)
             this->body = NULL;
 
             // We need to recalculate our bounding volume

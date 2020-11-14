@@ -82,7 +82,7 @@ namespace cyclone {
         /** The particle at the other end of the spring. */
         RigidBody *other;
 
-        /** Holds the sprint constant. */
+        /** Holds the spring constant. */
         real springConstant;
 
         /** Holds the rest length of the spring. */
@@ -302,7 +302,7 @@ namespace cyclone {
     /**
     * A force generator with a control aerodynamic surface. This
     * requires three inertia tensors, for the two extremes and
-    * 'resting' position of the control surface.  The latter tensor is
+    * 'resting' position of the control surface. The latter tensor is
     * the one inherited from the base class, the two extremes are
     * defined in this class.
     */
@@ -346,12 +346,12 @@ namespace cyclone {
                     const Vector3 &position, const Vector3 *windspeed);
 
         /**
-         * Sets the control position of this control. This * should
-        range between -1 (in which case the minTensor value is *
-        used), through 0 (where the base-class tensor value is used) *
-        to +1 (where the maxTensor value is used). Values outside that
-        * range give undefined results.
-        */
+         * Sets the control position of this control. This should range
+         * between -1 (in which case the minTensor value is used), through 0
+         * (where the base-class tensor value is used) to +1 (where the
+         * maxTensor value is used). Values outside that range give undefined
+         * results.
+         */
         void setControl(real value);
 
         /**
@@ -364,7 +364,7 @@ namespace cyclone {
 ///>AngledAeroFG
     /**
      * A force generator with an aerodynamic surface that can be
-     * re-oriented relative to its rigid body. This derives the
+     * re-oriented relative to its rigid body.
      */
     class AngledAero : public Aero
     {

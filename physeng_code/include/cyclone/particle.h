@@ -140,7 +140,7 @@ namespace cyclone {
 ///<ParticleAccum
 ///>ParticleIntro
         /**
-         * Holds the acceleration of the particle.  This value
+         * Holds the acceleration of the particle. This value
          * can be used to set acceleration due to gravity (its primary
          * use), or any other constant acceleration.
          */

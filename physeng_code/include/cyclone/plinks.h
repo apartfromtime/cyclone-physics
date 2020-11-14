@@ -46,7 +46,7 @@ namespace cyclone {
 
     public:
         /**
-         * Geneates the contacts to keep this link from being
+         * Generates the contacts to keep this link from being
          * violated. This class can only ever generate a single
          * contact, so the pointer can be a pointer to a single
          * element, the limit parameter is assumed to be at least one
@@ -133,7 +133,7 @@ namespace cyclone {
 
 	public:
 		/**
-		* Geneates the contacts to keep this link from being
+		* Generates the contacts to keep this link from being
 		* violated. This class can only ever generate a single
 		* contact, so the pointer can be a pointer to a single
 		* element, the limit parameter is assumed to be at least one

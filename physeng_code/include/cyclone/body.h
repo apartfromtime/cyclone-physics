@@ -35,7 +35,7 @@ namespace cyclone {
      * to it. The rigid body manages its state and allows access
      * through a set of methods.
      *
-     * A ridid body contains 64 words (the size of which is given
+     * A rigid body contains 64 words (the size of which is given
      * by the precision: sizeof(real)). It contains no virtual
      * functions, so should take up exactly 64 words in memory. Of
      * this total 15 words are padding, distributed among the
@@ -183,7 +183,7 @@ namespace cyclone {
 ///>SleepData
         /**
          * Holds the amount of motion of the body. This is a recency
-         * weighted mean that can be used to put a body to sleap.
+         * weighted mean that can be used to put a body to sleep.
          */
         real motion;
 
@@ -292,7 +292,7 @@ namespace cyclone {
          * after the body's state is altered directly (it is called
          * automatically during integration). If you change the body's state
          * and then intend to integrate before querying any data (such as
-         * the transform matrix), then you can ommit this step.
+         * the transform matrix), then you can omit this step.
          */
         void calculateDerivedData();
 ///<CalculateDerivedData

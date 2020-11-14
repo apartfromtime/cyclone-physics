@@ -203,7 +203,7 @@ namespace cyclone {
 
         /**
          * Holds the length of the bungee at the point it begins to
-         * generator a force.
+         * generate a force.
          */
         real restLength;
 

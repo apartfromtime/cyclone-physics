@@ -25,7 +25,7 @@
 namespace cyclone {
 ///>WorldStructureIntro;WorldStructure
     /**
-     * The world represents an independent simulation of physics.  It
+     * The world represents an independent simulation of physics. It
      * keeps track of a set of rigid bodies, and provides the means to
      * update them all.
      */
@@ -64,7 +64,7 @@ namespace cyclone {
         ContactResolver resolver;
 
         /**
-         * Holds one contact generators in a linked list.
+         * Holds one contact generator in a linked list.
          */
         struct ContactGenRegistration
         {

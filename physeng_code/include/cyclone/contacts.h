@@ -51,7 +51,7 @@ namespace cyclone {
      * another, contacts that are close to being violated should be 
      * sent to the resolver; that way if one resolution moves the body,
      * the contact may be violated, and can be resolved. If the contact
-     * is not violated, it will not be resolved, so you only loose a
+     * is not violated, it will not be resolved, so you only lose a
      * small amount of execution time.
      *
      * The contact has no callable functions, it just holds the contact
@@ -299,7 +299,7 @@ namespace cyclone {
          * smaller than this value are considered to be not interpenetrating.
          * Too small and the simulation may be unstable, too large and the
          * bodies may interpenetrate visually. A good starting point is 
-         * the default of0.01.
+         * the default of 0.01.
          */
         real positionEpsilon;
 

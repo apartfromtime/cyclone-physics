@@ -244,7 +244,7 @@ void Contact::applyVelocityChange(Vector3 velocityChange[2],
         // Add the linear component of velocity change
         deltaVelocity += body[0]->getInverseMass();
 
-        // Check if we need to the second body's data
+        // Check if we need the second body's data
         if (body[1])
         {
             // Find the inertia tensor for this body
@@ -362,7 +362,7 @@ void Contact::applyVelocityChange(Vector3 velocityChange[2],
     Vector3 impulse = contactToWorld.transform(impulseContact);
 ///<ImpulseToWorld
 
-    // Split in the impulse into linear and rotational components
+    // Split the impulse into linear and rotational components
     Vector3 impulsiveTorque = relativeContactPosition[0] % impulse;
     rotationChange[0] = inverseInertiaTensor[0].transform(impulsiveTorque);
     velocityChange[0].clear();
@@ -401,7 +401,7 @@ void Contact::applyPositionChange(Vector3 velocityChange[2],
 
 ///>AngularInertia
     // We need to work out the inertia of each object in the direction
-    // of the contact normal, due to angular inertia only. 
+    // of the contact normal, due to angular inertia only.
     for (unsigned i = 0; i < 2; i++) {
         if (body[i]) {
             Matrix3 inverseInertiaTensor;
@@ -576,7 +576,7 @@ void ContactResolver::prepareContacts(Contact* contacts,
     Contact* lastContact = contacts + numContacts;
     for(Contact* contact=contacts; contact < lastContact; contact++)
     {
-        // Calculate the inernal contact data (inertia, basis, etc).
+        // Calculate the internal contact data (inertia, basis, etc).
         contact->calculateInternals(duration);
     } 
 }
