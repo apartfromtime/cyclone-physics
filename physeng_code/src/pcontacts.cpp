@@ -176,7 +176,7 @@ void ParticleContactResolver::resolveContacts(ParticleContact *contactArray,
 
 		// Update the interpenetrations for all particles
 		Vector3 *move = contactArray[maxIndex].particleMovement; 
-		for (i = 0; i < numContacts; i++)
+		for (unsigned i = 0; i < numContacts; i++)
 		{
 			if (contactArray[i].particle[0] == contactArray[maxIndex].particle[0])
 			{
