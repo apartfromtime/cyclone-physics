@@ -274,7 +274,7 @@ namespace cyclone {
 
 ///>BVHRemove
     template<class BoundingVolumeClass>
-    BVHNode<BoundingVolumeClass>::~BVHNode<BoundingVolumeClass>()
+    BVHNode<BoundingVolumeClass>::~BVHNode()
     {
         // If we don't have a parent, then we ignore the sibling
         // processing
