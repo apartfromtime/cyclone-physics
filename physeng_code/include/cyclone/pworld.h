@@ -85,6 +85,7 @@ namespace cyclone {
          * contacts will be used.
 		 */
 		ParticleWorld(unsigned maxContacts, unsigned iterations=0);
+        ~ParticleWorld(void);
 ///<ParticleWorld
 
 ///>ParticleWorldRun
