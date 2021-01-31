@@ -16,8 +16,10 @@
 #include <assert.h>
 #include <cstdlib>
 
-// For debugging
+#ifdef _DEBUG
+/* For debugging */
 #include <gl/glut.h>
+#endif /* ifdef _DEBUG */
 
 using namespace cyclone;
 
@@ -515,7 +517,8 @@ unsigned CollisionDetector::boxAndBox(
         ptOnOneEdge = one.transform * ptOnOneEdge;
         ptOnTwoEdge = two.transform * ptOnTwoEdge;
 
-        //*
+#ifdef _DEBUG
+
         glPushMatrix();
         glColor3f(1,0,0);
         glTranslatef(ptOnOneEdge.x, ptOnOneEdge.y, ptOnOneEdge.z);
@@ -543,7 +546,8 @@ unsigned CollisionDetector::boxAndBox(
             ptOnTwoEdge.y + twoAxis.y,
             ptOnTwoEdge.z + twoAxis.z);
         glEnd();
-        /**/
+
+#endif /* #ifdef _DEBUG */
 
         // So we have a point and a direction for the colliding edges.
         // We need to find out point of closest approach of the two 
