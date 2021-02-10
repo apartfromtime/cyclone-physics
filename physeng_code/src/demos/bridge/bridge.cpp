@@ -136,7 +136,7 @@ void BridgeDemo::updateAdditionalMass()
 
     // Find the coordinates of the mass as an index and proportion
 	int x = int(massPos.x);
-	cyclone::real xp = real_fmod(massPos.x, cyclone::real(1.0f));
+	cyclone::real xp = R_fmod(massPos.x, cyclone::real(1.0f));
 	if (x < 0) 
 	{
 		x = 0;
@@ -149,7 +149,7 @@ void BridgeDemo::updateAdditionalMass()
 	}
 
 	int z = int(massPos.z);
-	cyclone::real zp = real_fmod(massPos.z, cyclone::real(1.0f));
+	cyclone::real zp = R_fmod(massPos.z, cyclone::real(1.0f));
 	if (z < 0) 
 	{
 		z = 0;
