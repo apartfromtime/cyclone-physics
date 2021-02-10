@@ -10,13 +10,13 @@
  * software licence.
  */
 
-#include <gl/glut.h>
-
 // Include the general application structure.
 #include "app.h"
 
 // Include the timing functions
 #include "timing.h"
+
+#include <gl/glut.h>
 
 // Forward declaration of the function that will return the 
 // application object for this particular demo. This should be 

@@ -10,9 +10,10 @@
  * software licence.
  */
 #include <cstring>
-#include <gl/glut.h>
 #include "app.h"
 #include "timing.h"
+
+#include <gl/glut.h>
 
 void Application::initGraphics() 
 {
