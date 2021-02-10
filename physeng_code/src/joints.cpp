@@ -27,7 +27,7 @@ unsigned Joint::addContact(Contact *contact, unsigned limit) const
 	real length = a_to_b.magnitude();
 
 	// Check if it is violated
-	if (real_abs(length) > error)
+	if (R_abs(length) > error)
 	{
 		contact->body[0] = body[0];
 		contact->body[1] = body[1];

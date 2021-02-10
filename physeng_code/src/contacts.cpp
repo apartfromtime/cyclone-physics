@@ -81,10 +81,10 @@ void Contact::calculateContactBasis()
     Vector3 contactTangent[2];
 
     // Check whether the Z-axis is nearer to the X or Y axis
-    if(real_abs(contactNormal.x) > real_abs(contactNormal.y))
+    if(R_abs(contactNormal.x) > R_abs(contactNormal.y))
     { 
         // Scaling factor to ensure the results are normalised
-        const real s = (real)1.0f/real_sqrt(contactNormal.z*contactNormal.z +
+        const real s = (real)1.0f/R_sqrt(contactNormal.z*contactNormal.z +
             contactNormal.x*contactNormal.x);
 
         // The new X-axis is at right angles to the world Y-axis
@@ -101,7 +101,7 @@ void Contact::calculateContactBasis()
     else
     {
         // Scaling factor to ensure the results are normalised
-        const real s = (real)1.0/real_sqrt(contactNormal.z*contactNormal.z + 
+        const real s = (real)1.0/R_sqrt(contactNormal.z*contactNormal.z + 
             contactNormal.y*contactNormal.y);
 
         // The new X-axis is at right angles to the world X-axis
@@ -175,7 +175,7 @@ void Contact::calculateDesiredDeltaVelocity(real duration)
 
     // If the velocity is very slow, limit the restitution
     real thisRestitution = restitution;
-    if (real_abs(contactVelocity.x) < velocityLimit)
+    if (R_abs(contactVelocity.x) < velocityLimit)
     {
         thisRestitution = (real)0.0f;
     }
@@ -339,7 +339,7 @@ void Contact::applyVelocityChange(Vector3 velocityChange[2],
         impulseContact = impulseMatrix.transform(velKill);
 
         // Check for exceeding friction
-        real planarImpulse = real_sqrt(impulseContact.y*impulseContact.y +
+        real planarImpulse = R_sqrt(impulseContact.y*impulseContact.y +
                                        impulseContact.z*impulseContact.z);
         if (planarImpulse > impulseContact.x * friction)
         {
@@ -442,7 +442,7 @@ void Contact::applyPositionChange(Vector3 velocityChange[2],
             -relativeContactPosition[1].scalarProduct(contactNormal));
         real max = angularLimit*relativeContactPosition[0].magnitude();
 
-        if(real_abs(angularMove[1]) > max)
+        if(R_abs(angularMove[1]) > max)
         {
             real pp=angularMove[1]+linearMove[1];
             angularMove[1]=angularMove[1]>0?max:-max;
@@ -460,7 +460,7 @@ void Contact::applyPositionChange(Vector3 velocityChange[2],
         -relativeContactPosition[0].scalarProduct(contactNormal));
     real max = angularLimit*relativeContactPosition[0].magnitude();
 
-    if(real_abs(angularMove[0]) > max)
+    if(R_abs(angularMove[0]) > max)
     {
         real pp=angularMove[0]+linearMove[0];
         angularMove[0]=angularMove[0]>0?max:-max;

@@ -46,7 +46,7 @@ void Particle::integrate(real duration)
     velocity.addScaledVector(resultingAcc, duration);
 
     // Impose drag.
-    velocity *= real_pow(damping, duration);
+    velocity *= R_pow(damping, duration);
 ///<ParticleIntegrate
 
     // Clear the forces.

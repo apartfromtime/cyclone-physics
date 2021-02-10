@@ -47,7 +47,7 @@ BoundingSphere::BoundingSphere(const BoundingSphere &one,
     // overlapping spheres
     else
     {
-        distance = real_sqrt(distance);
+        distance = R_sqrt(distance);
         radius = (distance + one.radius + two.radius) * ((real)0.5);
 
         // The new centre is based on one's centre, moved towards

@@ -62,9 +62,9 @@ static inline real transformToAxis(
     )
 {
     return 
-        box.halfSize.x * real_abs(axis * box.getAxis(0)) +
-        box.halfSize.y * real_abs(axis * box.getAxis(1)) +
-        box.halfSize.z * real_abs(axis * box.getAxis(2));
+        box.halfSize.x * R_abs(axis * box.getAxis(0)) +
+        box.halfSize.y * R_abs(axis * box.getAxis(1)) +
+        box.halfSize.z * R_abs(axis * box.getAxis(2));
 }
 
 /**
@@ -85,7 +85,7 @@ static inline bool overlapOnAxis(
     real twoProject = transformToAxis(two, axis);
 
     // Project this onto the axis
-    real distance = real_abs(toCentre * axis);
+    real distance = R_abs(toCentre * axis);
 
     // Check for overlap
     return (distance < oneProject + twoProject);
@@ -288,7 +288,7 @@ static inline real penetrationOnAxis(
     real twoProject = transformToAxis(two, axis);
 
     // Project this onto the axis
-    real distance = real_abs(toCentre * axis);
+    real distance = R_abs(toCentre * axis);
 
     // Return the overlap (i.e. positive indicates
     // overlap, negative indicates separation).
@@ -387,7 +387,7 @@ static inline Vector3 contactPoint(
     denom = smOne * smTwo - dpOneTwo * dpOneTwo;
 
     // Zero denominator indicates parrallel lines
-    if (real_abs(denom) < 0.0001f) {
+    if (R_abs(denom) < 0.0001f) {
         return useOne?pOne:pTwo;
     }
 
@@ -590,11 +590,11 @@ unsigned CollisionDetector::boxAndPoint(
 
     // Check each axis, looking for the axis on which the
     // penetration is least deep.
-    real min_depth = box.halfSize.x - real_abs(relPt.x);
+    real min_depth = box.halfSize.x - R_abs(relPt.x);
     if (min_depth < 0) return 0;
     normal = box.getAxis(0) * ((relPt.x < 0)?-1:1);
 
-    real depth = box.halfSize.y - real_abs(relPt.y);
+    real depth = box.halfSize.y - R_abs(relPt.y);
     if (depth < 0) return 0;
     else if (depth < min_depth)
     {
@@ -602,7 +602,7 @@ unsigned CollisionDetector::boxAndPoint(
         normal = box.getAxis(1) * ((relPt.y < 0)?-1:1);
     }
 
-    depth = box.halfSize.z - real_abs(relPt.z);
+    depth = box.halfSize.z - R_abs(relPt.z);
     if (depth < 0) return 0;
     else if (depth < min_depth)
     {
@@ -642,9 +642,9 @@ unsigned CollisionDetector::boxAndSphere(
 
 ///>SphereBoxEarlyOut
     // Early out check to see if we can exclude the contact
-    if (real_abs(relCentre.x) - sphere.radius > box.halfSize.x ||
-        real_abs(relCentre.y) - sphere.radius > box.halfSize.y ||
-        real_abs(relCentre.z) - sphere.radius > box.halfSize.z)
+    if (R_abs(relCentre.x) - sphere.radius > box.halfSize.x ||
+        R_abs(relCentre.y) - sphere.radius > box.halfSize.y ||
+        R_abs(relCentre.z) - sphere.radius > box.halfSize.z)
     {
         return 0;
     }
@@ -684,7 +684,7 @@ unsigned CollisionDetector::boxAndSphere(
     contact->contactNormal = (closestPtWorld - centre);
     contact->contactNormal.normalise();
     contact->contactPoint = closestPtWorld;
-    contact->penetration = sphere.radius - real_sqrt(dist);
+    contact->penetration = sphere.radius - R_sqrt(dist);
     contact->setBodyData(box.body, sphere.body,
         data->friction, data->restitution);
 

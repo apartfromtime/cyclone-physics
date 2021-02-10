@@ -359,7 +359,7 @@ namespace cyclone {
         /** Gets the magnitude of this vector. */
         real magnitude() const
         {
-            return real_sqrt(x*x+y*y+z*z);
+            return R_sqrt(x*x+y*y+z*z);
         }
 
         /** Gets the squared magnitude of this vector. */
@@ -572,7 +572,7 @@ namespace cyclone {
                 return;
             }
 
-            d = ((real)1.0)/real_sqrt(d);
+            d = ((real)1.0)/R_sqrt(d);
             r *= d;
             i *= d;
             j *= d;

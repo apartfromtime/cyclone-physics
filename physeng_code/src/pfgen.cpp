@@ -89,7 +89,7 @@ void ParticleSpring::updateForce(Particle* particle, real duration)
 
     // Calculate the magnitude of the force
     real magnitude = force.magnitude();
-    magnitude = real_abs(magnitude - restLength);
+    magnitude = R_abs(magnitude - restLength);
     magnitude *= springConstant;
 
     // Calculate the final force and apply it
@@ -178,15 +178,15 @@ void ParticleFakeSpring::updateForce(Particle* particle, real duration)
     position -= *anchor;
 
     // Calculate the constants and check they are in bounds.
-    real gamma = 0.5f * real_sqrt(4 * springConstant - damping*damping);
+    real gamma = 0.5f * R_sqrt(4 * springConstant - damping*damping);
     if (gamma == 0.0f) return;
     Vector3 c = position * (damping / (2.0f * gamma)) + 
         particle->getVelocity() * (1.0f / gamma);
 
     // Calculate the target position
-    Vector3 target = position * real_cos(gamma * duration) + 
-        c * real_sin(gamma * duration);
-    target *= real_exp(-0.5f * duration * damping);
+    Vector3 target = position * R_cos(gamma * duration) + 
+        c * R_sin(gamma * duration);
+    target *= R_exp(-0.5f * duration * damping);
 
     // Calculate the resulting acceleration and therefore the force
     Vector3 accel = (target - position) * (1.0f / duration*duration) - 
@@ -243,7 +243,7 @@ void ParticleAnchoredSpring::updateForce(Particle* particle, real duration)
 
     // Calculate the magnitude of the force
     real magnitude = force.magnitude();
-    magnitude = real_abs(magnitude - restLength);
+    magnitude = R_abs(magnitude - restLength);
     magnitude *= springConstant;
 
     // Calculate the final force and apply it

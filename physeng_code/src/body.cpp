@@ -189,8 +189,8 @@ void RigidBody::integrate(real duration)
     rotation.addScaledVector(angularAcceleration, duration);
 
     // Impose drag.
-    velocity *= real_pow(linearDamping, duration);
-    rotation *= real_pow(angularDamping, duration);
+    velocity *= R_pow(linearDamping, duration);
+    rotation *= R_pow(angularDamping, duration);
 
     // Adjust positions
     // Update linear position.
@@ -200,8 +200,8 @@ void RigidBody::integrate(real duration)
     orientation.addScaledVector(rotation, duration);
 
     // Impose drag.
-    velocity *= real_pow(linearDamping, duration);
-    rotation *= real_pow(angularDamping, duration);
+    velocity *= R_pow(linearDamping, duration);
+    rotation *= R_pow(angularDamping, duration);
 
     // Normalise the orientation, and update the matrices with the new
     // position and orientation
@@ -219,7 +219,7 @@ void RigidBody::integrate(real duration)
         real currentMotion = velocity.scalarProduct(velocity) +
             rotation.scalarProduct(rotation);
 
-        real bias = real_pow(0.5, duration);
+        real bias = R_pow(0.5, duration);
         motion = bias*motion + (1-bias)*currentMotion;
 
         if (motion < sleepEpsilon) setAwake(false);
