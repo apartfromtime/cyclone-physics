@@ -569,7 +569,8 @@ unsigned CollisionDetector::boxAndBox(
         data->addContacts(1);
         return 1;
     }
-    return 0;
+
+    /*return 0;*/
 }
 #undef CHECK_OVERLAP
 
