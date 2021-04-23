@@ -159,6 +159,42 @@ namespace cyclone {
 ///>VectorIntro
      */
 ///>Vector
+
+    typedef struct vec3_s
+    {
+        union {
+            struct
+            {
+                real_t x;           /* Holds the value along the x axis */
+                real_t y;           /* Holds the value along the y axis */
+                real_t z;           /* Holds the value along the z axis */
+                real_t pad;         /* Padding to ensure 4 word alignment */      
+            };
+
+            real_t n[4];
+        };
+    } vec3_t;
+
+    extern vec3_t GRAVITY;
+    extern vec3_t HIGH_GRAVITY;
+    extern vec3_t UP;
+    extern vec3_t RIGHT;
+    extern vec3_t X;
+    extern vec3_t Y;
+    extern vec3_t Z;
+
+    vec3_t Vec3Add(vec3_t a, vec3_t b);
+    vec3_t Vec3Subtract(vec3_t a, vec3_t b);
+    vec3_t Vec3ComponentProduct(vec3_t a, vec3_t b);
+    vec3_t Vec3Scale(vec3_t v, real_t scale);
+    vec3_t Vec3VectorProduct(vec3_t a, vec3_t b);
+    real_t Vec3ScalarProduct(vec3_t a, vec3_t b);
+    real_t Vec3Magnitude(vec3_t v);
+    real_t Vec3MagnitudeSqr(vec3_t v);
+    vec3_t Vec3Normalise(vec3_t v);
+    vec3_t Vec3Clear(void);
+    vec3_t Vec3Invert(vec3_t v);
+
     class Vector3
     {
 ///<Vector
@@ -480,6 +516,27 @@ namespace cyclone {
      * orientation.
 ///>QuaternionIntro;Quaternion
      */
+
+    typedef struct quat_s
+    {
+        union {
+            struct {
+
+                real_t r;           /* Holds the real component */
+                real_t i;           /* Holds the 1st complex component */
+                real_t j;           /* Holds the 2nd complex component */
+                real_t k;           /* Holds the 3rd complex component */      
+            };
+
+            real_t n[4];
+        };
+    } quat_t;
+
+    quat_t QuatNormalise(quat_t q);
+    quat_t QuatMultiply(quat_t a, quat_t b);
+    quat_t QuatAddScaledVector(quat_t q, vec3_t v, real_t s);
+    quat_t QuatRotateByVector(quat_t q, vec3_t v);
+
     class Quaternion
     {
 ///<Quaternion
@@ -641,6 +698,34 @@ namespace cyclone {
      * a position. The matrix has 12 elements, it is assumed that the
      * remaining four are (0,0,0,1); producing a homogenous matrix.
      */
+
+    typedef struct mat4_s
+    {
+        union {
+            struct {
+
+                real_t x0, y0, z0, w0;
+                real_t x1, y1, z1, w1;
+                real_t x2, y2, z2, w2;
+                real_t x3, y3, z3, w3;
+            };
+
+            real_t n[16];
+        };
+    } mat4_t;
+
+    mat4_t Mat4SetDiagonal(real_t x, real_t y, real_t z);
+    mat4_t Mat4Multiply(mat4_t m, mat4_t n);
+    vec3_t Mat4Transform(vec3_t v, mat4_t m);
+    vec3_t Mat4TransformInverse(vec3_t v, mat4_t m);
+    real_t Mat4Determinant(mat4_t m);
+    mat4_t Mat4Inverse(mat4_t m);
+    vec3_t Mat4TransformDirection(vec3_t v, mat4_t m);
+    vec3_t Mat4TransformInverseDirection(vec3_t v, mat4_t m);
+    vec3_t Mat4AxisVector(mat4_t m, int i);
+    mat4_t Mat4SetOrientationAndPos(quat_t q, vec3_t v);
+    mat4_t Mat4FillGLArray(mat4_t m);
+
     class Matrix4
     {
 ///<Matrix4
@@ -947,6 +1032,39 @@ namespace cyclone {
      * damping coefficients to make the 12-element characteristics array
      * of a rigid body.
      */
+
+    typedef struct mat3_s
+    {
+        union {
+            struct {
+
+                real_t x0, y0, z0;
+                real_t x1, y1, z1;
+                real_t x2, y2, z2;
+            };
+
+            real_t n[9];
+        };
+    } mat3_t;
+
+    mat3_t Mat3SetDiagonal(real_t x, real_t y, real_t z);
+    mat3_t Mat3SetInertiaTensorCoeffs(real_t ix, real_t iy, real_t iz,
+        real_t ixy = 0, real_t ixz = 0, real_t iyz = 0);
+    mat3_t Mat3SetBlockInertiaTensor(vec3_t halfSizes, real_t mass);
+    mat3_t Mat3SetSkewSymmetric(vec3_t v);
+    mat3_t Mat3SetComponents(vec3_t compOne, vec3_t compTwo, vec3_t compThree);
+    vec3_t Mat3Transform(vec3_t v, mat3_t m);
+    vec3_t Mat3TransformTranspose(vec3_t v, mat3_t m);
+    vec3_t Mat3RowVector(mat3_t m, int i);
+    vec3_t Mat3AxisVector(mat3_t m, int i);
+    mat3_t Mat3Inverse(mat3_t m);
+    mat3_t Mat3Transpose(mat3_t m);
+    mat3_t Mat3Multiply(mat3_t m, mat3_t n);
+    mat3_t Mat3Add(mat3_t m, mat3_t n);
+    mat3_t Mat3Scale(mat3_t m, real_t scalar);
+    mat3_t Mat3SetOrientation(quat_t q);
+    mat3_t Mat3LinearInterpolate(mat3_t m, mat3_t n, real_t prop);
+
     class Matrix3
 ///<Matrix3;Matrix3Intro
     {
