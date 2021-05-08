@@ -222,8 +222,11 @@ void RigidBody::integrate(real duration)
         real bias = R_pow(0.5, duration);
         motion = bias*motion + (1-bias)*currentMotion;
 
-        if (motion < sleepEpsilon) setAwake(false);
-        else if (motion > 10 * sleepEpsilon) motion = 10 * sleepEpsilon;
+        if ( motion < GetSleepEpsilon() ) {
+            setAwake( false );
+        } else if ( motion > 10 * GetSleepEpsilon() ) {
+            motion = 10 * GetSleepEpsilon();
+        }
     }
 ///>BodyIntegrateBase
 }
@@ -537,7 +540,7 @@ void RigidBody::setAwake(const bool awake)
         isAwake= true;
 
         // Add a bit of motion to avoid it falling asleep immediately.
-        motion = sleepEpsilon*2.0f;
+        motion = GetSleepEpsilon() * 2.0f;
     } else {
         isAwake = false;
         velocity.clear();

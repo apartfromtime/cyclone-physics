@@ -15,6 +15,29 @@
 
 using namespace cyclone;
 
+/**
+ * Holds the value for energy under which a body will be put to
+ * sleep. This is a global value for the whole solution. By
+ * default it is 0.3, which is fine for simulation when gravity is
+ * about 20 units per second squared, masses are about one, and
+ * other forces are around that of gravity. It may need tweaking
+ * if your simulation is drastically different to this.
+ */
+real_t sleepEpsilon = ( ( real_t )0.3f );
+
+/*
+ * Functions to change sleepEpsilon.
+ */
+void cyclone::SetSleepEpsilon(real_t value)
+{
+    sleepEpsilon = value;
+}
+
+real_t cyclone::GetSleepEpsilon(void)
+{
+    return sleepEpsilon;
+}
+
 const vec3_t GRAVITY = { 0.0f, -9.81f, 0.0f };
 const vec3_t HIGH_GRAVITY = { 0.0f, -19.62f, 0.0f };
 const vec3_t UP = { 0.0f, 1.0f, 0.0f };
@@ -755,17 +778,17 @@ mat3_t cyclone::Mat3Multiply(mat3_t a, mat3_t b)
 {
     mat3_t m = { 0.0f };
 
-    m.n[0] = c.n[0] * b.n[0] + c.n[1] * b.n[3] + c.n[2] * b.n[6];
-    m.n[1] = c.n[0] * b.n[1] + c.n[1] * b.n[4] + c.n[2] * b.n[7];
-    m.n[2] = c.n[0] * b.n[2] + c.n[1] * b.n[5] + c.n[2] * b.n[8];
+    m.n[0] = a.n[0] * b.n[0] + a.n[1] * b.n[3] + a.n[2] * b.n[6];
+    m.n[1] = a.n[0] * b.n[1] + a.n[1] * b.n[4] + a.n[2] * b.n[7];
+    m.n[2] = a.n[0] * b.n[2] + a.n[1] * b.n[5] + a.n[2] * b.n[8];
 
-    m.n[3] = c.n[3] * b.n[0] + c.n[4] * b.n[3] + c.n[5] * b.n[6];
-    m.n[4] = c.n[3] * b.n[1] + c.n[4] * b.n[4] + c.n[5] * b.n[7];
-    m.n[5] = c.n[3] * b.n[2] + c.n[4] * b.n[5] + c.n[5] * b.n[8];
+    m.n[3] = a.n[3] * b.n[0] + a.n[4] * b.n[3] + a.n[5] * b.n[6];
+    m.n[4] = a.n[3] * b.n[1] + a.n[4] * b.n[4] + a.n[5] * b.n[7];
+    m.n[5] = a.n[3] * b.n[2] + a.n[4] * b.n[5] + a.n[5] * b.n[8];
 
-    m.n[6] = c.n[6] * b.n[0] + c.n[7] * b.n[3] + c.n[8] * b.n[6];
-    m.n[7] = c.n[6] * b.n[1] + c.n[7] * b.n[4] + c.n[8] * b.n[7];
-    m.n[8] = c.n[6] * b.n[2] + c.n[7] * b.n[5] + c.n[8] * b.n[8];
+    m.n[6] = a.n[6] * b.n[0] + a.n[7] * b.n[3] + a.n[8] * b.n[6];
+    m.n[7] = a.n[6] * b.n[1] + a.n[7] * b.n[4] + a.n[8] * b.n[7];
+    m.n[8] = a.n[6] * b.n[2] + a.n[7] * b.n[5] + a.n[8] * b.n[8];
 
     return m;
 }
@@ -855,24 +878,6 @@ const Vector3 Vector3::OUT = Vector3(0, 0, 1);
 const Vector3 Vector3::X = Vector3(1, 0, 0);
 const Vector3 Vector3::Y = Vector3(0, 1, 0);
 const Vector3 Vector3::Z = Vector3(0, 0, 1);
-
-/*
- * Definition of the sleep epsilon extern.
- */
-real cyclone::sleepEpsilon = ((real)0.3);
-
-/*
- * Functions to change sleepEpsilon.
- */
-void cyclone::setSleepEpsilon(real value)
-{
-    cyclone::sleepEpsilon = value;
-}
-
-real cyclone::getSleepEpsilon()
-{
-    return cyclone::sleepEpsilon;
-}
 
 ///>Matrix4Inverse
 real Matrix4::getDeterminant() const
