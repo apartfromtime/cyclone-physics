@@ -38,14 +38,6 @@ real_t cyclone::GetSleepEpsilon(void)
     return sleepEpsilon;
 }
 
-const vec3_t GRAVITY = { 0.0f, -9.81f, 0.0f };
-const vec3_t HIGH_GRAVITY = { 0.0f, -19.62f, 0.0f };
-const vec3_t UP = { 0.0f, 1.0f, 0.0f };
-const vec3_t RIGHT = { 1.0f, 0.0f, 0.0f };
-const vec3_t X = { 1.0f, 0.0f, 0.0f };
-const vec3_t Y = { 0.0f, 1.0f, 0.0f };
-const vec3_t Z = { 0.0f, 0.0f, 1.0f };
-
 
 //-----------------------------------------------------------------------------
 // VECTOR 3
@@ -89,6 +81,7 @@ vec3_t cyclone::Vec3ComponentProduct(vec3_t a, vec3_t b)
 
     v.x = a.x * b.x;
     v.y = a.y * b.y;
+    v.z = a.z * b.z;
 
     return v;
 }
@@ -130,10 +123,6 @@ real_t cyclone::Vec3ScalarProduct(vec3_t a, vec3_t b)
 //-----------------------------------------------------------------------------
 real_t cyclone::Vec3Magnitude(vec3_t v)
 {
-    if (v.x < 0.0f || v.y < 0.0f || v.z < 0.0f) {
-        return 0.0f;
-    }
-
     return R_sqrt( ( v.x * v.x ) + ( v.y * v.y ) + ( v.z * v.z ) );
 }
 
@@ -160,6 +149,7 @@ vec3_t cyclone::Vec3Normalise(vec3_t v)
 
         a.x *= 1.0f / l;
         a.y *= 1.0f / l;
+        a.z *= 1.0f / l;
     }
 
     return a;

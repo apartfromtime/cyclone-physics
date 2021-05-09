@@ -165,13 +165,13 @@ real_t GetSleepEpsilon(void);
         };
     } vec3_t;
 
-    extern vec3_t GRAVITY;
-    extern vec3_t HIGH_GRAVITY;
-    extern vec3_t UP;
-    extern vec3_t RIGHT;
-    extern vec3_t X;
-    extern vec3_t Y;
-    extern vec3_t Z;
+    const static vec3_t GRAVITY = { 0.0f, -9.81f, 0.0f };
+    const static vec3_t HIGH_GRAVITY = { 0.0f, -19.62f, 0.0f };
+    const static vec3_t UP = { 0.0f, 1.0f, 0.0f };
+    const static vec3_t RIGHT = { 1.0f, 0.0f, 0.0f };
+    const static vec3_t X = { 1.0f, 0.0f, 0.0f };
+    const static vec3_t Y = { 0.0f, 1.0f, 0.0f };
+    const static vec3_t Z = { 0.0f, 0.0f, 1.0f };
 
     vec3_t Vec3Add(vec3_t a, vec3_t b);
     vec3_t Vec3Subtract(vec3_t a, vec3_t b);
