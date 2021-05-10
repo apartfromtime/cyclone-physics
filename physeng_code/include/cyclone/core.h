@@ -522,6 +522,7 @@ real_t GetSleepEpsilon(void);
         };
     } quat_t;
 
+    quat_t QuatClear(void);
     quat_t QuatNormalise(quat_t q);
     quat_t QuatMultiply(quat_t a, quat_t b);
     quat_t QuatAddScaledVector(quat_t q, vec3_t v, real_t s);

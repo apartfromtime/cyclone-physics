@@ -185,6 +185,15 @@ vec3_t cyclone::Vec3Invert(vec3_t v)
 
 
 //-----------------------------------------------------------------------------
+// zero all the components of the quaternion
+//-----------------------------------------------------------------------------
+quat_t cyclone::QuatClear(void)
+{
+    quat_t q = { 0.0f, 0.0f, 0.0f, 0.0f };
+    return q;
+}
+
+//-----------------------------------------------------------------------------
 // normalises the quaternion to unit length, making it a valid orientation
 // quaternion
 //-----------------------------------------------------------------------------
