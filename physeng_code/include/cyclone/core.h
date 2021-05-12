@@ -705,6 +705,7 @@ real_t GetSleepEpsilon(void);
         };
     } mat4_t;
 
+    mat4_t Mat4Identity(void);
     mat4_t Mat4SetDiagonal(real_t x, real_t y, real_t z);
     mat4_t Mat4Multiply(mat4_t m, mat4_t n);
     vec3_t Mat4Transform(vec3_t v, mat4_t m);
@@ -1038,6 +1039,7 @@ real_t GetSleepEpsilon(void);
         };
     } mat3_t;
 
+    mat3_t Mat3Identity(void);
     mat3_t Mat3SetDiagonal(real_t x, real_t y, real_t z);
     mat3_t Mat3SetInertiaTensorCoeffs(real_t ix, real_t iy, real_t iz,
         real_t ixy = 0, real_t ixz = 0, real_t iyz = 0);

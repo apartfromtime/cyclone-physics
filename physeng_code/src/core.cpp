@@ -189,7 +189,7 @@ vec3_t cyclone::Vec3Invert(vec3_t v)
 //-----------------------------------------------------------------------------
 quat_t cyclone::QuatClear(void)
 {
-    quat_t q = { 0.0f, 0.0f, 0.0f, 0.0f };
+    quat_t q = { 1.0f, 0.0f, 0.0f, 0.0f };
     return q;
 }
 
@@ -285,6 +285,20 @@ quat_t cyclone::QuatRotateByVector(quat_t q, vec3_t v)
 
 
 //-----------------------------------------------------------------------------
+// sets the matrix to be a identity a matrix
+//-----------------------------------------------------------------------------
+mat4_t cyclone::Mat4Identity(void)
+{
+    mat4_t m = { 0.0f };
+
+    m.n[ 1] = m.n[ 2] = m.n[ 3] = m.n[ 4] =
+    m.n[ 6] = m.n[ 7] = m.n[ 8] = m.n[ 9] = m.n[11] = 0;
+    m.n[ 0] = m.n[ 5] = m.n[10] = m.n[15] = 1;
+
+    return m;
+}
+
+//-----------------------------------------------------------------------------
 // sets the matrix to be a diagonal matrix with the given coefficients
 //-----------------------------------------------------------------------------
 mat4_t cyclone::Mat4SetDiagonal(real_t x, real_t y, real_t z)
@@ -305,34 +319,6 @@ mat4_t cyclone::Mat4SetDiagonal(real_t x, real_t y, real_t z)
 mat4_t cyclone::Mat4Multiply(mat4_t a, mat4_t b)
 {
     mat4_t m = { 0.0f };
-
-    m.n[ 0] = ( b.n[ 0] * a.n[ 0] ) + ( b.n[ 4] * a.n[ 1] ) +
-        ( b.n[ 8] * a.n[ 2] );
-    m.n[ 4] = ( b.n[ 0] * a.n[ 4] ) + ( b.n[ 4] * a.n[ 5] ) +
-        ( b.n[ 8] * a.n[ 6] );
-    m.n[ 8] = ( b.n[ 0] * a.n[ 8] ) + ( b.n[ 4] * a.n[ 9] ) +
-        ( b.n[ 8] * a.n[10] );
-
-    m.n[ 1] = ( b.n[ 1] * a.n[ 0] ) + ( b.n[ 5] * a.n[ 1] ) +
-        ( b.n[ 9] * a.n[ 2] );
-    m.n[ 5] = ( b.n[ 1] * a.n[ 4] ) + ( b.n[ 5] * a.n[ 5] ) +
-        ( b.n[ 9] * a.n[ 6] );
-    m.n[ 9] = ( b.n[ 1] * a.n[ 8] ) + ( b.n[ 5] * a.n[ 9] ) +
-        ( b.n[ 9] * a.n[10] );
-
-    m.n[ 2] = ( b.n[ 2] * a.n[ 0] ) + ( b.n[ 6] * a.n[ 1] ) +
-        ( b.n[10] * a.n[ 2] );
-    m.n[ 6] = ( b.n[ 2] * a.n[ 4] ) + ( b.n[ 6] * a.n[ 5] ) +
-        ( b.n[10] * a.n[ 6] );
-    m.n[10] = ( b.n[ 2] * a.n[ 8] ) + ( b.n[ 6] * a.n[ 9] ) +
-        ( b.n[10] * a.n[10] );
-
-    m.n[ 3] = ( b.n[ 3] * a.n[ 0] ) + ( b.n[ 7] * a.n[ 1] ) +
-        ( b.n[11] * a.n[ 2] ) + a.n[ 3];
-    m.n[ 7] = ( b.n[ 3] * a.n[ 4] ) + ( b.n[ 7] * a.n[ 5] ) +
-        ( b.n[11] * a.n[ 6] ) + a.n[ 7];
-    m.n[11] = ( b.n[ 3] * a.n[ 8] ) + ( b.n[ 7] * a.n[ 9] ) +
-        ( b.n[11] * a.n[10] ) + a.n[11];
 
     m.n[ 0] = ( b.n[ 0] * a.n[ 0] ) + ( b.n[ 4] * a.n[ 1] ) +
         ( b.n[ 8] * a.n[ 2] );
@@ -574,6 +560,26 @@ mat4_t cyclone::Mat4FillGLArray(mat4_t m)
 // MATRIX 3
 //-----------------------------------------------------------------------------
 
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+mat3_t cyclone::Mat3Identity(void)
+{
+    mat3_t m = { 0.0f };
+
+    m.n[0] = 1.0f;
+    m.n[1] = 0.0f;
+    m.n[2] = 0.0f;
+    m.n[3] = 0.0f;
+    m.n[4] = 1.0f;
+    m.n[5] = 0.0f;
+    m.n[6] = 0.0f;
+    m.n[7] = 0.0f;
+    m.n[8] = 1.0f;
+
+    return m;
+}
 
 //-----------------------------------------------------------------------------
 // sets the matrix to be a diagonal matrix with the given values along the
