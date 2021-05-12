@@ -218,6 +218,9 @@ quat_t cyclone::QuatNormalise(quat_t q)
 
     } else {
         a.r = 1.0f;
+        a.i = 0.0f;
+        a.j = 0.0f;
+        a.k = 0.0f;
     }
 
     return a;
@@ -252,7 +255,7 @@ quat_t cyclone::QuatAddScaledVector(quat_t q, vec3_t v, real_t s)
     a.j = v.y * s;
     a.k = v.z * s;
 
-    a = QuatMultiply( q, a );
+    a = QuatMultiply( a, q );
 
     b = q;
     b.r += a.r * 0.5f;
