@@ -610,9 +610,9 @@ mat3_t cyclone::Mat3SetInertiaTensorCoeffs(real_t ix, real_t iy, real_t iz,
     m.n[0] = ix;
     m.n[1] = m.n[3] = -ixy;
     m.n[2] = m.n[6] = -ixz;
-    m.n[3] = iy;
-    m.n[4] = m.n[7] = -iyz;
-    m.n[5] = iz;
+    m.n[4] = iy;
+    m.n[5] = m.n[7] = -iyz;
+    m.n[8] = iz;
 
     return m;
 }
