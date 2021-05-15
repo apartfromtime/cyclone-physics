@@ -173,6 +173,7 @@ real_t GetSleepEpsilon(void);
     const static vec3_t Y = { 0.0f, 1.0f, 0.0f };
     const static vec3_t Z = { 0.0f, 0.0f, 1.0f };
 
+    vec3_t Vec3Construct(real_t x, real_t y, real_t z);
     vec3_t Vec3Add(vec3_t a, vec3_t b);
     vec3_t Vec3Subtract(vec3_t a, vec3_t b);
     vec3_t Vec3ComponentProduct(vec3_t a, vec3_t b);
@@ -744,6 +745,18 @@ real_t GetSleepEpsilon(void);
         }
 
         /**
+         * Creates a new matrix with explicit coefficients.
+         */
+        Matrix4(real c0, real c1, real c2, real c3, real c4, real c5, 
+            real c6, real c7, real c8, real c9, real c10, real c11)
+        {
+            data[ 0] = c0; data[ 1] =  c1; data[ 2] =  c2;
+            data[ 3] = c3; data[ 4] =  c4; data[ 5] =  c5;
+            data[ 6] = c6; data[ 7] =  c7; data[ 8] =  c8;
+            data[ 9] = c9; data[10] = c10; data[11] = c11;
+        }
+
+        /**
          * Sets the matrix to be a diagonal matrix with the given coefficients.
          */
         void setDiagonal(real a, real b, real c)
@@ -1039,6 +1052,8 @@ real_t GetSleepEpsilon(void);
         };
     } mat3_t;
 
+    mat3_t Mat3Construct(real_t c0, real_t c1, real_t c2, real_t c3,
+        real_t c4, real_t c5, real_t c6, real_t c7, real_t c8);
     mat3_t Mat3Identity(void);
     mat3_t Mat3SetDiagonal(real_t x, real_t y, real_t z);
     mat3_t Mat3SetInertiaTensorCoeffs(real_t ix, real_t iy, real_t iz,

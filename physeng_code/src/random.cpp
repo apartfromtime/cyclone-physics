@@ -16,7 +16,7 @@
 
 using namespace cyclone;
 
-Random::Random()
+Random::Random(void)
 {
 	seed(0);
 }
@@ -28,7 +28,7 @@ Random::Random(unsigned seed)
 
 void Random::seed(unsigned s)
 {
-	if (s == 0) {
+	if ( s == 0 ) {
 		s = (unsigned)clock();
 	}
 
@@ -44,7 +44,7 @@ void Random::seed(unsigned s)
 	p1 = 0;  p2 = 10;
 }
 
-unsigned Random::randomBits()
+unsigned Random::randomBits(void)
 {
     unsigned result;
 
@@ -60,14 +60,14 @@ unsigned Random::randomBits()
 }
 
 #ifdef SINGLE_PRECISION
-real Random::randomReal()
+real_t Random::randomReal(void)
 {
 	// Get the random number
 	unsigned bits = randomBits();
 
 	// Set up a reinterpret structure for manipulation
 	union {
-		real value;
+		real_t value;
 		unsigned word;
 	} convert;
 
@@ -80,14 +80,14 @@ real Random::randomReal()
     return convert.value - 1.0f;
 }
 #else
-real Random::randomReal()
+real_t Random::randomReal()
 {
 	// Get the random number
 	unsigned bits = randomBits();
 
 	// Set up a reinterpret structure for manipulation
 	union {
-		real value;
+		real_t value;
 		unsigned words[2];
 	} convert;
 
@@ -103,12 +103,12 @@ real Random::randomReal()
 }
 #endif
 
-real Random::randomReal(real min, real max)
+real_t Random::randomReal(real_t min, real_t max)
 {
     return randomReal() * (max-min) + min;
 }
 
-real Random::randomReal(real scale)
+real_t Random::randomReal(real_t scale)
 {
     return randomReal() * scale;
 }
@@ -118,55 +118,65 @@ unsigned Random::randomInt(unsigned max)
 	return randomBits() % max;
 }
 
-real Random::randomBinomial(real scale)
+real_t Random::randomBinomial(real_t scale)
 {
 	return (randomReal()-randomReal())*scale;
 }
 
-Quaternion Random::randomQuaternion()
+quat_t Random::randomQuaternion()
 {
-    Quaternion q(
+    quat_t q = {
         randomReal(),
         randomReal(),
         randomReal(),
         randomReal()
-        );
-    q.normalise();
+    };
+    
+    q = QuatNormalise( q );
+
     return q;
 }
 
-Vector3 Random::randomVector(real scale)
+vec3_t Random::randomVector(real_t scale)
 {
-	return Vector3(
+	vec3_t v = {
         randomBinomial(scale),
         randomBinomial(scale),
         randomBinomial(scale)
-        );
+    };
+
+    return v;
 }
 
-Vector3 Random::randomXZVector(real scale)
+vec3_t Random::randomXZVector(real_t scale)
 {
-	return Vector3(
+	vec3_t v = {
         randomBinomial(scale),
         0,
         randomBinomial(scale)
-        );
+    };
+
+    return v;
 }
 
-Vector3 Random::randomVector(const Vector3 &scale)
+vec3_t Random::randomVector(const vec3_t & scale)
 {
-	return Vector3(
+	vec3_t v = {
         randomBinomial(scale.x),
         randomBinomial(scale.y),
         randomBinomial(scale.z)
-        );
+    };
+
+    return v;
 }
 
-Vector3 Random::randomVector(const Vector3 &min, const Vector3 &max)
+vec3_t Random::randomVector(const vec3_t & min, const vec3_t & max)
 {
-    return Vector3(
+    vec3_t v = {
         randomReal(min.x, max.x),
         randomReal(min.y, max.y),
         randomReal(min.z, max.z)
-        );
+    };
+
+    return v;
 }

@@ -34,8 +34,8 @@ class BridgeDemo : public MassAggregateApplication
 	cyclone::ParticleCable *cables;
 	cyclone::ParticleRod *rods;
 
-	cyclone::Vector3 massPos;
-	cyclone::Vector3 massDisplayPos;
+	cyclone::vec3_t massPos;
+	cyclone::vec3_t massDisplayPos;
 
 	/** 
 	 * Updates particle masses to take into account the mass
@@ -64,21 +64,24 @@ public:
 // Method definitions
 BridgeDemo::BridgeDemo()
 :
-MassAggregateApplication(12), cables(0), supports(0), rods(0),
-massPos(0,0,0.5f)
+MassAggregateApplication(12), cables(0), supports(0), rods(0)
 {
+	massPos.x = 0;
+	massPos.y = 0;
+	massPos.z = 0.5f;
+
 	// Create the masses and connections.
 	for (unsigned i = 0; i < 12; i++)
 	{
 		unsigned x = (i%12)/2;
 		particleArray[i].setPosition(
-			cyclone::real(i/2)*2.0f-5.0f, 
+			cyclone::real_t(i/2)*2.0f-5.0f, 
 			4, 
-			cyclone::real(i%2)*2.0f-1.0f
+			cyclone::real_t(i%2)*2.0f-1.0f
 			);
 		particleArray[i].setVelocity(0,0,0);
 		particleArray[i].setDamping(0.9f);
-		particleArray[i].setAcceleration(cyclone::Vector3::GRAVITY);
+		particleArray[i].setAcceleration(cyclone::GRAVITY);
 		particleArray[i].clearAccumulator();
 	}
 
@@ -97,13 +100,14 @@ massPos(0,0,0.5f)
 	for (unsigned i = 0; i < SUPPORT_COUNT; i++)
 	{
 		supports[i].particle = particleArray+i;
-		supports[i].anchor = cyclone::Vector3(
-			cyclone::real(i/2)*2.2f-5.5f, 
+		cyclone::vec3_t anchor = {
+			cyclone::real_t(i/2)*2.2f-5.5f, 
 			6, 
-			cyclone::real(i%2)*1.6f-0.8f
-			);
-		if (i < 6) supports[i].maxLength = cyclone::real(i/2)*0.5f + 3.0f;
-		else supports[i].maxLength = 5.5f - cyclone::real(i/2)*0.5f;
+			cyclone::real_t(i%2)*1.6f-0.8f
+			};
+		supports[i].anchor = anchor;
+		if (i < 6) supports[i].maxLength = cyclone::real_t(i/2)*0.5f + 3.0f;
+		else supports[i].maxLength = 5.5f - cyclone::real_t(i/2)*0.5f;
 		supports[i].restitution = 0.5f;
 		world.getContactGenerators().push_back(&supports[i]);
 	}
@@ -136,7 +140,7 @@ void BridgeDemo::updateAdditionalMass()
 
     // Find the coordinates of the mass as an index and proportion
 	int x = int(massPos.x);
-	cyclone::real xp = R_fmod(massPos.x, cyclone::real(1.0f));
+	cyclone::real_t xp = R_mod(massPos.x, cyclone::real_t(1.0f));
 	if (x < 0) 
 	{
 		x = 0;
@@ -149,7 +153,7 @@ void BridgeDemo::updateAdditionalMass()
 	}
 
 	int z = int(massPos.z);
-	cyclone::real zp = R_fmod(massPos.z, cyclone::real(1.0f));
+	cyclone::real_t zp = R_mod(massPos.z, cyclone::real_t(1.0f));
 	if (z < 0) 
 	{
 		z = 0;
@@ -162,35 +166,31 @@ void BridgeDemo::updateAdditionalMass()
 	}
 
 	// Calculate where to draw the mass
-	massDisplayPos.clear();
+	massDisplayPos = cyclone::Vec3Clear();
 
 	// Add the proportion to the correct masses
 	particleArray[x*2+z].setMass(BASE_MASS + EXTRA_MASS*(1-xp)*(1-zp));
-	massDisplayPos.addScaledVector(
-		particleArray[x*2+z].getPosition(), (1-xp)*(1-zp)
-		);
+	massDisplayPos = Vec3Add( massDisplayPos, Vec3Scale(
+		particleArray[x * 2 + z].getPosition(), ( 1 - xp ) * ( 1 - zp ) ) );
 
 	if (xp > 0)
 	{
 		particleArray[x*2+z+2].setMass(BASE_MASS + EXTRA_MASS*xp*(1-zp));
-		massDisplayPos.addScaledVector(
-			particleArray[x*2+z+2].getPosition(), xp*(1-zp)
-			);
+		massDisplayPos = Vec3Add( massDisplayPos, Vec3Scale(
+			particleArray[x * 2 + z + 2].getPosition(), xp *( 1 - zp ) ) );
 
 		if (zp > 0) 
 		{
 			particleArray[x*2+z+3].setMass(BASE_MASS + EXTRA_MASS*xp*zp);
-			massDisplayPos.addScaledVector(
-				particleArray[x*2+z+3].getPosition(), xp*zp
-				);
+			massDisplayPos = Vec3Add( massDisplayPos, Vec3Scale(
+				particleArray[x * 2 + z + 3].getPosition(), xp * zp ) );
 		}
 	}
 	if (zp > 0) 
 	{
 		particleArray[x*2+z+1].setMass(BASE_MASS + EXTRA_MASS*(1-xp)*zp);
-		massDisplayPos.addScaledVector(
-			particleArray[x*2+z+1].getPosition(), (1-xp)*zp
-			);
+		massDisplayPos = Vec3Add( massDisplayPos, Vec3Scale(
+			particleArray[x * 2 + z + 1].getPosition(), ( 1 - xp ) * zp ) );
 	}
 }
 
@@ -203,8 +203,8 @@ void BridgeDemo::display()
 	for (unsigned i = 0; i < ROD_COUNT; i++)
 	{
 		cyclone::Particle **particles = rods[i].particle;
-		const cyclone::Vector3 &p0 = particles[0]->getPosition();
-		const cyclone::Vector3 &p1 = particles[1]->getPosition();
+		const cyclone::vec3_t p0 = particles[0]->getPosition();
+		const cyclone::vec3_t p1 = particles[1]->getPosition();
 		glVertex3f(p0.x, p0.y, p0.z);
 		glVertex3f(p1.x, p1.y, p1.z);
 	}
@@ -213,8 +213,8 @@ void BridgeDemo::display()
 	for (unsigned i = 0; i < CABLE_COUNT; i++)
 	{
 		cyclone::Particle **particles = cables[i].particle;
-		const cyclone::Vector3 &p0 = particles[0]->getPosition();
-		const cyclone::Vector3 &p1 = particles[1]->getPosition();
+		const cyclone::vec3_t p0 = particles[0]->getPosition();
+		const cyclone::vec3_t p1 = particles[1]->getPosition();
 		glVertex3f(p0.x, p0.y, p0.z);
 		glVertex3f(p1.x, p1.y, p1.z);
 	}
@@ -222,8 +222,8 @@ void BridgeDemo::display()
 	glColor3f(0.7f, 0.7f, 0.7f);
 	for (unsigned i = 0; i < SUPPORT_COUNT; i++)
 	{
-		const cyclone::Vector3 &p0 = supports[i].particle->getPosition();
-		const cyclone::Vector3 &p1 = supports[i].anchor;
+		const cyclone::vec3_t p0 = supports[i].particle->getPosition();
+		const cyclone::vec3_t p1 = supports[i].anchor;
 		glVertex3f(p0.x, p0.y, p0.z);
 		glVertex3f(p1.x, p1.y, p1.z);
 	}

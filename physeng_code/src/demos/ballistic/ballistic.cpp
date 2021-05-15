@@ -43,8 +43,7 @@ class BallisticDemo : public Application
         /** Draws the round. */
         void render()
         {
-            cyclone::Vector3 position;
-            particle.getPosition(&position);
+            cyclone::vec3_t position = particle.getPosition();
 
             glColor3f(0, 0, 0);
             glPushMatrix();

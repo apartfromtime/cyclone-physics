@@ -30,8 +30,8 @@ class PlatformDemo : public MassAggregateApplication
 {
 	cyclone::ParticleRod *rods;
 
-	cyclone::Vector3 massPos;
-	cyclone::Vector3 massDisplayPos;
+	cyclone::vec3_t massPos;
+	cyclone::vec3_t massDisplayPos;
 
 	/** 
 	 * Updates particle masses to take into account the mass
@@ -60,9 +60,12 @@ public:
 // Method definitions
 PlatformDemo::PlatformDemo()
 :
-MassAggregateApplication(6), rods(0),
-massPos(0,0,0.5f)
+MassAggregateApplication(6), rods(0)
 {
+	massPos.x = 0.0f;
+	massPos.y = 0.0f;
+	massPos.z = 0.5f;
+
 	// Create the masses and connections.
 	particleArray[0].setPosition(0,0,1);
 	particleArray[1].setPosition(0,0,-1);
@@ -75,7 +78,7 @@ massPos(0,0,0.5f)
 		particleArray[i].setMass(BASE_MASS);
 		particleArray[i].setVelocity(0,0,0);
 		particleArray[i].setDamping(0.9f);
-		particleArray[i].setAcceleration(cyclone::Vector3::GRAVITY);
+		particleArray[i].setAcceleration(cyclone::GRAVITY);
 		particleArray[i].clearAccumulator();
 	}
 
@@ -152,44 +155,40 @@ void PlatformDemo::updateAdditionalMass()
 	}
 
     // Find the coordinates of the mass as an index and proportion
-	cyclone::real xp = massPos.x;
+	cyclone::real_t xp = massPos.x;
 	if (xp < 0) xp = 0; 
 	if (xp > 1) xp = 1;
 
-	cyclone::real zp = massPos.z;
+	cyclone::real_t zp = massPos.z;
 	if (zp < 0) zp = 0; 
 	if (zp > 1) zp = 1;
 
 	// Calculate where to draw the mass
-	massDisplayPos.clear();
+	massDisplayPos = cyclone::Vec3Clear();
 
 	// Add the proportion to the correct masses
 	particleArray[2].setMass(BASE_MASS + EXTRA_MASS*(1-xp)*(1-zp));
-	massDisplayPos.addScaledVector(
-		particleArray[2].getPosition(), (1-xp)*(1-zp)
-		);
+	massDisplayPos = cyclone::Vec3Add( massDisplayPos, cyclone::Vec3Scale(
+		particleArray[2].getPosition(), ( 1 - xp ) * ( 1 - zp ) ) );
 
 	if (xp > 0)
 	{
 		particleArray[4].setMass(BASE_MASS + EXTRA_MASS*xp*(1-zp));
-		massDisplayPos.addScaledVector(
-			particleArray[4].getPosition(), xp*(1-zp)
-			);
+		massDisplayPos = cyclone::Vec3Add( massDisplayPos, cyclone::Vec3Scale(
+			particleArray[4].getPosition(), xp * ( 1 - zp ) ) );
 
 		if (zp > 0) 
 		{
 			particleArray[5].setMass(BASE_MASS + EXTRA_MASS*xp*zp);
-			massDisplayPos.addScaledVector(
-				particleArray[5].getPosition(), xp*zp
-				);
+			massDisplayPos = cyclone::Vec3Add( massDisplayPos,
+				cyclone::Vec3Scale( particleArray[5].getPosition(), xp * zp ) );
 		}
 	}
 	if (zp > 0) 
 	{
 		particleArray[3].setMass(BASE_MASS + EXTRA_MASS*(1-xp)*zp);
-		massDisplayPos.addScaledVector(
-			particleArray[3].getPosition(), (1-xp)*zp
-			);
+		massDisplayPos = cyclone::Vec3Add( massDisplayPos, cyclone::Vec3Scale(
+			particleArray[3].getPosition(), ( 1 - xp ) * zp ) );
 	}
 }
 
@@ -202,8 +201,8 @@ void PlatformDemo::display()
 	for (unsigned i = 0; i < ROD_COUNT; i++)
 	{
 		cyclone::Particle **particles = rods[i].particle;
-		const cyclone::Vector3 &p0 = particles[0]->getPosition();
-		const cyclone::Vector3 &p1 = particles[1]->getPosition();
+		const cyclone::vec3_t p0 = particles[0]->getPosition();
+		const cyclone::vec3_t p1 = particles[1]->getPosition();
 		glVertex3f(p0.x, p0.y, p0.z);
 		glVertex3f(p1.x, p1.y, p1.z);
 	}

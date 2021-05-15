@@ -25,93 +25,98 @@ maxContacts(maxContacts)
 
 }
 
-ParticleWorld::~ParticleWorld()
+ParticleWorld::~ParticleWorld(void)
 {
     delete[] contacts;
 }
 
 ///>ParticleWorldStartFrame
-void ParticleWorld::startFrame()
+void ParticleWorld::startFrame(void)
 {
 	for (Particles::iterator p = particles.begin();
 		p != particles.end();
 		p++)
 	{
         // Remove all forces from the accumulator
-        (*p)->clearAccumulator();
+        ( *p )->clearAccumulator();
     }
 }
 ///<ParticleWorldStartFrame
 
 ///>ParticleWorldRun
-unsigned ParticleWorld::generateContacts()
+unsigned ParticleWorld::generateContacts(void)
 {
     unsigned limit = maxContacts;
-    ParticleContact *nextContact = contacts;
+    ParticleContact * nextContact = contacts;
 
 	for (ContactGenerators::iterator g = contactGenerators.begin();
 		g != contactGenerators.end();
 		g++)
 	{
-	    unsigned used =(*g)->addContact(nextContact, limit);
+	    unsigned used =( *g )->addContact( nextContact, limit );
         limit -= used;
         nextContact += used;
 
         // We've run out of contacts to fill. This means we're missing
         // contacts.
-        if (limit <= 0) break;
+        if ( limit <= 0 ) {
+            break;
+        }
     }
 
     // Return the number of contacts used.
     return maxContacts - limit;
 }
 
-void ParticleWorld::integrate(real duration)
+void ParticleWorld::integrate(real_t duration)
 {
 	for (Particles::iterator p = particles.begin();
 		p != particles.end();
 		p++)
 	{
         // Remove all forces from the accumulator
-        (*p)->integrate(duration);
+        ( *p )->integrate( duration );
     }
 }
 
-void ParticleWorld::runPhysics(real duration)
+void ParticleWorld::runPhysics(real_t duration)
 {
 	// First apply the force generators
-    registry.updateForces(duration);
+    registry.updateForces( duration );
 
 	// Then integrate the objects
-    integrate(duration);
+    integrate( duration );
 
     // Generate contacts
     unsigned usedContacts = generateContacts();
 
     // And process them
-	if (usedContacts)
-	{
-		if (calculateIterations) resolver.setIterations(usedContacts * 2);
-		resolver.resolveContacts(contacts, usedContacts, duration);
+	if ( usedContacts ) {
+
+		if ( calculateIterations ) {
+            resolver.setIterations( usedContacts * 2 );
+        }
+
+		resolver.resolveContacts( contacts, usedContacts, duration );
 	}
 }
 
-ParticleWorld::Particles& ParticleWorld::getParticles()
+ParticleWorld::Particles & ParticleWorld::getParticles(void)
 {
 	return particles;
 }
 
-ParticleWorld::ContactGenerators& ParticleWorld::getContactGenerators()
+ParticleWorld::ContactGenerators & ParticleWorld::getContactGenerators(void)
 {
 	return contactGenerators;
 }
 
-ParticleForceRegistry& ParticleWorld::getForceRegistry()
+ParticleForceRegistry & ParticleWorld::getForceRegistry(void)
 {
 	return registry;
 }
 
-void GroundContacts::init(cyclone::ParticleWorld::Particles *particles)
+void GroundContacts::init(cyclone::ParticleWorld::Particles * particles)
 {
 	GroundContacts::particles = particles;
 }
@@ -120,14 +125,16 @@ unsigned GroundContacts::addContact(cyclone::ParticleContact *contact,
 									unsigned limit) const
 {
 	unsigned count = 0;
+
 	for (cyclone::ParticleWorld::Particles::iterator p = particles->begin();
 		p != particles->end();
 		p++)
 	{
-		cyclone::real y = (*p)->getPosition().y;
-		if (y < 0.0f)
-		{
-			contact->contactNormal = cyclone::Vector3::UP;
+		real_t y = ( *p )->getPosition().y;
+		
+        if ( y < 0.0f ) {
+
+			contact->contactNormal = cyclone::UP;
 			contact->particle[0] = *p;
 			contact->particle[1] = NULL;
 			contact->penetration = -y;
@@ -136,7 +143,9 @@ unsigned GroundContacts::addContact(cyclone::ParticleContact *contact,
 			count++;
 		}
 
-		if (count >= limit) return count; 
+		if ( count >= limit ) {
+            return count;
+        } 
 	}
 	return count;
 }

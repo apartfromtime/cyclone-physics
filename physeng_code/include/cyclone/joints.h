@@ -39,13 +39,13 @@ namespace cyclone {
         /**
          * Holds the two rigid bodies that are connected by this joint.
          */
-        RigidBody* body[2];
+        RigidBody * body[2];
 
         /**
          * Holds the relative location of the connection for each
          * body, given in local coordinates.
          */
-        Vector3 position[2];
+        vec3_t position[2];
 
         /**
          * Holds the maximum displacement at the joint before the
@@ -54,15 +54,15 @@ namespace cyclone {
          * case the joint will behave as if an inelastic cable joined
          * the bodies at their joint locations.
          */
-        real error;
+        real_t error;
 
 		/**
 		 * Configures the joint in one go.
 		 */
 		void set(
-			RigidBody *a, const Vector3& a_pos, 
-			RigidBody *b, const Vector3& b_pos,
-			real error
+			RigidBody * a, const vec3_t & a_pos, 
+			RigidBody * b, const vec3_t & b_pos,
+			real_t error
 			);
 
         /**

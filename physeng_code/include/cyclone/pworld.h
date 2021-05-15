@@ -32,8 +32,8 @@ namespace cyclone {
 	class ParticleWorld
 	{
 	public:
-		typedef std::vector<Particle*> Particles;
-		typedef std::vector<ParticleContactGenerator*> ContactGenerators;
+		typedef std::vector<Particle *> Particles;
+		typedef std::vector<ParticleContactGenerator *> ContactGenerators;
 
 	protected:
         /**
@@ -65,7 +65,7 @@ namespace cyclone {
         /**
          * Holds the list of contacts.
          */
-        ParticleContact *contacts;
+        ParticleContact * contacts;
 
         /**
          * Holds the maximum number of contacts allowed (i.e. the
@@ -84,7 +84,7 @@ namespace cyclone {
          * don't give a number of iterations, then twice the number of
          * contacts will be used.
 		 */
-		ParticleWorld(unsigned maxContacts, unsigned iterations=0);
+		ParticleWorld(unsigned maxContacts, unsigned iterations = 0);
         ~ParticleWorld(void);
 ///<ParticleWorld
 
@@ -93,18 +93,18 @@ namespace cyclone {
          * Calls each of the registered contact generators to report
          * their contacts. Returns the number of generated contacts.
          */
-        unsigned generateContacts();
+        unsigned generateContacts(void);
 
         /**
          * Integrates all the particles in this world forward in time 
          * by the given duration.
          */
-        void integrate(real duration);
+        void integrate(real_t duration);
 
         /**
          * Processes all the physics for the particle world.
          */
-        void runPhysics(real duration);
+        void runPhysics(real_t duration);
 ///<ParticleWorldRun
 
 ///>ParticleWorldStartFrame
@@ -114,22 +114,22 @@ namespace cyclone {
          * calling this, the particles can have their forces for this
          * frame added.
          */
-        void startFrame();
+        void startFrame(void);
 
 		/**
 		 *  Returns the list of particles.
 		 */
-		Particles& getParticles();
+		Particles & getParticles(void);
 
 		/**
 		 * Returns the list of contact generators.
 		 */
-		ContactGenerators& getContactGenerators();
+		ContactGenerators & getContactGenerators(void);
 
 		/**
 		 * Returns the force registry.
 		 */
-		ParticleForceRegistry& getForceRegistry();
+		ParticleForceRegistry & getForceRegistry(void);
 
 
 
@@ -144,12 +144,12 @@ namespace cyclone {
 	 */
 	class GroundContacts : public cyclone::ParticleContactGenerator
 	{
-		cyclone::ParticleWorld::Particles *particles;
+		cyclone::ParticleWorld::Particles * particles;
 
 	public:
-		void init(cyclone::ParticleWorld::Particles *particles);
+		void init(cyclone::ParticleWorld::Particles * particles);
 
-		virtual unsigned addContact(cyclone::ParticleContact *contact,
+		virtual unsigned addContact(cyclone::ParticleContact * contact,
 			unsigned limit) const;
 	};
 

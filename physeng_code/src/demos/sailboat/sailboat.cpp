@@ -31,7 +31,7 @@ class SailboatDemo : public Application
 	cyclone::ForceRegistry registry;
 
 	cyclone::Random r;
-	cyclone::Vector3 windspeed;
+	cyclone::vec3_t windspeed;
 
 	float sail_control;
 
@@ -56,17 +56,17 @@ public:
 // Method definitions
 SailboatDemo::SailboatDemo()
 :
-Application(), 
-
-sail(cyclone::Matrix3(0,0,0, 0,0,0, 0,0,-1.0f), 
-	 cyclone::Vector3(2.0f, 0, 0), &windspeed),
-
-buoyancy(cyclone::Vector3(0.0f, 0.5f, 0.0f), 1.0f, 3.0f, 1.6f),
-
-sail_control(0),
-
-windspeed(0,0,0)
+Application()
 {
+
+	sail = cyclone::Aero( cyclone::Mat3Construct(0,0,0, 0,0,0, 0,0,-1.0f),
+		cyclone::Vec3Construct(2.0f, 0, 0), &windspeed );
+
+	buoyancy = cyclone::Buoyancy( cyclone::Vec3Construct(0.0f, 0.5f, 0.0f),
+		1.0f, 3.0f, 1.6f);
+	sail_control = 0;
+	windspeed = cyclone::Vec3Construct(0,0,0);
+
 	// Set up the boat's rigid body.
 	sailboat.setPosition(0, 1.6f, 0);
 	sailboat.setOrientation(1,0,0,0);
@@ -75,13 +75,13 @@ windspeed(0,0,0)
 	sailboat.setRotation(0,0,0);
 
 	sailboat.setMass(200.0f);
-	cyclone::Matrix3 it;
-	it.setBlockInertiaTensor(cyclone::Vector3(2,1,1), 100.0f);
+	cyclone::mat3_t it = cyclone::Mat3SetBlockInertiaTensor(
+		cyclone::Vec3Construct(2,1,1), 100.0f);
 	sailboat.setInertiaTensor(it);
 
 	sailboat.setDamping(0.8f, 0.8f);
 
-	sailboat.setAcceleration(cyclone::Vector3::GRAVITY);
+	sailboat.setAcceleration(cyclone::GRAVITY);
 	sailboat.calculateDerivedData();
 
 	sailboat.setAwake();
@@ -133,9 +133,9 @@ void SailboatDemo::display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	cyclone::Vector3 pos = sailboat.getPosition();
-	cyclone::Vector3 offset(4.0f, 0, 0);
-	offset = sailboat.getTransform().transformDirection(offset);
+	cyclone::vec3_t pos = sailboat.getPosition();
+	cyclone::vec3_t offset = cyclone::Vec3Construct(4.0f, 0, 0);
+	offset = cyclone::Mat4TransformDirection( offset, sailboat.getTransform() );
 	gluLookAt(pos.x+offset.x, pos.y+5.0f, pos.z+offset.z,  
 		      pos.x, pos.y, pos.z,  
 			  0.0, 1.0, 0.0);
@@ -154,11 +154,11 @@ void SailboatDemo::display()
 	glEnd();
 
 	// Set the transform matrix for the aircraft
-	cyclone::Matrix4 transform = sailboat.getTransform();
-	GLfloat gl_transform[16];
-	transform.fillGLArray(gl_transform);
+	cyclone::mat4_t transform = sailboat.getTransform();
+	cyclone::mat4_t gl_transform;
+	gl_transform = cyclone::Mat4FillGLArray( transform );
 	glPushMatrix();
-	glMultMatrixf(gl_transform);
+	glMultMatrixf(gl_transform.n);
 
 	// Draw the boat
 	glColor3f(0,0,0);
@@ -169,7 +169,7 @@ void SailboatDemo::display()
 	sprintf(
 		buffer, 
 		"Speed %.1f", 
-		sailboat.getVelocity().magnitude()
+		cyclone::Vec3Magnitude( sailboat.getVelocity() )
 		);
 	glColor3f(0,0,0);
 	renderText(10.0f, 24.0f, buffer);
@@ -198,7 +198,8 @@ void SailboatDemo::update()
 	sailboat.integrate(duration);
 
 	// Change the wind speed.
-	windspeed = windspeed * 0.9f + r.randomXZVector(1.0f);
+	windspeed = cyclone::Vec3Add( cyclone::Vec3Scale( windspeed, 0.9f ),
+		r.randomXZVector( 1.0f ) );
 
 	Application::update();
 }

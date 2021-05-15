@@ -48,14 +48,14 @@ namespace cyclone {
          */
         struct BodyRegistration
         {
-            RigidBody *body;
+            RigidBody * body;
             BodyRegistration * next;
         };
 
         /**
          * Holds the head of the list of registered bodies.
          */
-        BodyRegistration *firstBody;
+        BodyRegistration * firstBody;
 
 ///<WorldStructureIntro
         /**
@@ -68,20 +68,20 @@ namespace cyclone {
          */
         struct ContactGenRegistration
         {
-            ContactGenerator *gen;
-            ContactGenRegistration *next;
+            ContactGenerator * gen;
+            ContactGenRegistration * next;
         };
 
         /**
          * Holds the head of the list of contact generators.
          */
-        ContactGenRegistration *firstContactGen;
+        ContactGenRegistration * firstContactGen;
 
         /**
          * Holds an array of contacts, for filling by the contact
          * generators.
          */
-        Contact *contacts;
+        Contact * contacts;
 
         /**
          * Holds the maximum number of contacts allowed (i.e. the size
@@ -97,20 +97,20 @@ namespace cyclone {
 		 * don't give a number of iterations, then four times the
 		 * number of detected contacts will be used for each frame.
 		 */
-        World(unsigned maxContacts, unsigned iterations=0);
-        ~World();
+        World(unsigned maxContacts, unsigned iterations = 0);
+        ~World(void);
 
         /**
          * Calls each of the registered contact generators to report
          * their contacts. Returns the number of generated contacts.
          */
-        unsigned generateContacts();
+        unsigned generateContacts(void);
 
 ///>WorldRunPhysics
         /**
          * Processes all the physics for the world.
          */
-        void runPhysics(real duration);
+        void runPhysics(real_t duration);
 ///<WorldRunPhysics
 
 ///>WorldStartFrame
@@ -120,7 +120,7 @@ namespace cyclone {
          * world. After calling this, the bodies can have their forces
          * and torques for this frame added.
          */
-        void startFrame();
+        void startFrame(void);
 ///<WorldStartFrame
 
 ///>WorldStructureIntro;WorldStructure

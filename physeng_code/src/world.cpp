@@ -32,11 +32,12 @@ World::~World()
 }
 
 ///>WorldStartFrame
-void World::startFrame()
+void World::startFrame(void)
 {
-    BodyRegistration *reg = firstBody;
-    while (reg)
-    {
+    BodyRegistration * reg = firstBody;
+    
+    while ( reg ) {
+
         // Remove all forces from the accumulator
         reg->body->clearAccumulators();
         reg->body->calculateDerivedData();
@@ -47,15 +48,16 @@ void World::startFrame()
 }
 ///<WorldStartFrame
 
-unsigned World::generateContacts()
+unsigned World::generateContacts(void)
 {
     unsigned limit = maxContacts;
-    Contact *nextContact = contacts;
+    Contact * nextContact = contacts;
 
     ContactGenRegistration * reg = firstContactGen;
-    while (reg)
-    {
-        unsigned used = reg->gen->addContact(nextContact, limit);
+    
+    while ( reg ) {
+        
+        unsigned used = reg->gen->addContact( nextContact, limit );
         limit -= used;
         nextContact += used;
 
@@ -71,17 +73,18 @@ unsigned World::generateContacts()
 }
 
 ///>WorldRunPhysics
-void World::runPhysics(real duration)
+void World::runPhysics(real_t duration)
 {
     // First apply the force generators
     //registry.updateForces(duration);
 
     // Then integrate the objects
-    BodyRegistration *reg = firstBody;
-    while (reg)
-    {
+    BodyRegistration * reg = firstBody;
+
+    while ( reg ) {
+
         // Remove all forces from the accumulator
-        reg->body->integrate(duration);
+        reg->body->integrate( duration );
 
         // Get the next registration
         reg = reg->next;
@@ -92,8 +95,11 @@ void World::runPhysics(real duration)
     unsigned usedContacts = generateContacts();
 
     // And process them
-    if (calculateIterations) resolver.setIterations(usedContacts * 4);
-    resolver.resolveContacts(contacts, usedContacts, duration);
+    if ( calculateIterations ) {
+        resolver.setIterations( usedContacts * 4 );
+    }
+
+    resolver.resolveContacts( contacts, usedContacts, duration );
 ///>WorldRunPhysics
 }
 ///<WorldRunPhysics

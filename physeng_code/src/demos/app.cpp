@@ -166,7 +166,7 @@ void MassAggregateApplication::display()
 		p++)
 	{
 		cyclone::Particle *particle = *p;
-		cyclone::Vector3 &pos = particle->getPosition();
+		cyclone::vec3_t & pos = particle->getPosition();
 		glPushMatrix();
 		glTranslatef(pos.x, pos.y, pos.z);
 		glutSolidSphere(0.1f, 20, 10);
@@ -266,10 +266,10 @@ void RigidBodyApplication::drawDebug()
             glColor3f(1,0,0);
         }
 
-        cyclone::Vector3 vec = contacts[i].contactPoint;
+        cyclone::vec3_t vec = contacts[i].contactPoint;
         glVertex3f(vec.x, vec.y, vec.z);
 
-        vec += contacts[i].contactNormal;
+        vec = cyclone::Vec3Add( vec, contacts[i].contactNormal );
         glVertex3f(vec.x, vec.y, vec.z);
     }
 

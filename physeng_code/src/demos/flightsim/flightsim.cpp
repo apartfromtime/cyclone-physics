@@ -30,7 +30,7 @@ class FlightSimDemo : public Application
 	cyclone::RigidBody aircraft;
 	cyclone::ForceRegistry registry;
 
-	cyclone::Vector3 windspeed;
+	cyclone::vec3_t windspeed;
 
 	float left_wing_control;
 	float right_wing_control;
@@ -58,42 +58,73 @@ public:
 
 // Method definitions
 FlightSimDemo::FlightSimDemo()
-:
-Application(), 
-
-right_wing(cyclone::Matrix3(0,0,0, -1,-0.5f,0, 0,0,0),
-		   cyclone::Matrix3(0,0,0, -0.995f,-0.5f,0, 0,0,0),
-		   cyclone::Matrix3(0,0,0, -1.005f,-0.5f,0, 0,0,0),
-		   cyclone::Vector3(-1.0f, 0.0f, 2.0f), &windspeed),
-
-left_wing(cyclone::Matrix3(0,0,0, -1,-0.5f,0, 0,0,0),
-		  cyclone::Matrix3(0,0,0, -0.995f,-0.5f,0, 0,0,0),
-		  cyclone::Matrix3(0,0,0, -1.005f,-0.5f,0, 0,0,0),
-		  cyclone::Vector3(-1.0f, 0.0f, -2.0f), &windspeed),
-
-rudder(cyclone::Matrix3(0,0,0, 0,0,0, 0,0,0), 
-	   cyclone::Matrix3(0,0,0, 0,0,0, 0.01f,0,0), 
-	   cyclone::Matrix3(0,0,0, 0,0,0, -0.01f,0,0), 
-	   cyclone::Vector3(2.0f, 0.5f, 0), &windspeed),
-
-tail(cyclone::Matrix3(0,0,0, -1,-0.5f,0, 0,0,-0.1f), 
-	 cyclone::Vector3(2.0f, 0, 0), &windspeed),
-
-left_wing_control(0), right_wing_control(0), rudder_control(0),
-
-windspeed(0,0,0)
 {
+    windspeed.x = 0;
+	windspeed.y = 0;
+	windspeed.z = 0;
+
+	left_wing_control = 0;
+	right_wing_control = 0;
+	rudder_control = 0;
+
+	cyclone::vec3_t position;
+
+	position.x = -1.0f;
+	position.y = 0.0f;
+	position.z = 2.0f;
+
+	right_wing = cyclone::AeroControl(
+		cyclone::Mat3Construct(0,0,0,      -1,-0.5f,0, 0,0,0), 
+		cyclone::Mat3Construct(0,0,0, -0.995f,-0.5f,0, 0,0,0),
+		cyclone::Mat3Construct(0,0,0, -1.005f,-0.5f,0, 0,0,0),
+		position,
+		&windspeed
+	);
+
+	position.x = -1.0f;
+	position.y = 0.0f;
+	position.z = -2.0f;
+
+	left_wing = cyclone::AeroControl(
+		cyclone::Mat3Construct(0,0,0,      -1,-0.5f,0, 0,0,0),
+		cyclone::Mat3Construct(0,0,0, -0.995f,-0.5f,0, 0,0,0),
+		cyclone::Mat3Construct(0,0,0, -1.005f,-0.5f,0, 0,0,0),
+		position,
+		&windspeed
+	);
+
+	position.x = 2.0f;
+	position.y = 0.5f;
+	position.z = 0.0f;
+
+	rudder = cyclone::AeroControl(
+		cyclone::Mat3Construct(0,0,0, 0,0,0,      0,0,0),
+		cyclone::Mat3Construct(0,0,0, 0,0,0,  0.01f,0,0),
+		cyclone::Mat3Construct(0,0,0, 0,0,0, -0.01f,0,0),
+		position, &windspeed
+	);
+
+	position.x = 2.0f;
+	position.y = 0.0f;
+	position.z = 0.0f;
+	
+	tail = cyclone::Aero(
+		cyclone::Mat3Construct(0,0,0, -1,-0.5f,0, 0,0,-0.1f),
+		position,
+		&windspeed
+	);
+
 	// Set up the aircraft rigid body.
 	resetPlane();
 
 	aircraft.setMass(2.5f);
-	cyclone::Matrix3 it;
-	it.setBlockInertiaTensor(cyclone::Vector3(2,1,1), 1);
+	cyclone::vec3_t hs = { 2, 1, 1 };
+	cyclone::mat3_t it = Mat3SetBlockInertiaTensor( hs, 1 );
 	aircraft.setInertiaTensor(it);
 
 	aircraft.setDamping(0.8f, 0.8f);
 
-	aircraft.setAcceleration(cyclone::Vector3::GRAVITY);
+	aircraft.setAcceleration(cyclone::GRAVITY);
 	aircraft.calculateDerivedData();
 
 	aircraft.setAwake();
@@ -162,9 +193,11 @@ void FlightSimDemo::display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	cyclone::Vector3 pos = aircraft.getPosition();
-	cyclone::Vector3 offset(4.0f+aircraft.getVelocity().magnitude(), 0, 0);
-	offset = aircraft.getTransform().transformDirection(offset);
+	cyclone::vec3_t pos = aircraft.getPosition();
+	cyclone::vec3_t offset = { 4.0f+ Vec3Magnitude( aircraft.getVelocity() ),
+		0, 0 };
+	offset = Mat4TransformDirection( offset, aircraft.getTransform() );
+
 	gluLookAt(pos.x+offset.x, pos.y+5.0f, pos.z+offset.z,  
 		      pos.x, pos.y, pos.z,  
 			  0.0, 1.0, 0.0);
@@ -183,11 +216,11 @@ void FlightSimDemo::display()
 	glEnd();
 
 	// Set the transform matrix for the aircraft
-	cyclone::Matrix4 transform = aircraft.getTransform();
-	GLfloat gl_transform[16];
-	transform.fillGLArray(gl_transform);
+	cyclone::mat4_t transform = aircraft.getTransform();
+	cyclone::mat4_t gl_transform;
+	gl_transform = Mat4FillGLArray( transform );
 	glPushMatrix();
-	glMultMatrixf(gl_transform);
+	glMultMatrixf(gl_transform.n);
 
 	// Draw the aircraft
 	glColor3f(0,0,0);
@@ -198,7 +231,7 @@ void FlightSimDemo::display()
 	glPushMatrix();
 	glTranslatef(0, -1.0f - pos.y, 0);
 	glScalef(1.0f, 0.001f, 1.0f);
-	glMultMatrixf(gl_transform);
+	glMultMatrixf(gl_transform.n);
 	drawAircraft();
 	glPopMatrix();
 
@@ -207,7 +240,7 @@ void FlightSimDemo::display()
 		buffer, 
 		"Altitude: %.1f | Speed %.1f", 
 		aircraft.getPosition().y, 
-		aircraft.getVelocity().magnitude()
+		Vec3Magnitude( aircraft.getVelocity() )
 		);
 	glColor3f(0,0,0);
 	renderText(10.0f, 24.0f, buffer);
@@ -230,9 +263,9 @@ void FlightSimDemo::update()
 	aircraft.clearAccumulators();
 
 	// Add the propeller force
-	cyclone::Vector3 propulsion(-10.0f, 0, 0);
-	propulsion = aircraft.getTransform().transformDirection(propulsion);
-	aircraft.addForce(propulsion);
+	cyclone::vec3_t propulsion = { -10.0f, 0, 0 };
+	propulsion = Mat4TransformDirection( propulsion, aircraft.getTransform() );
+	aircraft.addForce( propulsion );
 		
 	// Add the forces acting on the aircraft.
 	registry.updateForces(duration);
@@ -241,7 +274,7 @@ void FlightSimDemo::update()
 	aircraft.integrate(duration);
 
 	// Do a very basic collision detection and response with the ground.
-	cyclone::Vector3 pos = aircraft.getPosition();
+	cyclone::vec3_t pos = aircraft.getPosition();
 	if (pos.y < 0.0f)
 	{
 		pos.y = 0.0f;

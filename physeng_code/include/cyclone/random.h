@@ -37,7 +37,7 @@ namespace cyclone {
 		 * Creates a new random number stream with a seed based on
 		 * timing data.
 		 */
-		Random();
+		Random(void);
 
 		/** 
 		 * Creates a new random stream with the given seed.
@@ -53,22 +53,22 @@ namespace cyclone {
 		 * Returns the next random bitstring from the stream. This is
 		 * the fastest method.
 		 */
-		unsigned randomBits();
+		unsigned randomBits(void);
 
 		/**
 		 * Returns a random floating point number between 0 and 1.
 		 */
-		real randomReal();
+		real_t randomReal(void);
 
         /**
          * Returns a random floating point number between 0 and scale.
          */
-        real randomReal(real scale);
+        real_t randomReal(real_t scale);
 
         /**
          * Returns a random floating point number between min and max.
          */
-        real randomReal(real min, real max);
+        real_t randomReal(real_t min, real_t max);
 
 		/**
 		 * Returns a random integer less than the given value.
@@ -79,13 +79,13 @@ namespace cyclone {
 		 * Returns a random binomially distributed number between -scale 
 		 * and +scale.
 		 */
-		real randomBinomial(real scale);
+		real_t randomBinomial(real_t scale);
 
 		/**
 		 * Returns a random vector where each component is binomially
 		 * distributed in the range (-scale to scale) [mean = 0.0f].
 		 */
-		Vector3 randomVector(real scale);
+		vec3_t randomVector(real_t scale);
 
 		/**
 		 * Returns a random vector where each component is binomially
@@ -93,26 +93,26 @@ namespace cyclone {
 		 * where scale is the corresponding component of the given
 		 * vector.
 		 */
-		Vector3 randomVector(const Vector3 &scale);
+		vec3_t randomVector(const vec3_t & scale);
 
         /**
          * Returns a random vector in the cube defined by the given
          * minimum and maximum vectors. The probability is uniformly
          * distributed in this region.
          */
-        Vector3 randomVector(const Vector3 &min, const Vector3 &max);
+        vec3_t randomVector(const vec3_t & min, const vec3_t & max);
 
 		/**
 		 * Returns a random vector where each component is binomially
 		 * distributed in the range (-scale to scale) [mean = 0.0f],
 		 * except the y coordinate which is zero.
 		 */
-		Vector3 randomXZVector(real scale);
+		vec3_t randomXZVector(real_t scale);
 
         /**
          * Returns a random orientation (i.e. normalized) quaternion.
          */
-        Quaternion randomQuaternion();
+        quat_t randomQuaternion(void);
 
 	private:
 		// Internal mechanics

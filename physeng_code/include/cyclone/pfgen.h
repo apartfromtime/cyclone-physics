@@ -39,7 +39,7 @@ namespace cyclone {
          * Overload this in implementations of the interface to calculate
          * and update the force applied to the given particle.
          */
-        virtual void updateForce(Particle *particle, real duration) = 0;
+        virtual void updateForce(Particle * particle, real_t duration) = 0;
     };
 ///<ParticleFGInterface
 
@@ -51,15 +51,15 @@ namespace cyclone {
     class ParticleGravity : public ParticleForceGenerator
     {
         /** Holds the acceleration due to gravity. */
-        Vector3 gravity;
+        vec3_t gravity;
 
     public:
 
         /** Creates the generator with the given acceleration. */
-        ParticleGravity(const Vector3 &gravity);
+        ParticleGravity(const vec3_t & gravity);
 
         /** Applies the gravitational force to the given particle. */
-        virtual void updateForce(Particle *particle, real duration);
+        virtual void updateForce(Particle * particle, real_t duration);
     };
 ///<GravityPFG
 
@@ -71,18 +71,18 @@ namespace cyclone {
     class ParticleDrag : public ParticleForceGenerator
     {
         /** Holds the velocity drag coeffificent. */
-        real k1;
+        real_t k1;
 
         /** Holds the velocity squared drag coeffificent. */
-        real k2;
+        real_t k2;
 
     public:
 
         /** Creates the generator with the given coefficients. */
-        ParticleDrag(real k1, real k2);
+        ParticleDrag(real_t k1, real_t k2);
 
         /** Applies the drag force to the given particle. */
-        virtual void updateForce(Particle *particle, real duration);
+        virtual void updateForce(Particle * particle, real_t duration);
     };
 ///<DragPFG
 
@@ -95,32 +95,30 @@ namespace cyclone {
     {
 	protected:
         /** The location of the anchored end of the spring. */
-        Vector3 *anchor;
+        vec3_t * anchor;
 
         /** Holds the sprint constant. */
-        real springConstant;
+        real_t springConstant;
 
         /** Holds the rest length of the spring. */
-        real restLength;
+        real_t restLength;
 
     public:
 		ParticleAnchoredSpring();
 
         /** Creates a new spring with the given parameters. */
-        ParticleAnchoredSpring(Vector3 *anchor,
-							   real springConstant, 
-							   real restLength);
+        ParticleAnchoredSpring(vec3_t * anchor, real_t springConstant, 
+			real_t restLength);
 
 		/** Retrieve the anchor point. */
-		const Vector3* getAnchor() const { return anchor; }
+		const vec3_t * getAnchor(void) const { return anchor; }
 
 		/** Set the spring's properties. */
-		void init(Vector3 *anchor,
-				  real springConstant, 
-				  real restLength);
+		void init(vec3_t * anchor, real_t springConstant,
+            real_t restLength);
 
         /** Applies the spring force to the given particle. */
-        virtual void updateForce(Particle *particle, real duration);
+        virtual void updateForce(Particle * particle, real_t duration);
     };
 ///<ASpringPFG
 
@@ -132,7 +130,7 @@ namespace cyclone {
 	{
 	public:
 		/** Applies the spring force to the given particle. */
-		virtual void updateForce(Particle *particle, real duration);
+		virtual void updateForce(Particle * particle, real_t duration);
 	};
 
 ///>FakeSpringPFG
@@ -143,22 +141,22 @@ namespace cyclone {
     class ParticleFakeSpring : public ParticleForceGenerator
     {
         /** The location of the anchored end of the spring. */
-        Vector3 *anchor;
+        vec3_t * anchor;
 
         /** Holds the sprint constant. */
-        real springConstant;
+        real_t springConstant;
 
         /** Holds the damping on the oscillation of the spring. */
-        real damping;
+        real_t damping;
 
     public:
 
         /** Creates a new spring with the given parameters. */
-        ParticleFakeSpring(Vector3 *anchor, real springConstant,
-            real damping);
+        ParticleFakeSpring(vec3_t * anchor, real_t springConstant,
+            real_t damping);
 
         /** Applies the spring force to the given particle. */
-        virtual void updateForce(Particle *particle, real duration);
+        virtual void updateForce(Particle * particle, real_t duration);
     };
 ///<FakeSpringPFG
 
@@ -169,22 +167,22 @@ namespace cyclone {
     class ParticleSpring : public ParticleForceGenerator
     {
         /** The particle at the other end of the spring. */
-        Particle *other;
+        Particle * other;
 
         /** Holds the sprint constant. */
-        real springConstant;
+        real_t springConstant;
 
         /** Holds the rest length of the spring. */
-        real restLength;
+        real_t restLength;
 
     public:
 
         /** Creates a new spring with the given parameters. */
-        ParticleSpring(Particle *other,
-            real springConstant, real restLength);
+        ParticleSpring(Particle * other, real_t springConstant,
+            real_t restLength);
 
         /** Applies the spring force to the given particle. */
-        virtual void updateForce(Particle *particle, real duration);
+        virtual void updateForce(Particle * particle, real_t duration);
     };
 ///<SpringPFG
 
@@ -196,25 +194,25 @@ namespace cyclone {
     class ParticleBungee : public ParticleForceGenerator
     {
         /** The particle at the other end of the spring. */
-        Particle *other;
+        Particle * other;
 
         /** Holds the sprint constant. */
-        real springConstant;
+        real_t springConstant;
 
         /**
          * Holds the length of the bungee at the point it begins to
          * generate a force.
          */
-        real restLength;
+        real_t restLength;
 
     public:
 
         /** Creates a new bungee with the given parameters. */
-        ParticleBungee(Particle *other,
-            real springConstant, real restLength);
+        ParticleBungee(Particle * other, real_t springConstant,
+            real_t restLength);
 
         /** Applies the spring force to the given particle. */
-        virtual void updateForce(Particle *particle, real duration);
+        virtual void updateForce(Particle * particle, real_t duration);
     };
 ///<BungeePFG
 
@@ -229,33 +227,33 @@ namespace cyclone {
          * The maximum submersion depth of the object before
          * it generates its maximum boyancy force.
          */
-        real maxDepth;
+        real_t maxDepth;
 
         /**
          * The volume of the object.
          */
-        real volume;
+        real_t volume;
 
         /**
          * The height of the water plane above y=0. The plane will be
          * parrallel to the XZ plane.
          */
-        real waterHeight;
+        real_t waterHeight;
 
         /**
          * The density of the liquid. Pure water has a density of
          * 1000kg per cubic meter.
          */
-        real liquidDensity;
+        real_t liquidDensity;
 
     public:
 
         /** Creates a new buoyancy force with the given parameters. */
-        ParticleBuoyancy(real maxDepth, real volume, real waterHeight,
-            real liquidDensity = 1000.0f);
+        ParticleBuoyancy(real_t maxDepth, real_t volume, real_t waterHeight,
+            real_t liquidDensity = 1000.0f);
 
         /** Applies the buoyancy force to the given particle. */
-        virtual void updateForce(Particle *particle, real duration);
+        virtual void updateForce(Particle * particle, real_t duration);
     };
 ///<BuoyancyPFG
 
@@ -273,8 +271,8 @@ namespace cyclone {
          */
         struct ParticleForceRegistration
         {
-            Particle *particle;
-            ParticleForceGenerator *fg;
+            Particle * particle;
+            ParticleForceGenerator * fg;
         };
 
         /**
@@ -288,14 +286,14 @@ namespace cyclone {
          * Registers the given force generator to apply to the
          * given particle.
          */
-        void add(Particle* particle, ParticleForceGenerator *fg);
+        void add(Particle * particle, ParticleForceGenerator * fg);
 
         /**
          * Removes the given registered pair from the registry.
          * If the pair is not registered, this method will have
          * no effect.
          */
-        void remove(Particle* particle, ParticleForceGenerator *fg);
+        void remove(Particle * particle, ParticleForceGenerator * fg);
 
         /**
          * Clears all registrations from the registry. This will
@@ -308,7 +306,7 @@ namespace cyclone {
          * Calls all the force generators to update the forces of
          * their corresponding particles.
          */
-        void updateForces(real duration);
+        void updateForces(real_t duration);
     };
 }
 ///<ParticleFGRegistry

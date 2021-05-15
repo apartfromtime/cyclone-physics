@@ -36,7 +36,7 @@ public:
      * decreases, when it passes zero the firework delivers its payload.
      * Think of age as fuse-left.
      */
-    cyclone::real age;
+    cyclone::real_t age;
 
 ///<FireworkIntro
 ///>FireworkUpdate
@@ -45,7 +45,7 @@ public:
      * if the firework has reached the end of its life and needs to be 
      * removed.
      */
-    bool update(cyclone::real duration)
+    bool update(cyclone::real_t duration)
     {
         // Update our physical state
         integrate(duration);
@@ -70,19 +70,19 @@ struct FireworkRule
     unsigned type;
 
     /** The minimum length of the fuse. */
-    cyclone::real minAge;
+    cyclone::real_t minAge;
 
     /** The maximum legnth of the fuse. */
-    cyclone::real maxAge;
+    cyclone::real_t maxAge;
 
     /** The minimum relative velocity of this firework. */
-    cyclone::Vector3 minVelocity;
+    cyclone::vec3_t minVelocity;
 
     /** The maximum relative velocity of this firework. */
-    cyclone::Vector3 maxVelocity;
+    cyclone::vec3_t maxVelocity;
 
     /** The damping of this firework type. */
-    cyclone::real damping;
+    cyclone::real_t damping;
         
     /** 
      * The payload is the new firework type to create when this
@@ -132,9 +132,9 @@ struct FireworkRule
     /** 
      * Set all the rule parameters in one go.
      */
-    void setParameters(unsigned type, cyclone::real minAge, cyclone::real maxAge,
-        const cyclone::Vector3 &minVelocity, const cyclone::Vector3 &maxVelocity,
-        cyclone::real damping)
+    void setParameters(unsigned type, cyclone::real_t minAge, cyclone::real_t maxAge,
+        const cyclone::vec3_t & minVelocity, const cyclone::vec3_t & maxVelocity,
+        cyclone::real_t damping)
     {
         FireworkRule::type = type;
         FireworkRule::minAge = minAge;
@@ -155,22 +155,25 @@ struct FireworkRule
         firework->type = type;
         firework->age = random.randomReal(minAge, maxAge);
 		
-		cyclone::Vector3 vel;
-		if (parent) {
-			// The position and velocity are based on the parent.
-			firework->setPosition(parent->getPosition());
-			vel += parent->getVelocity();
-		}
-		else
-		{
-			cyclone::Vector3 start;
-			int x = (int)random.randomInt(3) - 1;
-			start.x = 5.0f * cyclone::real(x);
-			firework->setPosition(start);
+		cyclone::vec3_t vel = cyclone::Vec3Clear();
+
+		if ( parent ) {
+			
+            // The position and velocity are based on the parent.
+			firework->setPosition( parent->getPosition() );
+			vel = Vec3Add( vel, parent->getVelocity() );
+
+		} else {
+
+			cyclone::vec3_t start = cyclone::Vec3Clear();
+
+			int x = (int)random.randomInt( 3 ) - 1;
+			start.x = 5.0f * cyclone::real_t( x );
+			firework->setPosition( start );
 		}
 
-        vel += random.randomVector(minVelocity, maxVelocity);
-        firework->setVelocity(vel);
+        vel = Vec3Add( vel, random.randomVector( minVelocity, maxVelocity ) );
+        firework->setVelocity( vel );
 
         // We use a mass of one in all cases (no point having fireworks 
         // with different masses, since they are only under the influence 
@@ -179,7 +182,7 @@ struct FireworkRule
 
         firework->setDamping(damping);
 
-        firework->setAcceleration(cyclone::Vector3::GRAVITY);
+        firework->setAcceleration(cyclone::GRAVITY);
 
         firework->clearAccumulator();
     }
@@ -263,90 +266,174 @@ FireworksDemo::~FireworksDemo()
 ///>FireworkRuleDef
 void FireworksDemo::initFireworkRules()
 {
+    cyclone::vec3_t minV;
+    cyclone::vec3_t maxV;
+
     // Go through the firework types and create their rules.
     rules[0].init(2);
+
+    minV.x = -5;
+    minV.y = 25;
+    minV.z = -5;
+
+    maxV.x = 5;
+    maxV.y = 28;
+    maxV.z = 5;
+
 	rules[0].setParameters(
         1, // type
         0.5f, 1.4f, // age range
-        cyclone::Vector3(-5, 25, -5), // min velocity
-        cyclone::Vector3(5, 28, 5), // max velocity
+        minV, // min velocity
+        maxV, // max velocity
         0.1 // damping
         );
 	rules[0].payloads[0].set(3, 5);
 	rules[0].payloads[1].set(5, 5);
 
 	rules[1].init(1);
+
+    minV.x = -5;
+    minV.y = 10;
+    minV.z = -5;
+
+    maxV.x = 5;
+    maxV.y = 20;
+    maxV.z = 5;
+
 	rules[1].setParameters(
 		2, // type
 		0.5f, 1.0f, // age range
-		cyclone::Vector3(-5, 10, -5), // min velocity
-		cyclone::Vector3(5, 20, 5), // max velocity
+		minV, // min velocity
+		maxV, // max velocity
 		0.8 // damping
 		);
 	rules[1].payloads[0].set(4, 2);
 
 	rules[2].init(0);
+
+    minV.x = -5;
+    minV.y = -5;
+    minV.z = -5;
+
+    maxV.x = 5;
+    maxV.y = 5;
+    maxV.z = 5;
+
 	rules[2].setParameters(
 		3, // type
 		0.5f, 1.5f, // age range
-		cyclone::Vector3(-5, -5, -5), // min velocity
-		cyclone::Vector3(5, 5, 5), // max velocity
+		minV, // min velocity
+		maxV, // max velocity
 		0.1 // damping
 		);
 
 	rules[3].init(0);
+
+    minV.x = -20;
+    minV.y = 5;
+    minV.z = -5;
+
+    maxV.x = 20;
+    maxV.y = 5;
+    maxV.z = 5;
+
 	rules[3].setParameters(
 		4, // type
 		0.25f, 0.5f, // age range
-		cyclone::Vector3(-20, 5, -5), // min velocity
-		cyclone::Vector3(20, 5, 5), // max velocity
+		minV, // min velocity
+		maxV, // max velocity
 		0.2 // damping
 		);
 
 	rules[4].init(1);
+
+    minV.x = -20;
+    minV.y = 2;
+    minV.z = -5;
+
+    maxV.x = 20;
+    maxV.y = 18;
+    maxV.z = 5;
+
 	rules[4].setParameters(
 		5, // type
 		0.5f, 1.0f, // age range
-		cyclone::Vector3(-20, 2, -5), // min velocity
-		cyclone::Vector3(20, 18, 5), // max velocity
+		minV, // min velocity
+		maxV, // max velocity
 		0.01 // damping
 		);
 	rules[4].payloads[0].set(3, 5);
 
 	rules[5].init(0);
+
+    minV.x = -5;
+    minV.y = 5;
+    minV.z = -5;
+
+    maxV.x = 5;
+    maxV.y = 10;
+    maxV.z = 5;
+
 	rules[5].setParameters(
 		6, // type
 		3, 5, // age range
-		cyclone::Vector3(-5, 5, -5), // min velocity
-		cyclone::Vector3(5, 10, 5), // max velocity
+		minV, // min velocity
+		maxV, // max velocity
 		0.95 // damping
 		);
 
 	rules[6].init(1);
+
+    minV.x = -5;
+    minV.y = 50;
+    minV.z = -5;
+
+    maxV.x = 5;
+    maxV.y = 60;
+    maxV.z = 5;
+
 	rules[6].setParameters(
 		7, // type
 		4, 5, // age range
-		cyclone::Vector3(-5, 50, -5), // min velocity
-		cyclone::Vector3(5, 60, 5), // max velocity
+		minV, // min velocity
+		maxV, // max velocity
 		0.01 // damping
 		);
 	rules[6].payloads[0].set(8, 10);
 
 	rules[7].init(0);
+
+    minV.x = -1;
+    minV.y = -1;
+    minV.z = -1;
+
+    maxV.x = 1;
+    maxV.y = 1;
+    maxV.z = 1;
+
 	rules[7].setParameters(
 		8, // type
 		0.25f, 0.5f, // age range
-		cyclone::Vector3(-1, -1, -1), // min velocity
-		cyclone::Vector3(1, 1, 1), // max velocity
+		minV, // min velocity
+		maxV, // max velocity
 		0.01 // damping
 		);
 
 	rules[8].init(0);
+
+    minV.x = -15;
+    minV.y = 10;
+    minV.z = -5;
+
+    maxV.x = 15;
+    maxV.y = 15;
+    maxV.z = 5;
+
 	rules[8].setParameters(
 		9, // type
 		3, 5, // age range
-		cyclone::Vector3(-15, 10, -5), // min velocity
-		cyclone::Vector3(15, 15, 5), // max velocity
+		minV, // min velocity
+		maxV, // max velocity
 		0.95 // damping
 		);
 ///>Omit
@@ -435,7 +522,7 @@ void FireworksDemo::update()
 
 void FireworksDemo::display()
 {
-	const static cyclone::real size = 0.1f;
+	const static cyclone::real_t size = 0.1f;
 
     // Clear the viewport and set the camera direction
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -464,7 +551,7 @@ void FireworksDemo::display()
 			case 9: glColor3f(1,0.5f,0.5f); break;
 			};
 			
-			cyclone::Vector3 &pos = firework->getPosition();
+			cyclone::vec3_t pos = firework->getPosition();
 			glVertex3f(pos.x-size, pos.y-size, pos.z);
 			glVertex3f(pos.x+size, pos.y-size, pos.z);
 			glVertex3f(pos.x+size, pos.y+size, pos.z);

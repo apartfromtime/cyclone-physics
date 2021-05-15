@@ -36,10 +36,10 @@ namespace cyclone {
      * through a set of methods.
      *
      * A rigid body contains 64 words (the size of which is given
-     * by the precision: sizeof(real)). It contains no virtual
+     * by the precision: sizeof( real_t )). It contains no virtual
      * functions, so should take up exactly 64 words in memory. Of
      * this total 15 words are padding, distributed among the
-     * Vector3 data members.
+     * vec3_t data members.
 ///>RigidBodyIntro
      */
 ///>RigidBody
@@ -48,7 +48,20 @@ namespace cyclone {
 ///<RigidBody
     public:
 ///<RigidBodyIntro
-
+        RigidBody(void)
+        {
+            inverseInertiaTensor = Mat3Identity();
+            position = Vec3Clear();
+            orientation = QuatClear();
+            velocity = Vec3Clear();
+            rotation = Vec3Clear();
+            inverseInertiaTensorWorld = Mat3Identity();
+            transformMatrix = Mat4Identity();
+            forceAccum = Vec3Clear();
+            torqueAccum = Vec3Clear();
+            acceleration = Vec3Clear();
+            lastFrameAcceleration = Vec3Clear();
+        }
 ///>Omit;RigidBody
         // ... Other RigidBody code as before ...
 
@@ -97,7 +110,7 @@ namespace cyclone {
          * infinite mass (immovable) than zero mass
          * (completely unstable in numerical simulation).
          */
-        real inverseMass;
+        real_t inverseMass;
 ///<RigidBodyIntro
 
 ///>InverseInertiaTensor
@@ -115,7 +128,7 @@ namespace cyclone {
          *
          * @see inverseMass
          */
-        Matrix3 inverseInertiaTensor;
+        mat3_t inverseInertiaTensor;
 ///<InverseInertiaTensor
 
         /**
@@ -123,7 +136,7 @@ namespace cyclone {
          * motion.  Damping is required to remove energy added
          * through numerical instability in the integrator.
          */
-        real linearDamping;
+        real_t linearDamping;
 
 ///>AngularDamping
         /**
@@ -131,7 +144,7 @@ namespace cyclone {
          * motion.  Damping is required to remove energy added
          * through numerical instability in the integrator.
          */
-        real angularDamping;
+        real_t angularDamping;
 ///<AngularDamping
 
 ///>RigidBodyIntro
@@ -139,25 +152,25 @@ namespace cyclone {
          * Holds the linear position of the rigid body in
          * world space.
          */
-        Vector3 position;
+        vec3_t position;
 
         /**
          * Holds the angular orientation of the rigid body in
          * world space.
          */
-        Quaternion orientation;
+        quat_t orientation;
 
         /**
          * Holds the linear velocity of the rigid body in
          * world space.
          */
-        Vector3 velocity;
+        vec3_t velocity;
 
         /**
          * Holds the angular velocity, or rotation, or the
          * rigid body in world space.
          */
-        Vector3 rotation;
+        vec3_t rotation;
 ///<RigidBodyIntro
 
         /*@}*/
@@ -178,14 +191,14 @@ namespace cyclone {
          *
          * @see inverseInertiaTensor
          */
-        Matrix3 inverseInertiaTensorWorld;
+        mat3_t inverseInertiaTensorWorld;
 
 ///>SleepData
         /**
          * Holds the amount of motion of the body. This is a recency
          * weighted mean that can be used to put a body to sleep.
          */
-        real motion;
+        real_t motion;
 
         /**
          * A body can be put to sleep to avoid it being updated
@@ -214,7 +227,7 @@ namespace cyclone {
          * @see getTransform
          */
 ///>RigidBodyIntro
-        Matrix4 transformMatrix;
+        mat4_t transformMatrix;
 ///<RigidBodyIntro
 
         /*@}*/
@@ -236,26 +249,26 @@ namespace cyclone {
          * Holds the accumulated force to be applied at the next
          * integration step.
          */
-        Vector3 forceAccum;
+        vec3_t forceAccum;
 
         /**
          * Holds the accumulated torque to be applied at the next
          * integration step.
          */
-        Vector3 torqueAccum;
+        vec3_t torqueAccum;
 
        /**
          * Holds the acceleration of the rigid body.  This value
          * can be used to set acceleration due to gravity (its primary
          * use), or any other constant acceleration.
          */
-        Vector3 acceleration;
+        vec3_t acceleration;
 
         /**
          * Holds the linear acceleration of the rigid body, for the
          * previous frame.
          */
-        Vector3 lastFrameAcceleration;
+        vec3_t lastFrameAcceleration;
 
         /*@}*/
 
@@ -294,7 +307,7 @@ namespace cyclone {
          * and then intend to integrate before querying any data (such as
          * the transform matrix), then you can omit this step.
          */
-        void calculateDerivedData();
+        void calculateDerivedData(void);
 ///<CalculateDerivedData
 
         /**
@@ -303,7 +316,7 @@ namespace cyclone {
          * linear approximation to the correct integral. For this reason it
          * may be inaccurate in some cases.
          */
-        void integrate(real duration);
+        void integrate(real_t duration);
 
         /*@}*/
 
@@ -334,14 +347,14 @@ namespace cyclone {
          * function should be called before trying to get any settings
          * from the rigid body.
          */
-        void setMass(const real mass);
+        void setMass(const real_t mass);
 
         /**
          * Gets the mass of the rigid body.
          *
          * @return The current mass of the rigid body.
          */
-        real getMass() const;
+        real_t getMass(void) const;
 
         /**
          * Sets the inverse mass of the rigid body.
@@ -355,19 +368,19 @@ namespace cyclone {
          * function should be called before trying to get any settings
          * from the rigid body.
          */
-        void setInverseMass(const real inverseMass);
+        void setInverseMass(const real_t inverseMass);
 
         /**
          * Gets the inverse mass of the rigid body.
          *
          * @return The current inverse mass of the rigid body.
          */
-        real getInverseMass() const;
+        real_t getInverseMass(void) const;
 
         /**
          * Returns true if the mass of the body is not-infinite.
          */
-        bool hasFiniteMass() const;
+        bool hasFiniteMass(void) const;
 
         /**
          * Sets the intertia tensor for the rigid body.
@@ -381,7 +394,7 @@ namespace cyclone {
          * function should be called before trying to get any settings
          * from the rigid body.
          */
-        void setInertiaTensor(const Matrix3 &inertiaTensor);
+        void setInertiaTensor(const mat3_t & inertiaTensor);
 
         /**
          * Copies the current inertia tensor of the rigid body into
@@ -391,7 +404,7 @@ namespace cyclone {
          * current inertia tensor of the rigid body. The inertia
          * tensor is expressed in the rigid body's local space.
          */
-        void getInertiaTensor(Matrix3 *inertiaTensor) const;
+        void getInertiaTensor(mat3_t * inertiaTensor) const;
 
         /**
          * Gets a copy of the current inertia tensor of the rigid body.
@@ -400,7 +413,7 @@ namespace cyclone {
          * tensor. The inertia tensor is expressed in the rigid body's
          * local space.
          */
-        Matrix3 getInertiaTensor() const;
+        mat3_t getInertiaTensor(void) const;
 
         /**
          * Copies the current inertia tensor of the rigid body into
@@ -410,7 +423,7 @@ namespace cyclone {
          * current inertia tensor of the rigid body. The inertia
          * tensor is expressed in world space.
          */
-        void getInertiaTensorWorld(Matrix3 *inertiaTensor) const;
+        void getInertiaTensorWorld(mat3_t * inertiaTensor) const;
 
         /**
          * Gets a copy of the current inertia tensor of the rigid body.
@@ -418,7 +431,7 @@ namespace cyclone {
          * @return A new matrix containing the current intertia
          * tensor. The inertia tensor is expressed in world space.
          */
-        Matrix3 getInertiaTensorWorld() const;
+        mat3_t getInertiaTensorWorld(void) const;
 
         /**
          * Sets the inverse intertia tensor for the rigid body.
@@ -432,7 +445,7 @@ namespace cyclone {
          * function should be called before trying to get any settings
          * from the rigid body.
          */
-        void setInverseInertiaTensor(const Matrix3 &inverseInertiaTensor);
+        void setInverseInertiaTensor(const mat3_t & inverseInertiaTensor);
 
         /**
          * Copies the current inverse inertia tensor of the rigid body
@@ -443,7 +456,7 @@ namespace cyclone {
          * inertia tensor is expressed in the rigid body's local
          * space.
          */
-        void getInverseInertiaTensor(Matrix3 *inverseInertiaTensor) const;
+        void getInverseInertiaTensor(mat3_t * inverseInertiaTensor) const;
 
         /**
          * Gets a copy of the current inverse inertia tensor of the
@@ -453,7 +466,7 @@ namespace cyclone {
          * intertia tensor. The inertia tensor is expressed in the
          * rigid body's local space.
          */
-        Matrix3 getInverseInertiaTensor() const;
+        mat3_t getInverseInertiaTensor(void) const;
 
         /**
          * Copies the current inverse inertia tensor of the rigid body
@@ -463,7 +476,7 @@ namespace cyclone {
          * the current inverse inertia tensor of the rigid body. The
          * inertia tensor is expressed in world space.
          */
-        void getInverseInertiaTensorWorld(Matrix3 *inverseInertiaTensor) const;
+        void getInverseInertiaTensorWorld(mat3_t * inverseInertiaTensor) const;
 
         /**
          * Gets a copy of the current inverse inertia tensor of the
@@ -473,7 +486,7 @@ namespace cyclone {
          * intertia tensor. The inertia tensor is expressed in world
          * space.
          */
-        Matrix3 getInverseInertiaTensorWorld() const;
+        mat3_t getInverseInertiaTensorWorld(void) const;
 
         /**
          * Sets both linear and angular damping in one function call.
@@ -487,7 +500,7 @@ namespace cyclone {
          * @see setLinearDamping
          * @see setAngularDamping
          */
-        void setDamping(const real linearDamping, const real angularDamping);
+        void setDamping(const real_t linearDamping, const real_t angularDamping);
 
         /**
          * Sets the linear damping for the rigid body.
@@ -497,14 +510,14 @@ namespace cyclone {
          *
          * @see setAngularDamping
          */
-        void setLinearDamping(const real linearDamping);
+        void setLinearDamping(const real_t linearDamping);
 
         /**
          * Gets the current linear damping value.
          *
          * @return The current linear damping value.
          */
-        real getLinearDamping() const;
+        real_t getLinearDamping(void) const;
 
         /**
          * Sets the angular damping for the rigid body.
@@ -514,21 +527,21 @@ namespace cyclone {
          *
          * @see setLinearDamping
          */
-        void setAngularDamping(const real angularDamping);
+        void setAngularDamping(const real_t angularDamping);
 
         /**
          * Gets the current angular damping value.
          *
          * @return The current angular damping value.
          */
-        real getAngularDamping() const;
+        real_t getAngularDamping(void) const;
 
         /**
          * Sets the position of the rigid body.
          *
          * @param position The new position of the rigid body.
          */
-        void setPosition(const Vector3 &position);
+        void setPosition(const vec3_t & position);
 
         /**
          * Sets the position of the rigid body by component.
@@ -542,7 +555,7 @@ namespace cyclone {
          * @param z The z coordinate of the new position of the rigid
          * body.
          */
-        void setPosition(const real x, const real y, const real z);
+        void setPosition(const real_t x, const real_t y, const real_t z);
 
         /**
          * Fills the given vector with the position of the rigid body.
@@ -550,14 +563,14 @@ namespace cyclone {
          * @param position A pointer to a vector into which to write
          * the position.
          */
-        void getPosition(Vector3 *position) const;
+        void getPosition(vec3_t * position) const;
 
         /**
          * Gets the position of the rigid body.
          *
          * @return The position of the rigid body.
          */
-        Vector3 getPosition() const;
+        vec3_t getPosition(void) const;
 
         /**
          * Sets the orientation of the rigid body.
@@ -569,7 +582,7 @@ namespace cyclone {
          * valid rotation quaternion with (0,0,0,0) mapping to
          * (1,0,0,0).
          */
-        void setOrientation(const Quaternion &orientation);
+        void setOrientation(const quat_t & orientation);
 
         /**
          * Sets the orientation of the rigid body by component.
@@ -591,8 +604,8 @@ namespace cyclone {
          * valid rotation quaternion with (0,0,0,0) mapping to
          * (1,0,0,0).
          */
-        void setOrientation(const real r, const real i,
-            const real j, const real k);
+        void setOrientation(const real_t r, const real_t i, const real_t j,
+            const real_t k);
 
         /**
          * Fills the given quaternion with the current value of the
@@ -601,14 +614,14 @@ namespace cyclone {
          * @param orientation A pointer to a quaternion to receive the
          * orientation data.
          */
-        void getOrientation(Quaternion *orientation) const;
+        void getOrientation(quat_t * orientation) const;
 
         /**
          * Gets the orientation of the rigid body.
          *
          * @return The orientation of the rigid body.
          */
-        Quaternion getOrientation() const;
+        quat_t getOrientation(void) const;
 
         /**
          * Fills the given matrix with a transformation representing
@@ -619,7 +632,7 @@ namespace cyclone {
          *
          * @param matrix A pointer to the matrix to fill.
          */
-        void getOrientation(Matrix3 *matrix) const;
+        void getOrientation(mat3_t * matrix) const;
 
         /**
          * Fills the given matrix data structure with a transformation
@@ -630,7 +643,7 @@ namespace cyclone {
          *
          * @param matrix A pointer to the matrix to fill.
          */
-        void getOrientation(real matrix[9]) const;
+        void getOrientation(real_t matrix[9]) const;
 
         /**
          * Fills the given matrix with a transformation representing
@@ -641,7 +654,7 @@ namespace cyclone {
          *
          * @param transform A pointer to the matrix to fill.
          */
-        void getTransform(Matrix4 *transform) const;
+        void getTransform(mat4_t * transform) const;
 
         /**
          * Fills the given matrix data structure with a
@@ -653,7 +666,7 @@ namespace cyclone {
          *
          * @param matrix A pointer to the matrix to fill.
          */
-        void getTransform(real matrix[16]) const;
+        void getTransform(real_t matrix[16]) const;
 
         /**
          * Fills the given matrix data structure with a
@@ -678,7 +691,7 @@ namespace cyclone {
          *
          * @return The transform matrix for the rigid body.
          */
-        Matrix4 getTransform() const;
+        mat4_t getTransform(void) const;
 
         /**
          * Converts the given point from world space into the body's
@@ -688,7 +701,7 @@ namespace cyclone {
          *
          * @return The converted point, in local space.
          */
-        Vector3 getPointInLocalSpace(const Vector3 &point) const;
+        vec3_t getPointInLocalSpace(const vec3_t & point) const;
 
         /**
          * Converts the given point from world space into the body's
@@ -698,7 +711,7 @@ namespace cyclone {
          *
          * @return The converted point, in world space.
          */
-        Vector3 getPointInWorldSpace(const Vector3 &point) const;
+        vec3_t getPointInWorldSpace(const vec3_t & point) const;
 
         /**
          * Converts the given direction from world space into the
@@ -712,7 +725,7 @@ namespace cyclone {
          *
          * @return The converted direction, in local space.
          */
-        Vector3 getDirectionInLocalSpace(const Vector3 &direction) const;
+        vec3_t getDirectionInLocalSpace(const vec3_t & direction) const;
 
         /**
          * Converts the given direction from world space into the
@@ -726,7 +739,7 @@ namespace cyclone {
          *
          * @return The converted direction, in world space.
          */
-        Vector3 getDirectionInWorldSpace(const Vector3 &direction) const;
+        vec3_t getDirectionInWorldSpace(const vec3_t & direction) const;
 
         /**
          * Sets the velocity of the rigid body.
@@ -734,7 +747,7 @@ namespace cyclone {
          * @param velocity The new velocity of the rigid body. The
          * velocity is given in world space.
          */
-        void setVelocity(const Vector3 &velocity);
+        void setVelocity(const vec3_t & velocity);
 
         /**
          * Sets the velocity of the rigid body by component. The
@@ -749,7 +762,7 @@ namespace cyclone {
          * @param z The z coordinate of the new velocity of the rigid
          * body.
          */
-        void setVelocity(const real x, const real y, const real z);
+        void setVelocity(const real_t x, const real_t y, const real_t z);
 
         /**
          * Fills the given vector with the velocity of the rigid body.
@@ -757,7 +770,7 @@ namespace cyclone {
          * @param velocity A pointer to a vector into which to write
          * the velocity. The velocity is given in world local space.
          */
-        void getVelocity(Vector3 *velocity) const;
+        void getVelocity(vec3_t * velocity) const;
 
         /**
          * Gets the velocity of the rigid body.
@@ -765,12 +778,12 @@ namespace cyclone {
          * @return The velocity of the rigid body. The velocity is
          * given in world local space.
          */
-        Vector3 getVelocity() const;
+        vec3_t getVelocity(void) const;
 
         /**
          * Applies the given change in velocity.
          */
-        void addVelocity(const Vector3 &deltaVelocity);
+        void addVelocity(const vec3_t & deltaVelocity);
 
         /**
          * Sets the rotation of the rigid body.
@@ -778,7 +791,7 @@ namespace cyclone {
          * @param rotation The new rotation of the rigid body. The
          * rotation is given in world space.
          */
-        void setRotation(const Vector3 &rotation);
+        void setRotation(const vec3_t & rotation);
 
         /**
          * Sets the rotation of the rigid body by component. The
@@ -793,7 +806,7 @@ namespace cyclone {
          * @param z The z coordinate of the new rotation of the rigid
          * body.
          */
-        void setRotation(const real x, const real y, const real z);
+        void setRotation(const real_t x, const real_t y, const real_t z);
 
         /**
          * Fills the given vector with the rotation of the rigid body.
@@ -801,7 +814,7 @@ namespace cyclone {
          * @param rotation A pointer to a vector into which to write
          * the rotation. The rotation is given in world local space.
          */
-        void getRotation(Vector3 *rotation) const;
+        void getRotation(vec3_t * rotation) const;
 
         /**
          * Gets the rotation of the rigid body.
@@ -809,12 +822,12 @@ namespace cyclone {
          * @return The rotation of the rigid body. The rotation is
          * given in world local space.
          */
-        Vector3 getRotation() const;
+        vec3_t getRotation(void) const;
 
         /**
          * Applies the given change in rotation.
          */
-        void addRotation(const Vector3 &deltaRotation);
+        void addRotation(const vec3_t & deltaRotation);
 
         /**
          * Returns true if the body is awake and responding to
@@ -835,7 +848,7 @@ namespace cyclone {
          *
          * @param awake The new awake state of the body.
          */
-        void setAwake(const bool awake=true);
+        void setAwake(const bool awake = true);
 
         /**
          * Returns true if the body is allowed to go to sleep at
@@ -854,7 +867,7 @@ namespace cyclone {
          *
          * @param canSleep Whether the body can now be put to sleep.
          */
-        void setCanSleep(const bool canSleep=true);
+        void setCanSleep(const bool canSleep = true);
 
         /*@}*/
 
@@ -882,7 +895,7 @@ namespace cyclone {
          * @param linearAcceleration A pointer to a vector to receive
          * the linear acceleration data.
          */
-        void getLastFrameAcceleration(Vector3 *linearAcceleration) const;
+        void getLastFrameAcceleration(vec3_t * linearAcceleration) const;
 
         /**
          * Gets the current accumulated value for linear
@@ -893,7 +906,7 @@ namespace cyclone {
          *
          * @return The rigid body's linear acceleration.
          */
-        Vector3 getLastFrameAcceleration() const;
+        vec3_t getLastFrameAcceleration(void) const;
 
         /*@}*/
 
@@ -910,7 +923,7 @@ namespace cyclone {
          * Clears the forces and torques in the accumulators. This will
          * be called automatically after each intergration step.
          */
-        void clearAccumulators();
+        void clearAccumulators(void);
 
 ///>AddForceAtCenter
         /**
@@ -919,7 +932,7 @@ namespace cyclone {
          *
          * @param force The force to apply.
          */
-        void addForce(const Vector3 &force);
+        void addForce(const vec3_t & force);
 ///<AddForceAtCenter
 
         /**
@@ -934,7 +947,7 @@ namespace cyclone {
          * @param point The location at which to apply the force, in
          * world-coordinates.
          */
-        void addForceAtPoint(const Vector3 &force, const Vector3 &point);
+        void addForceAtPoint(const vec3_t & force, const vec3_t & point);
 
         /**
          * Adds the given force to the given point on the rigid body.
@@ -948,7 +961,7 @@ namespace cyclone {
          * @param point The location at which to apply the force, in
          * body-coordinates.
          */
-        void addForceAtBodyPoint(const Vector3 &force, const Vector3 &point);
+        void addForceAtBodyPoint(const vec3_t & force, const vec3_t & point);
 
         /**
          * Adds the given torque to the rigid body.
@@ -956,14 +969,14 @@ namespace cyclone {
          *
          * @param torque The torque to apply.
          */
-        void addTorque(const Vector3 &torque);
+        void addTorque(const vec3_t & torque);
 
         /**
          * Sets the constant acceleration of the rigid body.
          *
          * @param acceleration The new acceleration of the rigid body.
          */
-        void setAcceleration(const Vector3 &acceleration);
+        void setAcceleration(const vec3_t & acceleration);
 
         /**
          * Sets the constant acceleration of the rigid body by component.
@@ -977,7 +990,7 @@ namespace cyclone {
          * @param z The z coordinate of the new acceleration of the rigid
          * body.
          */
-        void setAcceleration(const real x, const real y, const real z);
+        void setAcceleration(const real_t x, const real_t y, const real_t z);
 
         /**
          * Fills the given vector with the acceleration of the rigid body.
@@ -985,7 +998,7 @@ namespace cyclone {
          * @param acceleration A pointer to a vector into which to write
          * the acceleration. The acceleration is given in world local space.
          */
-        void getAcceleration(Vector3 *acceleration) const;
+        void getAcceleration(vec3_t * acceleration) const;
 
         /**
          * Gets the acceleration of the rigid body.
@@ -993,7 +1006,7 @@ namespace cyclone {
          * @return The acceleration of the rigid body. The acceleration is
          * given in world local space.
          */
-        Vector3 getAcceleration() const;
+        vec3_t getAcceleration(void) const;
 
         /*@}*/
 ///>RigidBodyIntro

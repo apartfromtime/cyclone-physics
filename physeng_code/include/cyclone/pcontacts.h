@@ -51,7 +51,13 @@ namespace cyclone {
 ///<PContact;PContactIntro
 ///>Omit;PContact
         // ... Other ParticleContact code as before ...
+    public:
+        ParticleContact(void) {
 
+            contactNormal = Vec3Clear();
+            particleMovement[0] = Vec3Clear();
+            particleMovement[1] = Vec3Clear();
+        }
 ///<Omit;PContact
 
         /**
@@ -67,56 +73,56 @@ namespace cyclone {
          * Holds the particles that are involved in the contact. The
          * second of these can be NULL, for contacts with the scenery.
          */
-        Particle* particle[2];
+        Particle * particle[2];
 
         /**
          * Holds the normal restitution coefficient at the contact.
          */
-        real restitution;
+        real_t restitution;
 
         /**
          * Holds the direction of the contact in world coordinates.
          */
-        Vector3 contactNormal;
+        vec3_t contactNormal;
 ///<PContactIntro
 
 ///>PContactInterpenetrationDef
         /**
          * Holds the depth of penetration at the contact.
          */
-        real penetration;
+        real_t penetration;
 ///<PContactInterpenetrationDef
 
 		/** 
 		 * Holds the amount each particle is moved by during interpenetration 
 		 * resolution. 
 		 */
-		Vector3 particleMovement[2];
+		vec3_t particleMovement[2];
 
 ///>PContactResolve
     protected:
         /**
          * Resolves this contact, for both velocity and interpenetration.
          */
-        void resolve(real duration);
+        void resolve(real_t duration);
 
         /**
          * Calculates the separating velocity at this contact.
          */
-        real calculateSeparatingVelocity() const;
+        real_t calculateSeparatingVelocity(void) const;
 
     private:
         /**
          * Handles the impulse calculations for this collision.
          */
-        void resolveVelocity(real duration);
+        void resolveVelocity(real_t duration);
 ///<PContactResolve
 
 ///>PContactInterpenetration
         /**
          * Handles the interpenetration resolution for this contact.
          */
-        void resolveInterpenetration(real duration);
+        void resolveInterpenetration(real_t duration);
 ///<PContactInterpenetration
 
 ///>PContactIntro;PContact
@@ -186,7 +192,7 @@ namespace cyclone {
         */
         void resolveContacts(ParticleContact *contactArray,
             unsigned numContacts,
-            real duration);
+            real_t duration);
     };
 ///<PCResolverResolve
 

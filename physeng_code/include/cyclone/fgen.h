@@ -37,7 +37,7 @@ namespace cyclone {
          * Overload this in implementations of the interface to calculate
          * and update the force applied to the given rigid body.
          */
-        virtual void updateForce(RigidBody *body, real duration) = 0;
+        virtual void updateForce(RigidBody * body, real_t duration) = 0;
     };
 ///<FGInterface
 
@@ -49,15 +49,15 @@ namespace cyclone {
     class Gravity : public ForceGenerator
     {
         /** Holds the acceleration due to gravity. */
-        Vector3 gravity;
+        vec3_t gravity;
 
     public:
 
         /** Creates the generator with the given acceleration. */
-        Gravity(const Vector3 &gravity);
+        Gravity(const vec3_t & gravity);
 
         /** Applies the gravitational force to the given rigid body. */
-        virtual void updateForce(RigidBody *body, real duration);
+        virtual void updateForce(RigidBody * body, real_t duration);
     };
 ///<GravityFG
 
@@ -71,34 +71,32 @@ namespace cyclone {
          * The point of connection of the spring, in local
          * coordinates.
          */
-        Vector3 connectionPoint;
+        vec3_t connectionPoint;
 
         /**
          * The point of connection of the spring to the other object,
          * in that object's local coordinates.
          */
-        Vector3 otherConnectionPoint;
+        vec3_t otherConnectionPoint;
 
         /** The particle at the other end of the spring. */
-        RigidBody *other;
+        RigidBody * other;
 
         /** Holds the spring constant. */
-        real springConstant;
+        real_t springConstant;
 
         /** Holds the rest length of the spring. */
-        real restLength;
+        real_t restLength;
 
     public:
 
         /** Creates a new spring with the given parameters. */
-        Spring(const Vector3 &localConnectionPt,
-               RigidBody *other,
-               const Vector3 &otherConnectionPt,
-               real springConstant,
-               real restLength);
+        Spring(const vec3_t & localConnectionPt, RigidBody * other,
+               const vec3_t & otherConnectionPt, real_t springConstant,
+               real_t restLength);
 
         /** Applies the spring force to the given rigid body. */
-        virtual void updateForce(RigidBody *body, real duration);
+        virtual void updateForce(RigidBody * body, real_t duration);
     };
 ///<SpringFG
 
@@ -116,7 +114,7 @@ namespace cyclone {
          * Tracks how long the explosion has been in operation, used
          * for time-sensitive effects.
          */
-        real timePassed;
+        real_t timePassed;
 
     public:
 ///<ExplosionFGIntro
@@ -127,7 +125,7 @@ namespace cyclone {
         /**
          * The location of the detonation of the weapon.
          */
-        Vector3 detonation;
+        vec3_t detonation;
 
 ///<ExplosionFG
 ///>Omit;ExplosionFGIntro
@@ -140,20 +138,20 @@ namespace cyclone {
          * The radius up to which objects implode in the first stage
          * of the explosion.
          */
-        real implosionMaxRadius;
+        real_t implosionMaxRadius;
 
         /**
          * The radius within which objects don't feel the implosion
          * force. Objects near to the detonation aren't sucked in by
          * the air implosion.
          */
-        real implosionMinRadius;
+        real_t implosionMinRadius;
 
         /**
          * The length of time that objects spend imploding before the
          * concussion phase kicks in.
          */
-        real implosionDuration;
+        real_t implosionDuration;
 
         /**
          * The maximal force that the implosion can apply. This should
@@ -161,7 +159,7 @@ namespace cyclone {
          * through the detonation point and out the other side before
          * the concussion wave kicks in.
          */
-        real implosionForce;
+        real_t implosionForce;
 ///<ExplosionFGImplosion
 
 ///>ExplosionFGConcussion
@@ -171,14 +169,14 @@ namespace cyclone {
          *
          * thickness >= speed * minimum frame duration
          */
-        real shockwaveSpeed;
+        real_t shockwaveSpeed;
 
         /**
          * The shock wave applies its force over a range of distances,
          * this controls how thick. Faster waves require larger
          * thicknesses.
          */
-        real shockwaveThickness;
+        real_t shockwaveThickness;
 
         /**
          * This is the force that is applied at the very centre of the
@@ -188,13 +186,13 @@ namespace cyclone {
          * force. Objects moving in towards the centre get
          * proportionally more force.
          */
-         real peakConcussionForce;
+         real_t peakConcussionForce;
 
          /**
           * The length of time that the concussion wave is active.
           * As the wave nears this, the forces it applies reduces.
           */
-         real concussionDuration;
+         real_t concussionDuration;
 
 ///>ExplosionFGConcussion
 ///>ExplosionFGConvection
@@ -203,17 +201,17 @@ namespace cyclone {
           * the centre of the convection chimney. Force calculations
           * for this value are the same as for peakConcussionForce.
           */
-         real peakConvectionForce;
+         real_t peakConvectionForce;
 
          /**
           * The radius of the chimney cylinder in the xz plane.
           */
-         real chimneyRadius;
+         real_t chimneyRadius;
 
          /**
           * The maximum height of the chimney.
           */
-         real chimneyHeight;
+         real_t chimneyHeight;
 
          /**
           * The length of time the convection chimney is active. Typically
@@ -221,7 +219,7 @@ namespace cyclone {
           * from the explosion outlives the shock wave and implosion 
           * itself.
           */
-         real convectionDuration;
+         real_t convectionDuration;
 ///<ExplosionFGConvection
 
 ///>ExplosionFG
@@ -229,19 +227,19 @@ namespace cyclone {
         /**
          * Creates a new explosion with sensible default values.
          */
-        Explosion();
+        Explosion(void);
 
         /**
          * Calculates and applies the force that the explosion 
          * has on the given rigid body. 
          */
-        virtual void updateForce(RigidBody * body, real duration);
+        virtual void updateForce(RigidBody * body, real_t duration);
 
         /**
          * Calculates and applies the force that the explosion has
          * on the given particle.
          */
-        virtual void updateForce(Particle *particle, real duration) = 0;
+        virtual void updateForce(Particle * particle, real_t duration) = 0;
         
 ///>ExplosionFGIntro
     };
@@ -258,13 +256,13 @@ namespace cyclone {
          * Holds the aerodynamic tensor for the surface in body
          * space.
          */
-        Matrix3 tensor;
+        mat3_t tensor;
 
         /**
          * Holds the relative position of the aerodynamic surface in
          * body coordinates.
          */
-        Vector3 position;
+        vec3_t position;
 
         /**
          * Holds a pointer to a vector containing the windspeed of the
@@ -272,20 +270,24 @@ namespace cyclone {
          * windspeed vector per generator and having to update it
          * manually as the wind changes.
          */
-        const Vector3* windspeed;
+        const vec3_t * windspeed;
 
     public:
+        Aero(void) {
+            tensor = Mat3Identity();
+            position = Vec3Clear();
+        }
         /**
          * Creates a new aerodynamic force generator with the
          * given properties.
          */
-        Aero(const Matrix3 &tensor, const Vector3 &position,
-             const Vector3 *windspeed);
+        Aero(const mat3_t & tensor, const vec3_t & position,
+             const vec3_t * windspeed);
 
         /**
          * Applies the force to the given rigid body.
          */
-        virtual void updateForce(RigidBody *body, real duration);
+        virtual void updateForce(RigidBody * body, real_t duration);
 
 	protected: 
 		/**
@@ -293,8 +295,8 @@ namespace cyclone {
 		 * the given rigid body. This is exactly the same as for updateForce
 		 * only it takes an explicit tensor.
 		 */
-		void updateForceFromTensor(RigidBody *body, real duration, 
-								   const Matrix3 &tensor);
+		void updateForceFromTensor(RigidBody * body, real_t duration,
+            const mat3_t & tensor);
     };
 ///<AeroFG
 
@@ -313,13 +315,13 @@ namespace cyclone {
          * The aerodynamic tensor for the surface, when the control is at
          * its maximum value.
          */
-        Matrix3 maxTensor;
+        mat3_t maxTensor;
 
         /**
          * The aerodynamic tensor for the surface, when the control is at
          * its minimum value.
          */
-        Matrix3 minTensor;
+        mat3_t minTensor;
 
         /**
         * The current position of the control for this surface. This
@@ -327,23 +329,27 @@ namespace cyclone {
         * is used), through 0 (where the base-class tensor value is
         * used) to +1 (where the maxTensor value is used).
         */
-        real controlSetting;
+        real_t controlSetting;
 
     private:
         /**
          * Calculates the final aerodynamic tensor for the current
          * control setting.
          */
-        Matrix3 getTensor();
+        mat3_t getTensor(void);
 
     public:
+        AeroControl(void) {
+            minTensor = Mat3Identity();
+            maxTensor = Mat3Identity();
+            controlSetting = 0.0f;
+        }
         /**
          * Creates a new aerodynamic control surface with the given
          * properties.
          */
-        AeroControl(const Matrix3 &base,
-                    const Matrix3 &min, const Matrix3 &max,
-                    const Vector3 &position, const Vector3 *windspeed);
+        AeroControl(const mat3_t & base, const mat3_t & min, const mat3_t & max,
+                    const vec3_t & position, const vec3_t * windspeed);
 
         /**
          * Sets the control position of this control. This should range
@@ -352,12 +358,12 @@ namespace cyclone {
          * maxTensor value is used). Values outside that range give undefined
          * results.
          */
-        void setControl(real value);
+        void setControl(real_t value);
 
         /**
          * Applies the force to the given rigid body.
          */
-        virtual void updateForce(RigidBody *body, real duration);
+        virtual void updateForce(RigidBody * body, real_t duration);
     };
 ///<AeroControlFG
 
@@ -372,14 +378,14 @@ namespace cyclone {
          * Holds the orientation of the aerodynamic surface relative
          * to the rigid body to which it is attached.
          */
-        Quaternion orientation;
+        quat_t orientation;
 
     public:
         /**
          * Creates a new aerodynamic surface with the given properties.
          */
-        AngledAero(const Matrix3 &tensor, const Vector3 &position,
-             const Vector3 *windspeed);
+        AngledAero(const mat3_t & tensor, const vec3_t & position,
+             const vec3_t * windspeed);
 
         /**
          * Sets the relative orientation of the aerodynamic surface,
@@ -387,12 +393,12 @@ namespace cyclone {
          * this doesn't affect the point of connection of the surface
          * to the body.
          */
-        void setOrientation(const Quaternion &quat);
+        void setOrientation(const quat_t & quat);
 
         /**
          * Applies the force to the given rigid body.
          */
-        virtual void updateForce(RigidBody *body, real duration);
+        virtual void updateForce(RigidBody * body, real_t duration);
     };
 ///<AngledAeroFG
 
@@ -406,41 +412,47 @@ namespace cyclone {
          * The maximum submersion depth of the object before
          * it generates its maximum buoyancy force.
          */
-        real maxDepth;
+        real_t maxDepth;
 
         /**
          * The volume of the object.
          */
-        real volume;
+        real_t volume;
 
         /**
          * The height of the water plane above y=0. The plane will be
          * parallel to the XZ plane.
          */
-        real waterHeight;
+        real_t waterHeight;
 
         /**
          * The density of the liquid. Pure water has a density of
          * 1000kg per cubic meter.
          */
-        real liquidDensity;
+        real_t liquidDensity;
 
         /**
          * The centre of buoyancy of the rigid body, in body coordinates.
          */
-        Vector3 centreOfBuoyancy;
+        vec3_t centreOfBuoyancy;
 
     public:
 
+        Buoyancy(void) {
+            maxDepth = 0.0f;
+            volume = 0.0f;
+            waterHeight = 0.0f;
+            liquidDensity = 0.0f;
+            centreOfBuoyancy = Vec3Clear();          
+        }
         /** Creates a new buoyancy force with the given parameters. */
-        Buoyancy(const Vector3 &cOfB, 
-            real maxDepth, real volume, real waterHeight,
-            real liquidDensity = 1000.0f);
+        Buoyancy(const vec3_t & cOfB, real_t maxDepth, real_t volume,
+            real_t waterHeight, real_t liquidDensity = 1000.0f);
 
         /**
          * Applies the force to the given rigid body.
          */
-        virtual void updateForce(RigidBody *body, real duration);
+        virtual void updateForce(RigidBody * body, real_t duration);
     };
 
 	/**
@@ -456,8 +468,8 @@ namespace cyclone {
 		*/
 		struct ForceRegistration
 		{
-			RigidBody *body;
-			ForceGenerator *fg;
+			RigidBody * body;
+			ForceGenerator * fg;
 		};
 
 		/**
@@ -471,27 +483,27 @@ namespace cyclone {
 		* Registers the given force generator to apply to the
 		* given body.
 		*/
-		void add(RigidBody* body, ForceGenerator *fg);
+		void add(RigidBody * body, ForceGenerator * fg);
 
 		/**
 		* Removes the given registered pair from the registry.
 		* If the pair is not registered, this method will have
 		* no effect.
 		*/
-		void remove(RigidBody* body, ForceGenerator *fg);
+		void remove(RigidBody * body, ForceGenerator * fg);
 
 		/**
 		* Clears all registrations from the registry. This will
 		* not delete the bodies or the force generators
 		* themselves, just the records of their connection.
 		*/
-		void clear();
+		void clear(void);
 
 		/**
 		* Calls all the force generators to update the forces of
 		* their corresponding bodies.
 		*/
-		void updateForces(real duration);
+		void updateForces(real_t duration);
 	};
 }
 

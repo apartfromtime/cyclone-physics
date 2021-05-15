@@ -31,14 +31,14 @@ namespace cyclone {
      */
     struct BoundingSphere
     {
-        Vector3 centre;
-        real radius;
+        vec3_t centre;
+        real_t radius;
 
     public:
         /**
          * Creates a new bounding sphere at the given centre and radius.
          */
-        BoundingSphere(const Vector3 &centre, real radius);
+        BoundingSphere(const vec3_t &centre, real_t radius);
 
         /**
          * Creates a bounding sphere to enclose the two given bounding
@@ -61,16 +61,16 @@ namespace cyclone {
          * takes into account the growth in surface area (after the
          * Goldsmith-Salmon algorithm for tree construction).
          */
-        real getGrowth(const BoundingSphere &other) const;
+        real_t getGrowth(const BoundingSphere &other) const;
 
         /**
          * Returns the volume of this bounding volume. This is used
          * to calculate how to recurse into the bounding volume tree.
          * For a bounding sphere it is a simple calculation.
          */
-        real getSize() const
+        real_t getSize() const
         {
-            return ((real)1.333333) * R_PI * radius * radius * radius;
+            return ((real_t)1.333333) * R_PI * radius * radius * radius;
         }
 ///>SphereBVHOverlap
     };

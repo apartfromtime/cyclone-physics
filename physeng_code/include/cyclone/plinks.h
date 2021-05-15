@@ -36,13 +36,13 @@ namespace cyclone {
         /**
          * Holds the pair of particles that are connected by this link.
          */
-        Particle* particle[2];
-
+        Particle * particle[2];
+ 
     protected:
         /**
          * Returns the current length of the link.
          */
-        real currentLength() const;
+        real_t currentLength() const;
 
     public:
         /**
@@ -57,8 +57,8 @@ namespace cyclone {
          * virtual) in the parent class, but is replicated here for
          * documentation purposes.
          */
-        virtual unsigned addContact(ParticleContact *contact,
-                                    unsigned limit) const = 0;
+        virtual unsigned addContact(ParticleContact * contact,
+            unsigned limit) const = 0;
     };
 
     /**
@@ -71,20 +71,20 @@ namespace cyclone {
         /**
          * Holds the maximum length of the cable.
          */
-        real maxLength;
+        real_t maxLength;
 
         /**
          * Holds the restitution (bounciness) of the cable.
          */
-        real restitution;
+        real_t restitution;
 
     public:
         /**
          * Fills the given contact structure with the contact needed
          * to keep the cable from over-extending.
          */
-        virtual unsigned addContact(ParticleContact *contact,
-                                    unsigned limit) const;
+        virtual unsigned addContact(ParticleContact * contact,
+            unsigned limit) const;
     };
 
     /**
@@ -97,15 +97,15 @@ namespace cyclone {
         /**
          * Holds the length of the rod.
          */
-        real length;
+        real_t length;
 
     public:
         /**
          * Fills the given contact structure with the contact needed
          * to keep the rod from extending or compressing.
          */
-        virtual unsigned addContact(ParticleContact *contact,
-                                     unsigned limit) const;
+        virtual unsigned addContact(ParticleContact * contact,
+            unsigned limit) const;
     };
 
 	/**
@@ -115,21 +115,25 @@ namespace cyclone {
 	class ParticleConstraint : public ParticleContactGenerator
 	{
 	public:
+        ParticleConstraint(void) {
+            anchor = Vec3Clear();
+        }
+        
 		/**
 		* Holds the particles connected by this constraint.
 		*/
-		Particle* particle;
+		Particle * particle;
 
 		/**
 		 * The point to which the particle is anchored.
 		 */
-		Vector3 anchor;
+		vec3_t anchor;
 
 	protected:
 		/**
 		* Returns the current length of the link.
 		*/
-		real currentLength() const;
+		real_t currentLength() const;
 
 	public:
 		/**
@@ -144,8 +148,8 @@ namespace cyclone {
 		* virtual) in the parent class, but is replicated here for
 		* documentation purposes.
 		*/
-		virtual unsigned addContact(ParticleContact *contact,
-			unsigned limit) const = 0;
+		virtual unsigned addContact(ParticleContact * contact,
+            unsigned limit) const = 0;
 	};
 
 	/**
@@ -158,19 +162,19 @@ namespace cyclone {
 		/**
 		* Holds the maximum length of the cable.
 		*/
-		real maxLength;
+		real_t maxLength;
 
 		/**
 		* Holds the restitution (bounciness) of the cable.
 		*/
-		real restitution;
+		real_t restitution;
 
 	public:
 		/**
 		* Fills the given contact structure with the contact needed
 		* to keep the cable from over-extending.
 		*/
-		virtual unsigned addContact(ParticleContact *contact,
+		virtual unsigned addContact(ParticleContact * contact,
 			unsigned limit) const;
 	};
 
@@ -184,14 +188,14 @@ namespace cyclone {
 		/**
 		* Holds the length of the rod.
 		*/
-		real length;
+		real_t length;
 
 	public:
 		/**
 		* Fills the given contact structure with the contact needed
 		* to keep the rod from extending or compressing.
 		*/
-		virtual unsigned addContact(ParticleContact *contact,
+		virtual unsigned addContact(ParticleContact * contact,
 			unsigned limit) const;
 	};
 } // namespace cyclone

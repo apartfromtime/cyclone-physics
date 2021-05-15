@@ -14,22 +14,21 @@
 
 using namespace cyclone;
 
-real ParticleLink::currentLength() const
+real_t ParticleLink::currentLength(void) const
 {
-    Vector3 relativePos = particle[0]->getPosition() -
-                          particle[1]->getPosition();
-    return relativePos.magnitude();
+    vec3_t relativePos = Vec3Subtract( particle[0]->getPosition(),
+        particle[1]->getPosition() );
+    return Vec3Magnitude( relativePos );
 }
 
-unsigned ParticleCable::addContact(ParticleContact *contact,
-                                    unsigned limit) const
+unsigned ParticleCable::addContact(ParticleContact * contact,
+    unsigned limit) const
 {
     // Find the length of the cable
-    real length = currentLength();
+    real_t length = currentLength();
 
     // Check if we're over-extended
-    if (length < maxLength)
-    {
+    if ( length < maxLength ) {
         return 0;
     }
 
@@ -38,25 +37,25 @@ unsigned ParticleCable::addContact(ParticleContact *contact,
     contact->particle[1] = particle[1];
 
     // Calculate the normal
-    Vector3 normal = particle[1]->getPosition() - particle[0]->getPosition();
-    normal.normalise();
-    contact->contactNormal = normal;
+    vec3_t normal = Vec3Subtract( particle[1]->getPosition(),
+        particle[0]->getPosition() );
+    normal = Vec3Normalise( normal );
 
-    contact->penetration = length-maxLength;
+    contact->contactNormal = normal;
+    contact->penetration = length - maxLength;
     contact->restitution = restitution;
 
     return 1;
 }
 
-unsigned ParticleRod::addContact(ParticleContact *contact,
-                                  unsigned limit) const
+unsigned ParticleRod::addContact(ParticleContact * contact,
+    unsigned limit) const
 {
     // Find the length of the rod
-    real currentLen = currentLength();
+    real_t currentLen = currentLength();
 
     // Check if we're over-extended
-    if (currentLen == length)
-    {
+    if ( currentLen == length ) {
         return 0;
     }
 
@@ -65,15 +64,19 @@ unsigned ParticleRod::addContact(ParticleContact *contact,
     contact->particle[1] = particle[1];
 
     // Calculate the normal
-    Vector3 normal = particle[1]->getPosition() - particle[0]->getPosition();
-    normal.normalise();
+    vec3_t normal = Vec3Subtract( particle[1]->getPosition(),
+        particle[0]->getPosition() );
+    normal = Vec3Normalise( normal );
 
     // The contact normal depends on whether we're extending or compressing
-    if (currentLen > length) {
+    if ( currentLen > length ) {
+
         contact->contactNormal = normal;
         contact->penetration = currentLen - length;
+
     } else {
-        contact->contactNormal = normal * -1;
+
+        contact->contactNormal = Vec3Scale( normal, -1 );
         contact->penetration = length - currentLen;
     }
 
@@ -83,21 +86,20 @@ unsigned ParticleRod::addContact(ParticleContact *contact,
     return 1;
 }
 
-real ParticleConstraint::currentLength() const
+real_t ParticleConstraint::currentLength(void) const
 {
-	Vector3 relativePos = particle->getPosition() - anchor;
-	return relativePos.magnitude();
+	vec3_t relativePos = Vec3Subtract( particle->getPosition(), anchor );
+	return Vec3Magnitude( relativePos );
 }
 
-unsigned ParticleCableConstraint::addContact(ParticleContact *contact,
-								   unsigned limit) const
+unsigned ParticleCableConstraint::addContact(ParticleContact * contact,
+    unsigned limit) const
 {
 	// Find the length of the cable
-	real length = currentLength();
+	real_t length = currentLength();
 
 	// Check if we're over-extended
-	if (length < maxLength)
-	{
+	if ( length < maxLength ) {
 		return 0;
 	}
 
@@ -106,25 +108,24 @@ unsigned ParticleCableConstraint::addContact(ParticleContact *contact,
 	contact->particle[1] = 0;
 
 	// Calculate the normal
-	Vector3 normal = anchor - particle->getPosition();
-	normal.normalise();
-	contact->contactNormal = normal;
+	vec3_t normal = Vec3Subtract( anchor, particle->getPosition() );
+	normal = Vec3Normalise( normal );
 
-	contact->penetration = length-maxLength;
+	contact->contactNormal = normal;
+	contact->penetration = length - maxLength;
 	contact->restitution = restitution;
 
 	return 1;
 }
 
-unsigned ParticleRodConstraint::addContact(ParticleContact *contact,
-								 unsigned limit) const
+unsigned ParticleRodConstraint::addContact(ParticleContact * contact,
+    unsigned limit) const
 {
 	// Find the length of the rod
-	real currentLen = currentLength();
+	real_t currentLen = currentLength();
 
 	// Check if we're over-extended
-	if (currentLen == length)
-	{
+	if ( currentLen == length ) {
 		return 0;
 	}
 
@@ -133,15 +134,18 @@ unsigned ParticleRodConstraint::addContact(ParticleContact *contact,
 	contact->particle[1] = 0;
 
 	// Calculate the normal
-	Vector3 normal = anchor - particle->getPosition();
-	normal.normalise();
+    vec3_t normal = Vec3Subtract( anchor, particle->getPosition() );
+    normal = Vec3Normalise( normal );
 
 	// The contact normal depends on whether we're extending or compressing
-	if (currentLen > length) {
+	if ( currentLen > length ) {
+
 		contact->contactNormal = normal;
 		contact->penetration = currentLen - length;
+
 	} else {
-		contact->contactNormal = normal * -1;
+		
+        contact->contactNormal = Vec3Scale( normal, -1 );
 		contact->penetration = length - currentLen;
 	}
 

@@ -76,47 +76,55 @@ namespace cyclone {
 ///<ContactFriend
 
     public:
+        Contact(void) {
+            contactPoint = Vec3Clear();
+            contactNormal = Vec3Clear();
+            contactToWorld = Mat3Identity();
+            relativeContactPosition[0] = Vec3Clear();
+            relativeContactPosition[1] = Vec3Clear();
+            contactVelocity = Vec3Clear();
+        }
         /**
          * Holds the bodies that are involved in the contact. The
          * second of these can be NULL, for contacts with the scenery.
          */
-        RigidBody* body[2];
+        RigidBody * body[2];
 
         /**
          * Holds the lateral friction coefficient at the contact.
          */
-        real friction;
+        real_t friction;
 
         /**
          * Holds the normal restitution coefficient at the contact.
          */
-        real restitution;
+        real_t restitution;
 
 ///>ContactIntro
         /**
          * Holds the position of the contact in world coordinates.
          */
-        Vector3 contactPoint;
+        vec3_t contactPoint;
 
         /**
          * Holds the direction of the contact in world coordinates.
          */
-        Vector3 contactNormal;
+        vec3_t contactNormal;
 
         /**
          * Holds the depth of penetration at the contact point. If both
          * bodies are specified then the contact point should be midway
          * between the inter-penetrating points.
          */
-        real penetration;
+        real_t penetration;
 ///<ContactIntro
 
         /**
          * Sets the data that doesn't normally depend on the position
          * of the contact (i.e. the bodies, and their material properties).
          */
-        void setBodyData(RigidBody* one, RigidBody *two,
-                         real friction, real restitution);
+        void setBodyData(RigidBody * one, RigidBody * two, real_t friction,
+            real_t restitution);
 
 ///>ContactInternalData
     protected:
@@ -126,26 +134,26 @@ namespace cyclone {
          * frame of reference to world co-ordinates. The columns of this
          * matrix form an orthonormal set of vectors.
          */
-        Matrix3 contactToWorld;
+        mat3_t contactToWorld;
 
         /**
          * Holds the closing velocity at the point of contact. This is set
          * when the calculateInternals function is run.
          */
-        Vector3 contactVelocity;
+        vec3_t contactVelocity;
 
         /**
          * Holds the required change in velocity for this contact to be 
          * resolved.
          */
-        real desiredDeltaVelocity;
+        real_t desiredDeltaVelocity;
 
         /**
          * Holds the world space position of the contact point relative to
          * centre of each body. This is set when the calculateInternals
          * function is run.
          */
-        Vector3 relativeContactPosition[2];
+        vec3_t relativeContactPosition[2];
 ///<ContactInternalData
 
 ///>ContactCalculateInternals
@@ -155,7 +163,7 @@ namespace cyclone {
          * the resolution algorithm tries to do any resolution. It should
          * never need to be called manually.
          */
-        void calculateInternals(real duration);
+        void calculateInternals(real_t duration);
 
         /**
          * Reverses the contact. This involves swapping the two rigid bodies
@@ -177,13 +185,13 @@ namespace cyclone {
          * Calculates and sets the internal value for the desired delta 
          * velocity.
          */
-        void calculateDesiredDeltaVelocity(real duration);
+        void calculateDesiredDeltaVelocity(real_t duration);
 
         /**
          * Calculates and returns the velocity of the contact
          * point on the given body.
          */
-        Vector3 calculateLocalVelocity(unsigned bodyIndex, real duration);
+        vec3_t calculateLocalVelocity(unsigned bodyIndex, real_t duration);
 
         /**
          * Calculates an orthonormal basis for the contact point, based on
@@ -196,24 +204,23 @@ namespace cyclone {
          * Applies an impulse to the given body, returning the 
          * change in velocities.
          */
-        void applyImpulse(const Vector3 &impulse, RigidBody *body, 
-                          Vector3 *velocityChange, Vector3 *rotationChange);
+        void applyImpulse(const vec3_t & impulse, RigidBody * body,
+            vec3_t * velocityChange, vec3_t * rotationChange);
 
         /**
          * Performs an inertia-weighted impulse based resolution of this 
          * contact alone.
          */
-        void applyVelocityChange(Vector3 velocityChange[2], 
-                                 Vector3 rotationChange[2]);
+        void applyVelocityChange(vec3_t velocityChange[2],
+            vec3_t rotationChange[2]);
 
         /**
          * Performs an inertia weighted penetration resolution of this 
          * contact alone.
          */
-        void applyPositionChange(Vector3 velocityChange[2], 
-            Vector3 rotationDirection[2],
-            real rotationAmount[2],
-            real penetration);
+        void applyPositionChange(vec3_t velocityChange[2],
+            vec3_t rotationDirection[2], real_t rotationAmount[2],
+            real_t penetration);
 ///>Contact;ContactIntro
     };
 ///<Contact;ContactIntro
@@ -292,7 +299,7 @@ namespace cyclone {
          * interpenetrate visually. A good starting point is the default 
          * of 0.01.
          */
-        real velocityEpsilon;
+        real_t velocityEpsilon;
 
         /**
          * To avoid instability penetrations 
@@ -301,7 +308,7 @@ namespace cyclone {
          * bodies may interpenetrate visually. A good starting point is 
          * the default of 0.01.
          */
-        real positionEpsilon;
+        real_t positionEpsilon;
 
     public:
         /**
@@ -330,8 +337,8 @@ namespace cyclone {
          * per resolution call, and optional epsilon values.
          */
         ContactResolver(unsigned iterations, 
-            real velocityEpsilon=(real)0.01,
-            real positionEpsilon=(real)0.01);
+            real_t velocityEpsilon=(real_t)0.01,
+            real_t positionEpsilon=(real_t)0.01);
 
         /** 
          * Creates a new contact resolver with the given number of iterations
@@ -339,8 +346,8 @@ namespace cyclone {
          */
         ContactResolver(unsigned velocityIterations, 
             unsigned positionIterations,
-            real velocityEpsilon=(real)0.01,
-            real positionEpsilon=(real)0.01);
+            real_t velocityEpsilon=(real_t)0.01,
+            real_t positionEpsilon=(real_t)0.01);
 
         /** 
          * Returns true if the resolver has valid settings and is ready to go. 
@@ -367,8 +374,8 @@ namespace cyclone {
         /**
          * Sets the tolerance value for both velocity and position.
          */
-        void setEpsilon(real velocityEpsilon, 
-                        real positionEpsilon);
+        void setEpsilon(real_t velocityEpsilon, 
+                        real_t positionEpsilon);
 
 ///>ContactResolverBase
         /**
@@ -401,7 +408,7 @@ namespace cyclone {
 ///>ContactResolverBase
         void resolveContacts(Contact *contactArray, 
             unsigned numContacts,
-            real duration);
+            real_t duration);
 ///<ContactResolverBase
 
 ///>ContactResolverAux
@@ -414,7 +421,7 @@ namespace cyclone {
          * is made alive.
          */
         void prepareContacts(Contact *contactArray, unsigned numContacts,
-            real duration);
+            real_t duration);
 ///<PrepareContacts
 
         /**
@@ -423,7 +430,7 @@ namespace cyclone {
          */
         void adjustVelocities(Contact *contactArray,
             unsigned numContacts,
-            real duration);
+            real_t duration);
 
         /**
          * Resolves the positional issues with the given array of constraints,
@@ -431,7 +438,7 @@ namespace cyclone {
          */
         void adjustPositions(Contact *contacts, 
             unsigned numContacts,
-            real duration);
+            real_t duration);
 ///>ContactResolver
     };
 ///<ContactResolver

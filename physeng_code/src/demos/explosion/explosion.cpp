@@ -73,23 +73,25 @@ public:
     }
 
     /** Sets the box to a specific location. */
-    void setState(cyclone::Vector3 position, 
-                  cyclone::Quaternion orientation, 
-                  cyclone::real radius,
-                  cyclone::Vector3 velocity)
+    void setState(cyclone::vec3_t position, 
+                  cyclone::quat_t orientation, 
+                  cyclone::real_t radius,
+                  cyclone::vec3_t velocity)
     {
+        cyclone::vec3_t rotation = { 0, 0, 0 };
+
         body->setPosition(position);
         body->setOrientation(orientation);
         body->setVelocity(velocity);
-        body->setRotation(cyclone::Vector3(0,0,0));
+        body->setRotation(rotation);
         Ball::radius = radius;
 
-        cyclone::real mass = 4.0f*0.3333f*3.1415f * radius*radius*radius;
+        cyclone::real_t mass = 4.0f*0.3333f*3.1415f * radius*radius*radius;
         body->setMass(mass);
 
-        cyclone::Matrix3 tensor;
-        cyclone::real coeff = 0.4f*mass*radius*radius;
-        tensor.setInertiaTensorCoeffs(coeff,coeff,coeff);
+        cyclone::mat3_t tensor = cyclone::Mat3Identity();
+        cyclone::real_t coeff = 0.4f*mass*radius*radius;
+        tensor = cyclone::Mat3SetInertiaTensorCoeffs( coeff, coeff, coeff );
         body->setInertiaTensor(tensor);
 
         body->setLinearDamping(0.95f);
@@ -106,15 +108,15 @@ public:
     /** Positions the box at a random location. */
     void random(cyclone::Random *random)
     {
-        const static cyclone::Vector3 minPos(-5, 5, -5);
-        const static cyclone::Vector3 maxPos(5, 10, 5);
-        cyclone::Random r;
+        const static cyclone::vec3_t minPos = {-5,  5,-5 };
+        const static cyclone::vec3_t maxPos = { 5, 10, 5 };
+
         setState(
             random->randomVector(minPos, maxPos),
             random->randomQuaternion(),
             random->randomReal(0.5f, 1.5f),
-            cyclone::Vector3()
-            );
+            cyclone::Vec3Clear()
+        );
     }
 };
 
@@ -167,22 +169,25 @@ public:
     }
 
     /** Sets the box to a specific location. */
-    void setState(const cyclone::Vector3 &position, 
-                  const cyclone::Quaternion &orientation, 
-                  const cyclone::Vector3 &extents,
-                  const cyclone::Vector3 &velocity)
+    void setState(const cyclone::vec3_t &position, 
+                  const cyclone::quat_t &orientation, 
+                  const cyclone::vec3_t &extents,
+                  const cyclone::vec3_t &velocity)
     {
+        cyclone::vec3_t rotation = { 0, 0, 0 };
+
         body->setPosition(position);
         body->setOrientation(orientation);
         body->setVelocity(velocity);
-        body->setRotation(cyclone::Vector3(0,0,0));
+        body->setRotation(rotation);
         halfSize = extents;
 
-        cyclone::real mass = halfSize.x * halfSize.y * halfSize.z * 8.0f;
+        cyclone::real_t mass = halfSize.x * halfSize.y * halfSize.z * 8.0f;
         body->setMass(mass);
 
-        cyclone::Matrix3 tensor;
-        tensor.setBlockInertiaTensor(halfSize, mass);
+        cyclone::vec3_t hs = { halfSize.x, halfSize.y, halfSize.z };
+        cyclone::mat3_t tensor = cyclone::Mat3Identity();
+        tensor = cyclone::Mat3SetBlockInertiaTensor(hs, mass);
         body->setInertiaTensor(tensor);
 
         body->setLinearDamping(0.95f);
@@ -199,17 +204,17 @@ public:
     /** Positions the box at a random location. */
     void random(cyclone::Random *random)
     {
-        const static cyclone::Vector3 minPos(-5, 5, -5);
-        const static cyclone::Vector3 maxPos(5, 10, 5);
-        const static cyclone::Vector3 minSize(0.5f, 0.5f, 0.5f);
-        const static cyclone::Vector3 maxSize(4.5f, 1.5f, 1.5f);
+        const static cyclone::vec3_t minPos = {-5, 5, -5 };
+        const static cyclone::vec3_t maxPos = { 5, 10, 5 };
+        const static cyclone::vec3_t minSize = { 0.5f, 0.5f, 0.5f };
+        const static cyclone::vec3_t maxSize = { 4.5f, 1.5f, 1.5f };
 
         setState(
             random->randomVector(minPos, maxPos),
             random->randomQuaternion(),
             random->randomVector(minSize, maxSize),
-            cyclone::Vector3()
-            );
+            cyclone::Vec3Clear()
+        );
     }
 };
 
@@ -247,7 +252,7 @@ class ExplosionDemo : public RigidBodyApplication
 	virtual void generateContacts();
 
     /** Processes the objects in the simulation forward in time. */
-    virtual void updateObjects(cyclone::real duration);
+    virtual void updateObjects(cyclone::real_t duration);
 
 public:
     /** Creates a new demo object. */
@@ -287,25 +292,28 @@ const char* ExplosionDemo::getTitle()
 
 void ExplosionDemo::fire()
 {
-    cyclone::Vector3 pos = ballData[0].body->getPosition();
-    pos.normalise();
-
-    ballData[0].body->addForce(pos * -1000.0f);
+    cyclone::vec3_t position = ballData[0].body->getPosition();
+    position = Vec3Normalise( position );
+    ballData[0].body->addForce( Vec3Scale( position, -1000.0f ) );
 }
 
 void ExplosionDemo::reset()
 {
     Box *box = boxData;
 
-    box++->setState(cyclone::Vector3(0,3,0), 
-                    cyclone::Quaternion(), 
-                    cyclone::Vector3(4,1,1),
-                    cyclone::Vector3(0,1,0));
+    cyclone::vec3_t pos0 = { 0, 3, 0 };
+    cyclone::quat_t ori0 = { 1.0f, 0.0f, 0.0f, 0.0f };
+    cyclone::vec3_t ext0 = { 4, 1, 1 };
+    cyclone::vec3_t vel0 = { 0, 1, 0 };
 
-    box++->setState(cyclone::Vector3(0,4.75,2), 
-                    cyclone::Quaternion(1.0,0.1,0.05,0.01), 
-                    cyclone::Vector3(1,1,4),
-                    cyclone::Vector3(0,0,0));
+    box++->setState( pos0, ori0, ext0, vel0 );
+
+    cyclone::vec3_t pos1 = { 0, 4.75, 2 };
+    cyclone::quat_t ori1 = { 1.0f, 0.1f, 0.05f, 0.01f };
+    cyclone::vec3_t ext1 = { 1, 1, 4 };
+    cyclone::vec3_t vel1 = { 0, 0, 0 };
+
+    box++->setState( pos1, ori1, ext1, vel1 );
 
     // Create the random objects
     cyclone::Random random;
@@ -331,18 +339,18 @@ void ExplosionDemo::generateContacts()
 
     // Create the ground plane data
     cyclone::CollisionPlane plane;
-    plane.direction = cyclone::Vector3(0,1,0);
+    plane.direction.x = 0;
+    plane.direction.y = 1;
+    plane.direction.z = 0;
     plane.offset = 0;
 
     // Set up the collision data structure
     cData.reset(maxContacts);
-    cData.friction = (cyclone::real)0.9;
-    cData.restitution = (cyclone::real)0.6;
-    cData.tolerance = (cyclone::real)0.1;
+    cData.friction = (cyclone::real_t)0.9;
+    cData.restitution = (cyclone::real_t)0.6;
+    cData.tolerance = (cyclone::real_t)0.1;
 
     // Perform exhaustive collision detection
-    cyclone::Matrix4 transform, otherTransform;
-    cyclone::Vector3 position, otherPosition;
     for (Box *box = boxData; box < boxData+boxes; box++)
     {
         // Check for collisions with the ground plane
@@ -384,7 +392,7 @@ void ExplosionDemo::generateContacts()
     }
 }
 
-void ExplosionDemo::updateObjects(cyclone::real duration)
+void ExplosionDemo::updateObjects(cyclone::real_t duration)
 {
 ///>ExplosionUpdate
     // Update the physics of each box in turn
@@ -524,24 +532,26 @@ void ExplosionDemo::mouseDrag(int x, int y)
 {
     if (editMode)
     {
-        boxData[0].body->setPosition(boxData[0].body->getPosition() + 
-            cyclone::Vector3(
-                (x-last_x) * 0.125f,
-                0,
-                (y-last_y) * 0.125f
-                )
-            );
+        cyclone::vec3_t mPos = {
+            (x-last_x) * 0.125f,
+            0,
+            (y-last_y) * 0.125f
+        };
+
+        boxData[0].body->setPosition( Vec3Add( boxData[0].body->getPosition(),
+            mPos ) );
         boxData[0].body->calculateDerivedData();
     }
     else if (upMode)
     {
-        boxData[0].body->setPosition(boxData[0].body->getPosition() + 
-            cyclone::Vector3(
-                0,
-                (y-last_y) * 0.125f,
-                0
-                )
-            );
+        cyclone::vec3_t mPos = {
+            0,
+            (y-last_y) * 0.125f,
+            0
+        };
+
+        boxData[0].body->setPosition( Vec3Add( boxData[0].body->getPosition(),
+            mPos ) );
         boxData[0].body->calculateDerivedData();
     }
     else
