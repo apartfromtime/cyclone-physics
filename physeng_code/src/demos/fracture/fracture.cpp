@@ -331,14 +331,18 @@ void FractureDemo::generateContacts()
 
 		// Check for collisions with the ground plane
 		if (!cData.hasMoreContacts()) return;
-		cyclone::CollisionDetector::boxAndHalfSpace(*block, plane, &cData);
+
+        /* collision detection */
+		cyclone::BoxAndHalfSpace( *block, plane, &cData );
 
 		if (ball_active)
 		{
 			// And with the sphere
 			if (!cData.hasMoreContacts()) return;
-			if (cyclone::CollisionDetector::boxAndSphere(*block, ball, &cData))
-			{
+
+            /* collision detection */
+			if ( cyclone::BoxAndSphere( *block, ball, &cData ) ) {
+
 				hit = true;
 				fracture_contact = cData.contactCount-1;
 			}
@@ -350,7 +354,9 @@ void FractureDemo::generateContacts()
 			if (!other->exists) continue;
 
 			if (!cData.hasMoreContacts()) return;
-			cyclone::CollisionDetector::boxAndBox(*block, *other, &cData);
+
+            /* collision detection */
+			cyclone::BoxAndBox( *block, *other, &cData );
 		}
 	}
 
@@ -358,7 +364,9 @@ void FractureDemo::generateContacts()
 	if (ball_active)
 	{
 		if (!cData.hasMoreContacts()) return;
-		cyclone::CollisionDetector::sphereAndHalfSpace(ball, plane, &cData);
+
+        /* collision detection */
+		cyclone::SphereAndHalfSpace( ball, plane, &cData );
 	}
 }
 

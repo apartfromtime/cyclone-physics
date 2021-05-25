@@ -243,7 +243,9 @@ void RagdollDemo::generateContacts()
     {
         // Check for collisions with the ground plane
 		if (!cData.hasMoreContacts()) return;
-        cyclone::CollisionDetector::boxAndHalfSpace(*bone, plane, &cData);
+
+        /* collision detection */
+        cyclone::BoxAndHalfSpace( *bone, plane, &cData );
 
 		cyclone::CollisionSphere boneSphere = bone->getCollisionSphere();
 
@@ -254,11 +256,8 @@ void RagdollDemo::generateContacts()
 
 			cyclone::CollisionSphere otherSphere = other->getCollisionSphere();
 
-			cyclone::CollisionDetector::sphereAndSphere(
-				boneSphere, 
-				otherSphere, 
-				&cData
-				);
+            /* collision detection */
+			cyclone::SphereAndSphere( boneSphere, otherSphere, &cData );
 		}
     }
 

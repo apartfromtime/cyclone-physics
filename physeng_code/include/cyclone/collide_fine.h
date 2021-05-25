@@ -29,10 +29,6 @@
 
 namespace cyclone {
 
-    // Forward declarations of primitive friends
-    class IntersectionTests;
-    class CollisionDetector;
-
     /**
      * Represents a primitive to detect collisions against.
      */
@@ -44,13 +40,6 @@ namespace cyclone {
             offset = Mat4Identity();
             transform = Mat4Identity();
         }
-        /**
-         * This class exists to help the collision detector
-         * and intersection routines, so they should have
-         * access to its data.
-         */
-        friend IntersectionTests;
-        friend CollisionDetector;
 
         /**
          * The rigid body that is represented by this primitive.
@@ -155,34 +144,25 @@ namespace cyclone {
      * can be used to drive the coarse collision detection system or
      * as an early out in the full collision tests below.
      */
-    class IntersectionTests
-    {
-    public:
-
-        static bool sphereAndHalfSpace(const CollisionSphere & sphere,
-            const CollisionPlane & plane);
-
-        static bool sphereAndSphere(const CollisionSphere & one,
-            const CollisionSphere & two);
-
-        static bool boxAndBox( const CollisionBox & one,
-            const CollisionBox & two);
-
-        /**
-         * Does an intersection test on an arbitrarily aligned box and a
-         * half-space. 
-         *
-         * The box is given as a transform matrix, including
-         * position, and a vector of half-sizes for the extend of the
-         * box along each local axis.
-         *
-         * The half-space is given as a direction (i.e. unit) vector and the
-         * offset of the limiting plane from the origin, along the given 
-         * direction.
-         */
-        static bool boxAndHalfSpace(const CollisionBox & box,
-            const CollisionPlane & plane);
-    };
+    bool SphereAndHalfSpace(const CollisionSphere & sphere,
+        const CollisionPlane & plane);
+    bool SphereAndSphere(const CollisionSphere & one,
+        const CollisionSphere & two);
+    bool BoxAndBox( const CollisionBox & one, const CollisionBox & two);
+    /**
+     * Does an intersection test on an arbitrarily aligned box and a
+     * half-space. 
+     *
+     * The box is given as a transform matrix, including
+     * position, and a vector of half-sizes for the extend of the
+     * box along each local axis.
+     *
+     * The half-space is given as a direction (i.e. unit) vector and the
+     * offset of the limiting plane from the origin, along the given 
+     * direction.
+     */
+    bool BoxAndHalfSpace(const CollisionBox & box,
+        const CollisionPlane & plane);
 
 
 ///>CollisionDataIntro    
@@ -268,38 +248,31 @@ namespace cyclone {
      * of two objects, and a pointer to a contact array to fill. It 
      * returns the number of contacts it wrote into the array.
      */
-    class CollisionDetector
-    {
-    public:
+    unsigned SphereAndHalfSpace(const CollisionSphere & sphere,
+        const CollisionPlane & plane, CollisionData * data );
 
-        static unsigned sphereAndHalfSpace(const CollisionSphere & sphere,
-            const CollisionPlane & plane, CollisionData * data );
+    unsigned SphereAndTruePlane(const CollisionSphere & sphere,
+        const CollisionPlane & plane, CollisionData * data);
 
-        static unsigned sphereAndTruePlane(const CollisionSphere & sphere,
-            const CollisionPlane & plane, CollisionData * data);
+    unsigned SphereAndSphere(const CollisionSphere & one,
+        const CollisionSphere & two, CollisionData * data);
+        
+    /**
+     * Does a collision test on a collision box and a plane representing 
+     * a half-space (i.e. the normal of the plane 
+     * points out of the half-space).
+     */
+    unsigned BoxAndHalfSpace(const CollisionBox & box,
+        const CollisionPlane & plane, CollisionData * data);
 
-        static unsigned sphereAndSphere(const CollisionSphere & one,
-            const CollisionSphere & two, CollisionData * data);
-            
-        /**
-         * Does a collision test on a collision box and a plane representing 
-         * a half-space (i.e. the normal of the plane 
-         * points out of the half-space).
-         */
-        static unsigned boxAndHalfSpace(const CollisionBox & box,
-            const CollisionPlane & plane, CollisionData * data);
+    unsigned BoxAndBox(const CollisionBox & one,
+        const CollisionBox & two, CollisionData * data);
 
-		static unsigned boxAndBox(const CollisionBox & one,
-            const CollisionBox & two, CollisionData * data);
+    unsigned BoxAndPoint(const CollisionBox & box, const vec3_t & point,
+        CollisionData * data);
 
-		static unsigned boxAndPoint(const CollisionBox & box,
-            const vec3_t & point, CollisionData * data);
-
-		static unsigned boxAndSphere(const CollisionBox & box,
-            const CollisionSphere & sphere, CollisionData * data);
-    };
-
-
+    unsigned BoxAndSphere(const CollisionBox & box,
+        const CollisionSphere & sphere, CollisionData * data);
 
 } // namespace cyclone
 

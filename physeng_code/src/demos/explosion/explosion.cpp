@@ -355,16 +355,20 @@ void ExplosionDemo::generateContacts()
     {
         // Check for collisions with the ground plane
 		if (!cData.hasMoreContacts()) return;
-        cyclone::CollisionDetector::boxAndHalfSpace(*box, plane, &cData);
+
+        /* collision detection */
+        cyclone::BoxAndHalfSpace( *box, plane, &cData );
 
         // Check for collisions with each other box
         for (Box *other = box+1; other < boxData+boxes; other++)
         {
     		if (!cData.hasMoreContacts()) return;
-			cyclone::CollisionDetector::boxAndBox(*box, *other, &cData);
 
-            if (cyclone::IntersectionTests::boxAndBox(*box, *other))
-            {
+            /* collision detection */
+			cyclone::BoxAndBox( *box, *other, &cData );
+
+            /* intersection test */
+            if ( cyclone::BoxAndBox( *box, *other ) ) {
                 box->isOverlapping = other->isOverlapping = true;
             }
 		}
@@ -373,7 +377,9 @@ void ExplosionDemo::generateContacts()
         for (Ball *other = ballData; other < ballData+balls; other++)
         { 
     		if (!cData.hasMoreContacts()) return;
-            cyclone::CollisionDetector::boxAndSphere(*box, *other, &cData);
+
+            /* collision detection */
+            cyclone::BoxAndSphere( *box, *other, &cData );
 		}
     }
 
@@ -381,13 +387,16 @@ void ExplosionDemo::generateContacts()
     {
         // Check for collisions with the ground plane
         if (!cData.hasMoreContacts()) return;
-        cyclone::CollisionDetector::sphereAndHalfSpace(*ball, plane, &cData);
+
+        /* collision detection */
+        cyclone::SphereAndHalfSpace( *ball, plane, &cData );
 
         for (Ball *other = ball+1; other < ballData+balls; other++)
         {
             // Check for collisions with the ground plane
     		if (!cData.hasMoreContacts()) return;
-            cyclone::CollisionDetector::sphereAndSphere(*ball, *other, &cData);
+
+            cyclone::SphereAndSphere( *ball, *other, &cData );
         }
     }
 }

@@ -29,7 +29,11 @@ void CollisionPrimitive::calculateInternals(void)
     transform = Mat4Multiply( body->getTransform(), offset );
 }
 
-bool IntersectionTests::sphereAndHalfSpace(const CollisionSphere & sphere,
+
+/* Intersection Tests */
+
+
+bool cyclone::SphereAndHalfSpace(const CollisionSphere & sphere,
     const CollisionPlane & plane)
 {
     // Find the distance from the origin
@@ -40,9 +44,7 @@ bool IntersectionTests::sphereAndHalfSpace(const CollisionSphere & sphere,
     return ballDistance <= plane.offset;
 }
 
-bool IntersectionTests::sphereAndSphere(
-    const CollisionSphere &one,
-    const CollisionSphere &two)
+bool cyclone::SphereAndSphere(const CollisionSphere & one, const CollisionSphere & two)
 {
     // Find the vector between the objects
     vec3_t midline = Vec3Subtract( one.getAxis( 3 ), two.getAxis( 3 ) );
@@ -53,7 +55,7 @@ bool IntersectionTests::sphereAndSphere(
 }
 
 ///>BoxBoxSepAxis
-static inline real_t transformToAxis(const CollisionBox & box,
+static inline real_t TransformToAxis(const CollisionBox & box,
     const vec3_t & axis)
 {
     return 
@@ -68,12 +70,12 @@ static inline real_t transformToAxis(const CollisionBox & box,
  * is used to pass in the vector between the boxes centre
  * points, to avoid having to recalculate it each time.
  */
-static inline bool overlapOnAxis(const CollisionBox & one,
+static inline bool OverlapOnAxis(const CollisionBox & one,
     const CollisionBox & two, const vec3_t & axis, const vec3_t & toCentre)
 {
     // Project the half-size of one onto axis
-    real_t oneProject = transformToAxis( one, axis );
-    real_t twoProject = transformToAxis( two, axis );
+    real_t oneProject = TransformToAxis( one, axis );
+    real_t twoProject = TransformToAxis( two, axis );
 
     // Project this onto the axis
     real_t distance = R_abs( Vec3ScalarProduct( toCentre, axis ) );
@@ -85,12 +87,9 @@ static inline bool overlapOnAxis(const CollisionBox & one,
 
 // This preprocessor definition is only used as a convenience
 // in the boxAndBox intersection  method.
-#define TEST_OVERLAP(axis) overlapOnAxis(one, two, (axis), toCentre)
+#define TEST_OVERLAP(axis) OverlapOnAxis(one, two, (axis), toCentre)
 
-bool IntersectionTests::boxAndBox(
-    const CollisionBox &one,
-    const CollisionBox &two
-    )
+bool cyclone::BoxAndBox(const CollisionBox & one, const CollisionBox & two)
 {
     // Find the vector between the two centres
     vec3_t toCentre = Vec3Subtract( two.getAxis( 3 ), one.getAxis( 3 ) );
@@ -129,11 +128,10 @@ bool IntersectionTests::boxAndBox(
 }
 #undef TEST_OVERLAP
 
-bool IntersectionTests::boxAndHalfSpace(const CollisionBox & box,
-    const CollisionPlane & plane)
+bool cyclone::BoxAndHalfSpace(const CollisionBox & box, const CollisionPlane & plane)
 {
     // Work out the projected radius of the box onto the plane direction
-    real_t projectedRadius = transformToAxis(box, plane.direction);
+    real_t projectedRadius = TransformToAxis(box, plane.direction);
 
     // Work out how far the box is from the origin
     real_t boxDistance = Vec3ScalarProduct( plane.direction,
@@ -143,8 +141,46 @@ bool IntersectionTests::boxAndHalfSpace(const CollisionBox & box,
     return boxDistance <= plane.offset;
 }
 
+
+/* Collision Detection */
+
+
+///>SphereHalfSpace
+unsigned cyclone::SphereAndHalfSpace(const CollisionSphere & sphere,
+    const CollisionPlane & plane, CollisionData * data)
+{
+    // Make sure we have contacts
+    if ( data->contactsLeft <= 0 ) {
+        return 0;
+    }
+
+    // Cache the sphere position
+    vec3_t position = sphere.getAxis( 3 );
+    
+    // Find the distance from the plane
+    real_t ballDistance = Vec3ScalarProduct( plane.direction, position ) -
+        sphere.radius - plane.offset;
+    
+    if ( ballDistance >= 0 ) {
+        return 0;
+    }
+
+    // Create the contact - it has a normal in the plane direction.
+    Contact * contact = data->contacts;
+    contact->contactNormal = plane.direction;
+    contact->penetration = -ballDistance;
+    contact->contactPoint = Vec3Subtract( position,
+        Vec3Scale( plane.direction, ( ballDistance + sphere.radius ) ) );
+    contact->setBodyData(sphere.body, NULL,
+        data->friction, data->restitution);
+    data->addContacts( 1 );
+    return 1;
+}
+///<SphereHalfSpace
+
+
 ///>SphereTruePlane
-unsigned CollisionDetector::sphereAndTruePlane(const CollisionSphere & sphere,
+unsigned cyclone::SphereAndTruePlane(const CollisionSphere & sphere,
     const CollisionPlane & plane, CollisionData * data)
 {
     // Make sure we have contacts
@@ -190,43 +226,8 @@ unsigned CollisionDetector::sphereAndTruePlane(const CollisionSphere & sphere,
 }
 ///<SphereTruePlane
 
-///>SphereHalfSpace
-unsigned CollisionDetector::sphereAndHalfSpace(const CollisionSphere & sphere,
-    const CollisionPlane & plane, CollisionData * data)
-{
-    // Make sure we have contacts
-    if ( data->contactsLeft <= 0 ) {
-        return 0;
-    }
-
-    // Cache the sphere position
-    vec3_t position = sphere.getAxis( 3 );
-
-    // Find the distance from the plane
-    real_t ballDistance = Vec3ScalarProduct( plane.direction, position ) -
-        sphere.radius - plane.offset;
-
-    if ( ballDistance >= 0 ) {
-        return 0;
-    }
-
-    // Create the contact - it has a normal in the plane direction.
-    Contact * contact = data->contacts;
-    contact->contactNormal = plane.direction;
-    contact->penetration = -ballDistance;
-    contact->contactPoint = Vec3Subtract( position,
-        Vec3Scale( plane.direction, ( ballDistance + sphere.radius ) ) );
-    contact->setBodyData(sphere.body, NULL,
-        data->friction, data->restitution);
-
-    data->addContacts( 1 );
-
-    return 1;
-}
-///<SphereHalfSpace
-
-///>SphereSphereCollide
-unsigned CollisionDetector::sphereAndSphere(const CollisionSphere & one,
+///>SphereSphere
+unsigned cyclone::SphereAndSphere(const CollisionSphere & one,
     const CollisionSphere & two, CollisionData * data)
 {
     // Make sure we have contacts
@@ -262,9 +263,83 @@ unsigned CollisionDetector::sphereAndSphere(const CollisionSphere & one,
 
     return 1;
 }
-///<SphereSphereCollide
+///<SphereSphere
 
+///>BoxAndHalfSpace
+unsigned cyclone::BoxAndHalfSpace(const CollisionBox & box,
+    const CollisionPlane & plane, CollisionData * data)
+{
+    // Make sure we have contacts
+    if ( data->contactsLeft <= 0 ) {
+        return 0;
+    }
 
+    // Check for intersection
+    if ( !BoxAndHalfSpace( box, plane ) ) {
+        return 0;
+    }
+
+    // We have an intersection, so find the intersection points. We can make
+    // do with only checking vertices. If the box is resting on a plane
+    // or on an edge, it will be reported as four or two contact points.
+
+    // Go through each combination of + and - for each half-size
+    static real_t mults[8][3] = {
+        { 1, 1, 1 }, {-1, 1, 1 }, { 1,-1, 1 }, {-1,-1, 1 },
+        { 1, 1,-1 }, {-1, 1,-1 }, { 1,-1,-1 }, {-1,-1,-1 }
+    };
+
+    Contact * contact = data->contacts;
+    unsigned contactsUsed = 0;
+
+    for (unsigned i = 0; i < 8; i++) {
+
+        // Calculate the position of each vertex
+        vec3_t vertexPos = { mults[i][0], mults[i][1], mults[i][2] };
+        vertexPos = Vec3ComponentProduct( vertexPos, box.halfSize );
+        vertexPos = Mat4Transform( vertexPos, box.getTransform() );
+
+///>BoxPlaneTestOne
+        // Calculate the distance from the plane
+        real_t vertexDistance = Vec3ScalarProduct( vertexPos, plane.direction );
+
+        // Compare this to the plane's distance
+        if ( vertexDistance <= plane.offset ) {
+
+            // Create the contact data.
+
+            // The contact point is halfway between the vertex and the
+            // plane - we multiply the direction by half the separation 
+            // distance and add the vertex location.
+            contact->contactPoint = Vec3Add(
+                Vec3Scale( plane.direction, ( vertexDistance - plane.offset ) ),
+                vertexPos );
+            contact->contactNormal = plane.direction;
+            contact->penetration = plane.offset - vertexDistance;
+///<BoxPlaneTestOne
+            
+            // Write the appropriate data
+            contact->setBodyData( box.body, NULL,  data->friction,
+                data->restitution );
+
+            // Move onto the next contact
+            contact++;
+            contactsUsed++;
+            
+            if ( ( int )contactsUsed == data->contactsLeft ) {
+                return contactsUsed;
+            }
+
+///>BoxPlaneTestOne
+        }
+///<BoxPlaneTestOne
+    }
+
+    data->addContacts( contactsUsed );
+
+    return contactsUsed;
+}
+///<BoxAndHalfSpace
 
 
 /**
@@ -274,12 +349,12 @@ unsigned CollisionDetector::sphereAndSphere(const CollisionSphere & one,
  * is used to pass in the vector between the boxes centre
  * points, to avoid having to recalculate it each time.
  */
-static inline real_t penetrationOnAxis(const CollisionBox & one,
+static inline real_t PenetrationOnAxis(const CollisionBox & one,
     const CollisionBox & two, const vec3_t & axis, const vec3_t & toCentre)
 {
     // Project the half-size of one onto axis
-    real_t oneProject = transformToAxis(one, axis);
-    real_t twoProject = transformToAxis(two, axis);
+    real_t oneProject = TransformToAxis(one, axis);
+    real_t twoProject = TransformToAxis(two, axis);
 
     // Project this onto the axis
     real_t distance = R_abs( Vec3ScalarProduct( toCentre, axis ) );
@@ -289,12 +364,12 @@ static inline real_t penetrationOnAxis(const CollisionBox & one,
     return oneProject + twoProject - distance;
 }
 
-static inline bool tryAxis(const CollisionBox & one, const CollisionBox & two,
+static inline bool TryAxis(const CollisionBox & one, const CollisionBox & two,
     const vec3_t & axis, const vec3_t & toCentre, unsigned index,
     // These values may be updated
     real_t & smallestPenetration, unsigned & smallestCase)
 {
-    real_t penetration = penetrationOnAxis(one, two, axis, toCentre);
+    real_t penetration = PenetrationOnAxis(one, two, axis, toCentre);
     if (penetration < 0) return false;
     if (penetration < smallestPenetration) {
         smallestPenetration = penetration;
@@ -306,9 +381,9 @@ static inline bool tryAxis(const CollisionBox & one, const CollisionBox & two,
 // This preprocessor definition is only used as a convenience
 // in the boxAndBox contact generation method.
 #define CHECK_OVERLAP(axis, index) \
-    if (!tryAxis(one, two, (axis), toCentre, (index), pen, best)) return 0;
+    if (!TryAxis(one, two, (axis), toCentre, (index), pen, best)) return 0;
    
-void fillPointFaceBoxBox(const CollisionBox & one, const CollisionBox & two,
+void FillPointFaceBoxBox(const CollisionBox & one, const CollisionBox & two,
     const vec3_t & toCentre, CollisionData * data, unsigned best, real_t pen)
 {
     // This method is called when we know that a vertex from
@@ -349,7 +424,7 @@ void fillPointFaceBoxBox(const CollisionBox & one, const CollisionBox & two,
         data->restitution );
 }
 
-static inline vec3_t contactPoint(const vec3_t & pOne, const vec3_t & dOne,
+static inline vec3_t ContactPoint(const vec3_t & pOne, const vec3_t & dOne,
     real_t oneSize, const vec3_t & pTwo, const vec3_t & dTwo, real_t twoSize,
     // If this is true, and the contact point is outside
     // the edge (in the case of an edge-face contact) then
@@ -393,12 +468,11 @@ static inline vec3_t contactPoint(const vec3_t & pOne, const vec3_t & dOne,
     }
 }
 
-
-
-unsigned CollisionDetector::boxAndBox(const CollisionBox & one,
-    const CollisionBox & two, CollisionData * data)
+///>BoxAndBox
+unsigned cyclone::BoxAndBox(const CollisionBox & one, const CollisionBox & two,
+    CollisionData * data)
 {
-    //if (!IntersectionTests::boxAndBox(one, two)) return 0;
+    //if ( !BoxAndBox( one, two ) ) return 0;
 
     // Find the vector between the two centres
     vec3_t toCentre = Vec3Subtract( two.getAxis( 3 ), one.getAxis( 3 ) );
@@ -451,7 +525,7 @@ unsigned CollisionDetector::boxAndBox(const CollisionBox & one,
     if ( best < 3 ) {
 
         // We've got a vertex of box two on a face of box one.
-        fillPointFaceBoxBox( one, two, toCentre, data, best, pen );
+        FillPointFaceBoxBox( one, two, toCentre, data, best, pen );
         data->addContacts(1);
 
         return 1;
@@ -461,7 +535,7 @@ unsigned CollisionDetector::boxAndBox(const CollisionBox & one,
         // We use the same algorithm as above, but swap around
         // one and two (and therefore also the vector between their 
         // centres).
-        fillPointFaceBoxBox( two, one, Vec3Scale( toCentre, -1.0f ), data,
+        FillPointFaceBoxBox( two, one, Vec3Scale( toCentre, -1.0f ), data,
             best - 3, pen );
         data->addContacts( 1 );
         
@@ -510,8 +584,8 @@ unsigned CollisionDetector::boxAndBox(const CollisionBox & one,
 
         // Move them into world coordinates (they are already oriented
         // correctly, since they have been derived from the axes).
-        ptOnOneEdge = Mat4Transform( ptOnOneEdge, one.transform );
-        ptOnTwoEdge = Mat4Transform( ptOnTwoEdge, two.transform );
+        ptOnOneEdge = Mat4Transform( ptOnOneEdge, one.getTransform() );
+        ptOnTwoEdge = Mat4Transform( ptOnTwoEdge, two.getTransform() );
 
 #ifdef _DEBUG
 
@@ -548,7 +622,7 @@ unsigned CollisionDetector::boxAndBox(const CollisionBox & one,
         // So we have a point and a direction for the colliding edges.
         // We need to find out point of closest approach of the two 
         // line-segments.
-        vec3_t vertex = contactPoint(
+        vec3_t vertex = ContactPoint(
             ptOnOneEdge, oneAxis, one.halfSize.n[oneAxisIndex],
             ptOnTwoEdge, twoAxis, two.halfSize.n[twoAxisIndex],
             bestSingleAxis > 2
@@ -569,17 +643,14 @@ unsigned CollisionDetector::boxAndBox(const CollisionBox & one,
 
     /*return 0;*/
 }
-#undef CHECK_OVERLAP
+///<BoxAndBox
 
-
-
-
-///>PointFaceBoxBox
-unsigned CollisionDetector::boxAndPoint(const CollisionBox & box,
-    const vec3_t & point, CollisionData * data)
+///>BoxAndPoint
+unsigned cyclone::BoxAndPoint(const CollisionBox & box, const vec3_t & point,
+    CollisionData * data)
 {
     // Transform the point into box coordinates
-    vec3_t relPt = Mat4TransformInverse( point, box.transform );
+    vec3_t relPt = Mat4TransformInverse( point, box.getTransform() );
 
     vec3_t normal = Vec3Clear();
 
@@ -628,19 +699,20 @@ unsigned CollisionDetector::boxAndPoint(const CollisionBox & box,
     contact->setBodyData( box.body, NULL, data->friction, data->restitution );
     data->addContacts( 1 );
 
-	return 1;
+    return 1;
 }
-///<PointFaceBoxBox
-                                        
-///>SphereBoxCollision
-unsigned CollisionDetector::boxAndSphere(const CollisionBox & box,
+///<BoxAndPoint
+
+
+///>BoxAndSphere
+unsigned cyclone::BoxAndSphere(const CollisionBox & box,
     const CollisionSphere & sphere, CollisionData * data)
 {
 ///>SphereBoxCentreToBox
     // Transform the centre of the sphere into box coordinates
     vec3_t centre = sphere.getAxis( 3 );
     vec3_t relCentre = Mat4TransformInverse( sphere.getAxis( 3 ),
-        box.transform );
+        box.getTransform() );
 ///<SphereBoxCentreToBox
 
 ///>SphereBoxEarlyOut
@@ -704,7 +776,7 @@ unsigned CollisionDetector::boxAndSphere(const CollisionBox & box,
 
 ///>SphereBoxUntransformClosestPoint
     // Compile the contact
-    vec3_t closestPtWorld = Mat4Transform( closestPt, box.transform );
+    vec3_t closestPtWorld = Mat4Transform( closestPt, box.getTransform() );
 ///<SphereBoxUntransformClosestPoint
 
     Contact * contact = data->contacts;
@@ -719,78 +791,4 @@ unsigned CollisionDetector::boxAndSphere(const CollisionBox & box,
 
     return 1;
 }
-///<SphereBoxCollision
-
-unsigned CollisionDetector::boxAndHalfSpace(const CollisionBox & box,
-    const CollisionPlane & plane, CollisionData *data)
-{
-    // Make sure we have contacts
-    if ( data->contactsLeft <= 0 ) {
-        return 0;
-    }
-
-    // Check for intersection
-    if ( !IntersectionTests::boxAndHalfSpace( box, plane ) ) {
-        return 0;
-    }
-
-    // We have an intersection, so find the intersection points. We can make
-    // do with only checking vertices. If the box is resting on a plane
-    // or on an edge, it will be reported as four or two contact points.
-
-    // Go through each combination of + and - for each half-size
-    static real_t mults[8][3] = {
-        { 1, 1, 1 }, {-1, 1, 1 }, { 1,-1, 1 }, {-1,-1, 1 },
-        { 1, 1,-1 }, {-1, 1,-1 }, { 1,-1,-1 }, {-1,-1,-1 }
-    };
-
-    Contact * contact = data->contacts;
-    unsigned contactsUsed = 0;
-
-    for (unsigned i = 0; i < 8; i++) {
-
-        // Calculate the position of each vertex
-        vec3_t vertexPos = { mults[i][0], mults[i][1], mults[i][2] };
-        vertexPos = Vec3ComponentProduct( vertexPos, box.halfSize );
-        vertexPos = Mat4Transform( vertexPos, box.transform );
-
-///>BoxPlaneTestOne
-        // Calculate the distance from the plane
-        real_t vertexDistance = Vec3ScalarProduct( vertexPos, plane.direction );
-
-        // Compare this to the plane's distance
-        if ( vertexDistance <= plane.offset ) {
-
-            // Create the contact data.
-
-            // The contact point is halfway between the vertex and the
-            // plane - we multiply the direction by half the separation 
-            // distance and add the vertex location.
-            contact->contactPoint = Vec3Add(
-                Vec3Scale( plane.direction, ( vertexDistance - plane.offset ) ),
-                vertexPos );
-            contact->contactNormal = plane.direction;
-            contact->penetration = plane.offset - vertexDistance;
-///<BoxPlaneTestOne
-            
-            // Write the appropriate data
-            contact->setBodyData( box.body, NULL,  data->friction,
-                data->restitution );
-
-            // Move onto the next contact
-            contact++;
-            contactsUsed++;
-            
-            if ( ( int )contactsUsed == data->contactsLeft ) {
-                return contactsUsed;
-            }
-
-///>BoxPlaneTestOne
-        }
-///<BoxPlaneTestOne
-    }
-
-    data->addContacts( contactsUsed );
-
-    return contactsUsed;
-}
+///<BoxAndSphere
