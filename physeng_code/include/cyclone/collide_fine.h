@@ -29,18 +29,8 @@
 
 namespace cyclone {
 
-    /**
-     * Represents a primitive to detect collisions against.
-     */
-    class CollisionPrimitive
+    typedef struct CollisionPrimitive
     {
-    public:
-        CollisionPrimitive(void)
-        {
-            offset = Mat4Identity();
-            transform = Mat4Identity();
-        }
-
         /**
          * The rigid body that is represented by this primitive.
          */
@@ -54,63 +44,46 @@ namespace cyclone {
         /**
          * Calculates the internals for the primitive.
          */
-        void calculateInternals(void);
-
-        /**
-         * This is a convenience function to allow access to the
-         * axis vectors in the transform for this primitive.
-         */
-        vec3_t getAxis(unsigned index) const
-        {
-            return Mat4AxisVector( transform, index );
-        }
-
-        /**
-         * Returns the resultant transform of the primitive, calculated from
-         * the combined offset of the primitive and the transform 
-         * (orientation + position) of the rigid body to which it is 
-         * attached.
-         */
-        const mat4_t & getTransform(void) const
-        {
-            return transform;
-        }
+/*        void calculateInternals(void);*/
  
-
-    protected:
         /**
          * The resultant transform of the primitive. This is 
          * calculated by combining the offset of the primitive
-         * with the transform of the rigid body.
+         * and the transform (orientation + position) of the rigid body to
+         * which it is attached.
          */
         mat4_t transform;
-    };
+
+    } CollisionPrimitive;
+
+    /**
+     * Calculates the internals for the primitive.
+     */
+    void CalculateInternals(CollisionPrimitive & primitive);   
 
     /**
      * Represents a rigid body that can be treated as a sphere
      * for collision detection.
      */
-    class CollisionSphere : public CollisionPrimitive
+    typedef struct CollisionSphere
     {
-    public:
+        CollisionPrimitive primitive;
+
         /**
          * The radius of the sphere.
          */
         real_t radius;
-    };
+
+    } CollisionSphere;
 
     /**
      * The plane is not a primitive: it doesn't represent another
      * rigid body. It is used for contacts with the immovable
      * world geometry.
      */
-    class CollisionPlane
+    typedef struct CollisionPlane
     {
-    public:
-        CollisionPlane(void)
-        {
-            direction = Vec3Clear();
-        }
+        CollisionPrimitive primitive;
         /** 
          * The plane normal
          */
@@ -120,24 +93,29 @@ namespace cyclone {
          * The distance of the plane from the origin.
          */
         real_t offset;
-    };
+
+    } CollisionPlane;
 
     /**
      * Represents a rigid body that can be treated as an aligned bounding
      * box for collision detection.
      */
-    class CollisionBox : public CollisionPrimitive
+    typedef struct CollisionBox
     {
-    public:
-        CollisionBox(void)
-        {
-            halfSize = Vec3Clear();
-        }
+        CollisionPrimitive primitive;
+
         /** 
          * Holds the half-sizes of the box along each of its local axes.
          */
         vec3_t halfSize;
-    };
+
+    } CollisionBox;
+
+    /* collision type defaults */
+    extern const CollisionPrimitive COLLISION_PRIMITIVE;
+    extern const CollisionSphere COLLISION_SPHERE;
+    extern const CollisionPlane COLLISION_PLANE;
+    extern const CollisionBox COLLISION_BOX;
 
     /**
      * A wrapper class that holds fast intersection tests. These

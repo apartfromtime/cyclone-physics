@@ -23,10 +23,29 @@
 
 using namespace cyclone;
 
+const cyclone::CollisionPrimitive cyclone::COLLISION_PRIMITIVE = {
+    NULL, Mat4Identity(), Mat4Identity()
+};
 
-void CollisionPrimitive::calculateInternals(void)
+const cyclone::CollisionSphere cyclone::COLLISION_SPHERE = {
+    COLLISION_PRIMITIVE, 0.0f
+};
+
+const cyclone::CollisionPlane cyclone::COLLISION_PLANE = {
+    COLLISION_PRIMITIVE, VECTOR3, ( real_t )0.0f
+};
+
+const cyclone::CollisionBox cyclone::COLLISION_BOX = {
+    COLLISION_PRIMITIVE, VECTOR3
+};
+
+/**
+ * Calculates the internals for the primitive.
+ */
+void cyclone::CalculateInternals(CollisionPrimitive & primitive)
 {
-    transform = Mat4Multiply( body->getTransform(), offset );
+    primitive.transform = Mat4Multiply( primitive.body->getTransform(),
+        primitive.offset );
 }
 
 
@@ -38,16 +57,18 @@ bool cyclone::SphereAndHalfSpace(const CollisionSphere & sphere,
 {
     // Find the distance from the origin
     real_t ballDistance = Vec3ScalarProduct( plane.direction,
-        sphere.getAxis( 3 ) ) - sphere.radius;
+        Mat4AxisVector( sphere.primitive.transform, 3 ) ) - sphere.radius;
 
     // Check for the intersection
     return ballDistance <= plane.offset;
 }
 
-bool cyclone::SphereAndSphere(const CollisionSphere & one, const CollisionSphere & two)
+bool cyclone::SphereAndSphere(const CollisionSphere & one,
+    const CollisionSphere & two)
 {
     // Find the vector between the objects
-    vec3_t midline = Vec3Subtract( one.getAxis( 3 ), two.getAxis( 3 ) );
+    vec3_t midline = Vec3Subtract( Mat4AxisVector( one.primitive.transform, 3 ),
+        Mat4AxisVector( two.primitive.transform, 3 ) );
 
     // See if it is large enough.
     return Vec3MagnitudeSqr( midline ) < ( one.radius + two.radius ) *
@@ -59,9 +80,9 @@ static inline real_t TransformToAxis(const CollisionBox & box,
     const vec3_t & axis)
 {
     return 
-        box.halfSize.x * R_abs( Vec3ScalarProduct( axis, box.getAxis( 0 ) ) ) +
-        box.halfSize.y * R_abs( Vec3ScalarProduct( axis, box.getAxis( 1 ) ) ) +
-        box.halfSize.z * R_abs( Vec3ScalarProduct( axis, box.getAxis( 2 ) ) );
+        box.halfSize.x * R_abs( Vec3ScalarProduct( axis, Mat4AxisVector( box.primitive.transform, 0 ) ) ) +
+        box.halfSize.y * R_abs( Vec3ScalarProduct( axis, Mat4AxisVector( box.primitive.transform, 1 ) ) ) +
+        box.halfSize.z * R_abs( Vec3ScalarProduct( axis, Mat4AxisVector( box.primitive.transform, 2 ) ) );
 }
 
 /**
@@ -92,38 +113,48 @@ static inline bool OverlapOnAxis(const CollisionBox & one,
 bool cyclone::BoxAndBox(const CollisionBox & one, const CollisionBox & two)
 {
     // Find the vector between the two centres
-    vec3_t toCentre = Vec3Subtract( two.getAxis( 3 ), one.getAxis( 3 ) );
+    vec3_t toCentre = Vec3Subtract( Mat4AxisVector( two.primitive.transform, 3 ),
+        Mat4AxisVector( one.primitive.transform, 3 ) );
 
     return (
         // Check on box one's axes first
-        TEST_OVERLAP(one.getAxis(0)) &&
-        TEST_OVERLAP(one.getAxis(1)) &&
-        TEST_OVERLAP(one.getAxis(2)) &&
+        TEST_OVERLAP(Mat4AxisVector( one.primitive.transform, 0 ) ) &&
+        TEST_OVERLAP(Mat4AxisVector( one.primitive.transform, 1 ) ) &&
+        TEST_OVERLAP(Mat4AxisVector( one.primitive.transform, 2 ) ) &&
 
         // And on two's
-        TEST_OVERLAP(two.getAxis(0)) &&
-        TEST_OVERLAP(two.getAxis(1)) &&
-        TEST_OVERLAP(two.getAxis(2)) &&
+        TEST_OVERLAP(Mat4AxisVector( two.primitive.transform, 0 ) ) &&
+        TEST_OVERLAP(Mat4AxisVector( two.primitive.transform, 1 ) ) &&
+        TEST_OVERLAP(Mat4AxisVector( two.primitive.transform, 2 ) ) &&
 
         // Now on the cross products
-        TEST_OVERLAP( Vec3VectorProduct( one.getAxis( 0 ),
-            two.getAxis( 0 ) ) ) &&
-        TEST_OVERLAP( Vec3VectorProduct( one.getAxis( 0 ),
-            two.getAxis( 1 ) ) ) &&
-        TEST_OVERLAP( Vec3VectorProduct( one.getAxis( 0 ),
-            two.getAxis( 2 ) ) ) &&
-        TEST_OVERLAP( Vec3VectorProduct( one.getAxis( 1 ),
-            two.getAxis( 0 ) ) ) &&
-        TEST_OVERLAP( Vec3VectorProduct( one.getAxis( 1 ),
-            two.getAxis( 1 ) ) ) &&
-        TEST_OVERLAP( Vec3VectorProduct( one.getAxis( 1 ),
-            two.getAxis( 2 ) ) ) &&
-        TEST_OVERLAP( Vec3VectorProduct( one.getAxis( 2 ),
-            two.getAxis( 0 ) ) ) &&
-        TEST_OVERLAP( Vec3VectorProduct( one.getAxis( 2 ),
-            two.getAxis( 1 ) ) ) &&
-        TEST_OVERLAP( Vec3VectorProduct( one.getAxis( 2 ),
-            two.getAxis( 2 ) ) )
+        TEST_OVERLAP( Vec3VectorProduct(
+            Mat4AxisVector( one.primitive.transform, 0 ),
+            Mat4AxisVector( two.primitive.transform, 0 ) ) ) &&
+        TEST_OVERLAP( Vec3VectorProduct(
+            Mat4AxisVector( one.primitive.transform, 0 ),
+            Mat4AxisVector( two.primitive.transform, 1 ) ) ) &&
+        TEST_OVERLAP( Vec3VectorProduct(
+            Mat4AxisVector( one.primitive.transform, 0 ),
+            Mat4AxisVector( two.primitive.transform, 2 ) ) ) &&
+        TEST_OVERLAP( Vec3VectorProduct(
+            Mat4AxisVector( one.primitive.transform, 1 ),
+            Mat4AxisVector( two.primitive.transform, 0 ) ) ) &&
+        TEST_OVERLAP( Vec3VectorProduct(
+            Mat4AxisVector( one.primitive.transform, 1 ),
+            Mat4AxisVector( two.primitive.transform, 1 ) ) ) &&
+        TEST_OVERLAP( Vec3VectorProduct(
+            Mat4AxisVector( one.primitive.transform, 1 ),
+            Mat4AxisVector( two.primitive.transform, 2 ) ) ) &&
+        TEST_OVERLAP( Vec3VectorProduct(
+            Mat4AxisVector( one.primitive.transform, 2 ),
+            Mat4AxisVector( two.primitive.transform, 0 ) ) ) &&
+        TEST_OVERLAP( Vec3VectorProduct(
+            Mat4AxisVector( one.primitive.transform, 2 ),
+            Mat4AxisVector( two.primitive.transform, 1 ) ) ) &&
+        TEST_OVERLAP( Vec3VectorProduct(
+            Mat4AxisVector( one.primitive.transform, 2 ),
+            Mat4AxisVector( two.primitive.transform, 2 ) ) )
     );
 }
 #undef TEST_OVERLAP
@@ -135,7 +166,7 @@ bool cyclone::BoxAndHalfSpace(const CollisionBox & box, const CollisionPlane & p
 
     // Work out how far the box is from the origin
     real_t boxDistance = Vec3ScalarProduct( plane.direction,
-        box.getAxis( 3 ) ) - projectedRadius;
+        Mat4AxisVector( box.primitive.transform, 3 ) ) - projectedRadius;
 
     // Check for the intersection
     return boxDistance <= plane.offset;
@@ -155,7 +186,7 @@ unsigned cyclone::SphereAndHalfSpace(const CollisionSphere & sphere,
     }
 
     // Cache the sphere position
-    vec3_t position = sphere.getAxis( 3 );
+    vec3_t position = Mat4AxisVector( sphere.primitive.transform, 3 );
     
     // Find the distance from the plane
     real_t ballDistance = Vec3ScalarProduct( plane.direction, position ) -
@@ -171,7 +202,7 @@ unsigned cyclone::SphereAndHalfSpace(const CollisionSphere & sphere,
     contact->penetration = -ballDistance;
     contact->contactPoint = Vec3Subtract( position,
         Vec3Scale( plane.direction, ( ballDistance + sphere.radius ) ) );
-    contact->setBodyData(sphere.body, NULL,
+    contact->setBodyData(sphere.primitive.body, NULL,
         data->friction, data->restitution);
     data->addContacts( 1 );
     return 1;
@@ -189,7 +220,7 @@ unsigned cyclone::SphereAndTruePlane(const CollisionSphere & sphere,
     }
 
     // Cache the sphere position
-    vec3_t position = sphere.getAxis( 3 );
+    vec3_t position = Mat4AxisVector( sphere.primitive.transform, 3 );
 
     // Find the distance from the plane
     real_t centreDistance = Vec3ScalarProduct( plane.direction, position ) -
@@ -218,7 +249,7 @@ unsigned cyclone::SphereAndTruePlane(const CollisionSphere & sphere,
     contact->penetration = penetration;
     contact->contactPoint = Vec3Subtract( position,
         Vec3Scale( plane.direction, centreDistance ) );
-    contact->setBodyData(sphere.body, NULL,
+    contact->setBodyData(sphere.primitive.body, NULL,
         data->friction, data->restitution);
 
     data->addContacts(1);
@@ -236,8 +267,8 @@ unsigned cyclone::SphereAndSphere(const CollisionSphere & one,
     }
 
     // Cache the sphere positions
-    vec3_t positionOne = one.getAxis( 3 );
-    vec3_t positionTwo = two.getAxis( 3 );
+    vec3_t positionOne = Mat4AxisVector( one.primitive.transform, 3 );
+    vec3_t positionTwo = Mat4AxisVector( two.primitive.transform, 3 );
 
     // Find the vector between the objects
     vec3_t midline = Vec3Subtract( positionOne, positionTwo );
@@ -257,7 +288,8 @@ unsigned cyclone::SphereAndSphere(const CollisionSphere & one,
     contact->contactPoint = Vec3Add( positionOne,
         Vec3Scale( midline, ( real_t )0.5f ) );
     contact->penetration = ( one.radius + two.radius - size );
-    contact->setBodyData(one.body, two.body, data->friction, data->restitution);
+    contact->setBodyData(one.primitive.body, two.primitive.body, data->friction,
+        data->restitution);
 
     data->addContacts( 1 );
 
@@ -297,7 +329,7 @@ unsigned cyclone::BoxAndHalfSpace(const CollisionBox & box,
         // Calculate the position of each vertex
         vec3_t vertexPos = { mults[i][0], mults[i][1], mults[i][2] };
         vertexPos = Vec3ComponentProduct( vertexPos, box.halfSize );
-        vertexPos = Mat4Transform( vertexPos, box.getTransform() );
+        vertexPos = Mat4Transform( vertexPos, box.primitive.transform );
 
 ///>BoxPlaneTestOne
         // Calculate the distance from the plane
@@ -319,7 +351,7 @@ unsigned cyclone::BoxAndHalfSpace(const CollisionBox & box,
 ///<BoxPlaneTestOne
             
             // Write the appropriate data
-            contact->setBodyData( box.body, NULL,  data->friction,
+            contact->setBodyData( box.primitive.body, NULL,  data->friction,
                 data->restitution );
 
             // Move onto the next contact
@@ -394,9 +426,9 @@ void FillPointFaceBoxBox(const CollisionBox & one, const CollisionBox & two,
     // We know which axis the collision is on (i.e. best), 
     // but we need to work out which of the two faces on 
     // this axis.
-    vec3_t normal = one.getAxis( best );
+    vec3_t normal = Mat4AxisVector( one.primitive.transform, best );
 
-    if ( Vec3ScalarProduct( one.getAxis( best ), toCentre ) > 0) {
+    if ( Vec3ScalarProduct( Mat4AxisVector( one.primitive.transform, best ), toCentre ) > 0) {
         normal = Vec3Scale( normal, -1.0f );
     }
 
@@ -404,24 +436,25 @@ void FillPointFaceBoxBox(const CollisionBox & one, const CollisionBox & two,
     // Using toCentre doesn't work!
     vec3_t vertex = two.halfSize;
     
-    if ( Vec3ScalarProduct( two.getAxis( 0 ), normal ) < 0 ) {
+    if ( Vec3ScalarProduct( Mat4AxisVector( two.primitive.transform, 0 ), normal ) < 0 ) {
         vertex.x = -vertex.x;
     }
 
-    if ( Vec3ScalarProduct( two.getAxis( 1 ), normal ) < 0 ) {
+    if ( Vec3ScalarProduct( Mat4AxisVector( two.primitive.transform, 1 ), normal ) < 0 ) {
         vertex.y = -vertex.y;
     }
 
-    if ( Vec3ScalarProduct( two.getAxis( 2 ), normal ) < 0 ) {
+    if ( Vec3ScalarProduct( Mat4AxisVector( two.primitive.transform, 2 ), normal ) < 0 ) {
         vertex.z = -vertex.z;
     }
     
     // Create the contact data
     contact->contactNormal = normal;
     contact->penetration = pen;
-    contact->contactPoint = Mat4Transform( vertex, two.getTransform() );
-    contact->setBodyData( one.body, two.body, data->friction,
-        data->restitution );
+    contact->contactPoint = Mat4Transform( vertex,
+        two.primitive.transform );
+    contact->setBodyData( one.primitive.body, two.primitive.body,
+        data->friction, data->restitution );
 }
 
 static inline vec3_t ContactPoint(const vec3_t & pOne, const vec3_t & dOne,
@@ -475,7 +508,8 @@ unsigned cyclone::BoxAndBox(const CollisionBox & one, const CollisionBox & two,
     //if ( !BoxAndBox( one, two ) ) return 0;
 
     // Find the vector between the two centres
-    vec3_t toCentre = Vec3Subtract( two.getAxis( 3 ), one.getAxis( 3 ) );
+    vec3_t toCentre = Vec3Subtract( Mat4AxisVector( two.primitive.transform, 3 ),
+        Mat4AxisVector( one.primitive.transform, 3 ) );
 
     // We start assuming there is no contact
     real_t pen = REAL_MAX;
@@ -484,36 +518,36 @@ unsigned cyclone::BoxAndBox(const CollisionBox & one, const CollisionBox & two,
     // Now we check each axes, returning if it gives us
     // a separating axis, and keeping track of the axis with
     // the smallest penetration otherwise.
-    CHECK_OVERLAP( one.getAxis( 0 ), 0 );
-    CHECK_OVERLAP( one.getAxis( 1 ), 1 );
-    CHECK_OVERLAP( one.getAxis( 2 ), 2 );
+    CHECK_OVERLAP( Mat4AxisVector( one.primitive.transform, 0 ), 0 );
+    CHECK_OVERLAP( Mat4AxisVector( one.primitive.transform, 1 ), 1 );
+    CHECK_OVERLAP( Mat4AxisVector( one.primitive.transform, 2 ), 2 );
 
-    CHECK_OVERLAP( two.getAxis( 0 ), 3 );
-    CHECK_OVERLAP( two.getAxis( 1 ), 4 );
-    CHECK_OVERLAP( two.getAxis( 2 ), 5 );
+    CHECK_OVERLAP( Mat4AxisVector( two.primitive.transform, 0 ), 3 );
+    CHECK_OVERLAP( Mat4AxisVector( two.primitive.transform, 1 ), 4 );
+    CHECK_OVERLAP( Mat4AxisVector( two.primitive.transform, 2 ), 5 );
 
     // Store the best axis-major, in case we run into almost
     // parallel edge collisions later
     unsigned bestSingleAxis = best;
 
-    CHECK_OVERLAP( Vec3VectorProduct( one.getAxis( 0 ), two.getAxis( 0 ) ),
-         6 );
-    CHECK_OVERLAP( Vec3VectorProduct( one.getAxis( 0 ), two.getAxis( 1 ) ),
-         7 );
-    CHECK_OVERLAP( Vec3VectorProduct( one.getAxis( 0 ), two.getAxis( 2 ) ),
-         8 );
-    CHECK_OVERLAP( Vec3VectorProduct( one.getAxis( 1 ), two.getAxis( 0 ) ),
-         9 );
-    CHECK_OVERLAP( Vec3VectorProduct( one.getAxis( 1 ), two.getAxis( 1 ) ),
-        10 );
-    CHECK_OVERLAP( Vec3VectorProduct( one.getAxis( 1 ), two.getAxis( 2 ) ),
-        11 );
-    CHECK_OVERLAP( Vec3VectorProduct( one.getAxis( 2 ), two.getAxis( 0 ) ),
-        12 );
-    CHECK_OVERLAP( Vec3VectorProduct( one.getAxis( 2 ), two.getAxis( 1 ) ),
-        13 );
-    CHECK_OVERLAP( Vec3VectorProduct( one.getAxis( 2 ), two.getAxis( 2 ) ),
-        14 );
+    CHECK_OVERLAP( Vec3VectorProduct( Mat4AxisVector( one.primitive.transform, 0 ),
+        Mat4AxisVector( two.primitive.transform, 0 ) ),  6 );
+    CHECK_OVERLAP( Vec3VectorProduct( Mat4AxisVector( one.primitive.transform, 0 ),
+        Mat4AxisVector( two.primitive.transform, 1 ) ),  7 );
+    CHECK_OVERLAP( Vec3VectorProduct( Mat4AxisVector( one.primitive.transform, 0 ),
+        Mat4AxisVector( two.primitive.transform, 2 ) ),  8 );
+    CHECK_OVERLAP( Vec3VectorProduct( Mat4AxisVector( one.primitive.transform, 1 ),
+        Mat4AxisVector( two.primitive.transform, 0 ) ),  9 );
+    CHECK_OVERLAP( Vec3VectorProduct( Mat4AxisVector( one.primitive.transform, 1 ),
+        Mat4AxisVector( two.primitive.transform, 1 ) ), 10 );
+    CHECK_OVERLAP( Vec3VectorProduct( Mat4AxisVector( one.primitive.transform, 1 ),
+        Mat4AxisVector( two.primitive.transform, 2 ) ), 11 );
+    CHECK_OVERLAP( Vec3VectorProduct( Mat4AxisVector( one.primitive.transform, 2 ),
+        Mat4AxisVector( two.primitive.transform, 0 ) ), 12 );
+    CHECK_OVERLAP( Vec3VectorProduct( Mat4AxisVector( one.primitive.transform, 2 ),
+        Mat4AxisVector( two.primitive.transform, 1 ) ), 13 );
+    CHECK_OVERLAP( Vec3VectorProduct( Mat4AxisVector( one.primitive.transform, 2 ),
+        Mat4AxisVector( two.primitive.transform, 2 ) ), 14 );
     
     // Make sure we've got a result.
     assert(best != 0xffffff);
@@ -547,8 +581,8 @@ unsigned cyclone::BoxAndBox(const CollisionBox & one, const CollisionBox & two,
         best -= 6;
         unsigned oneAxisIndex = best / 3;
         unsigned twoAxisIndex = best % 3;
-        vec3_t oneAxis = one.getAxis( oneAxisIndex );
-        vec3_t twoAxis = two.getAxis( twoAxisIndex );
+        vec3_t oneAxis = Mat4AxisVector( one.primitive.transform, oneAxisIndex );
+        vec3_t twoAxis = Mat4AxisVector( two.primitive.transform, twoAxisIndex );
         vec3_t axis = Vec3VectorProduct( oneAxis, twoAxis );
         axis = Vec3Normalise( axis );
 
@@ -571,21 +605,25 @@ unsigned cyclone::BoxAndBox(const CollisionBox & one, const CollisionBox & two,
             // This doesn't work!
             if ( i == oneAxisIndex ) {
                 ptOnOneEdge.n[i] = 0;
-            } else if ( Vec3ScalarProduct( one.getAxis( i ), axis ) > 0 ) {
+            } else if ( Vec3ScalarProduct( Mat4AxisVector( one.primitive.transform, i ),
+                axis ) > 0 ) {
                 ptOnOneEdge.n[i] = -ptOnOneEdge.n[i];
             }
 
             if ( i == twoAxisIndex ) {
                 ptOnTwoEdge.n[i] = 0;
-            } else if ( Vec3ScalarProduct( two.getAxis( i ), axis ) < 0 ) {
+            } else if ( Vec3ScalarProduct( Mat4AxisVector( two.primitive.transform, i ),
+                axis ) < 0 ) {
                 ptOnTwoEdge.n[i] = -ptOnTwoEdge.n[i];
             }
         }
 
         // Move them into world coordinates (they are already oriented
         // correctly, since they have been derived from the axes).
-        ptOnOneEdge = Mat4Transform( ptOnOneEdge, one.getTransform() );
-        ptOnTwoEdge = Mat4Transform( ptOnTwoEdge, two.getTransform() );
+        ptOnOneEdge = Mat4Transform( ptOnOneEdge,
+            one.primitive.transform );
+        ptOnTwoEdge = Mat4Transform( ptOnTwoEdge,
+            two.primitive.transform );
 
 #ifdef _DEBUG
 
@@ -634,8 +672,8 @@ unsigned cyclone::BoxAndBox(const CollisionBox & one, const CollisionBox & two,
         contact->penetration = pen;
         contact->contactNormal = axis;
         contact->contactPoint = vertex;
-        contact->setBodyData( one.body, two.body, data->friction,
-            data->restitution );
+        contact->setBodyData( one.primitive.body, two.primitive.body,
+            data->friction, data->restitution );
         data->addContacts( 1 );
         
         return 1;
@@ -650,7 +688,7 @@ unsigned cyclone::BoxAndPoint(const CollisionBox & box, const vec3_t & point,
     CollisionData * data)
 {
     // Transform the point into box coordinates
-    vec3_t relPt = Mat4TransformInverse( point, box.getTransform() );
+    vec3_t relPt = Mat4TransformInverse( point, box.primitive.transform );
 
     vec3_t normal = Vec3Clear();
 
@@ -662,7 +700,7 @@ unsigned cyclone::BoxAndPoint(const CollisionBox & box, const vec3_t & point,
         return 0;
     }
 
-    normal = Vec3Scale( box.getAxis( 0 ),
+    normal = Vec3Scale( Mat4AxisVector( box.primitive.transform, 0 ),
         ( real_t )( ( relPt.x < 0 ) ? -1 : 1 ) );
 
     real_t depth = box.halfSize.y - R_abs( relPt.y );
@@ -672,7 +710,7 @@ unsigned cyclone::BoxAndPoint(const CollisionBox & box, const vec3_t & point,
     } else if ( depth < min_depth ) {
 
         min_depth = depth;
-        normal = Vec3Scale( box.getAxis( 1 ),
+        normal = Vec3Scale( Mat4AxisVector( box.primitive.transform, 1 ),
             ( real_t )( ( relPt.y < 0 ) ? -1 : 1 ) );
     }
 
@@ -683,7 +721,7 @@ unsigned cyclone::BoxAndPoint(const CollisionBox & box, const vec3_t & point,
     } else if ( depth < min_depth ) {
 
         min_depth = depth;
-        normal = Vec3Scale( box.getAxis( 2 ),
+        normal = Vec3Scale( Mat4AxisVector( box.primitive.transform, 2 ),
             ( real_t )( ( relPt.z < 0 ) ? -1 : 1 ) );
     }
 
@@ -696,7 +734,8 @@ unsigned cyclone::BoxAndPoint(const CollisionBox & box, const vec3_t & point,
     // Note that we don't know what rigid body the point
     // belongs to, so we just use NULL. Where this is called
     // this value can be left, or filled in.
-    contact->setBodyData( box.body, NULL, data->friction, data->restitution );
+    contact->setBodyData( box.primitive.body, NULL, data->friction,
+        data->restitution );
     data->addContacts( 1 );
 
     return 1;
@@ -710,9 +749,9 @@ unsigned cyclone::BoxAndSphere(const CollisionBox & box,
 {
 ///>SphereBoxCentreToBox
     // Transform the centre of the sphere into box coordinates
-    vec3_t centre = sphere.getAxis( 3 );
-    vec3_t relCentre = Mat4TransformInverse( sphere.getAxis( 3 ),
-        box.getTransform() );
+    vec3_t centre = Mat4AxisVector( sphere.primitive.transform, 3 );
+    vec3_t relCentre = Mat4TransformInverse( Mat4AxisVector( sphere.primitive.transform, 3 ),
+        box.primitive.transform );
 ///<SphereBoxCentreToBox
 
 ///>SphereBoxEarlyOut
@@ -776,7 +815,8 @@ unsigned cyclone::BoxAndSphere(const CollisionBox & box,
 
 ///>SphereBoxUntransformClosestPoint
     // Compile the contact
-    vec3_t closestPtWorld = Mat4Transform( closestPt, box.getTransform() );
+    vec3_t closestPtWorld = Mat4Transform( closestPt,
+        box.primitive.transform );
 ///<SphereBoxUntransformClosestPoint
 
     Contact * contact = data->contacts;
@@ -784,8 +824,8 @@ unsigned cyclone::BoxAndSphere(const CollisionBox & box,
         Vec3Subtract( closestPtWorld, centre ) );
     contact->contactPoint = closestPtWorld;
     contact->penetration = sphere.radius - R_sqrt(dist);
-    contact->setBodyData( box.body, sphere.body, data->friction,
-        data->restitution );
+    contact->setBodyData( box.primitive.body, sphere.primitive.body,
+        data->friction, data->restitution );
 
     data->addContacts( 1 );
 

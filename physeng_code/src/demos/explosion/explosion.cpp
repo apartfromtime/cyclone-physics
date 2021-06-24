@@ -34,12 +34,13 @@ class Ball : public cyclone::CollisionSphere
 public:
     Ball()
     {
-        body = new cyclone::RigidBody;
+        primitive = cyclone::COLLISION_PRIMITIVE;
+        primitive.body = new cyclone::RigidBody;
     }
 
     ~Ball()
     {
-        delete body;
+        delete primitive.body;
     }
 
     /** Draws the box, excluding its shadow. */
@@ -47,9 +48,9 @@ public:
     {
         // Get the OpenGL transformation
         GLfloat mat[16];
-        body->getGLTransform(mat);
+        primitive.body->getGLTransform(mat);
 
-        if (body->getAwake()) glColor3f(1.0,0.7,0.7);
+        if (primitive.body->getAwake()) glColor3f(1.0,0.7,0.7);
         else glColor3f(0.7,0.7,1.0);
 
         glPushMatrix();
@@ -63,7 +64,7 @@ public:
     {
         // Get the OpenGL transformation
         GLfloat mat[16];
-        body->getGLTransform(mat);
+        primitive.body->getGLTransform(mat);
 
         glPushMatrix();
         glScalef(1.0f, 0, 1.0f);
@@ -80,29 +81,29 @@ public:
     {
         cyclone::vec3_t rotation = { 0, 0, 0 };
 
-        body->setPosition(position);
-        body->setOrientation(orientation);
-        body->setVelocity(velocity);
-        body->setRotation(rotation);
+        primitive.body->setPosition(position);
+        primitive.body->setOrientation(orientation);
+        primitive.body->setVelocity(velocity);
+        primitive.body->setRotation(rotation);
         Ball::radius = radius;
 
         cyclone::real_t mass = 4.0f*0.3333f*3.1415f * radius*radius*radius;
-        body->setMass(mass);
+        primitive.body->setMass(mass);
 
         cyclone::mat3_t tensor = cyclone::Mat3Identity();
         cyclone::real_t coeff = 0.4f*mass*radius*radius;
         tensor = cyclone::Mat3SetInertiaTensorCoeffs( coeff, coeff, coeff );
-        body->setInertiaTensor(tensor);
+        primitive.body->setInertiaTensor(tensor);
 
-        body->setLinearDamping(0.95f);
-        body->setAngularDamping(0.8f);
-        body->clearAccumulators();
-        body->setAcceleration(0,-10.0f,0);
+        primitive.body->setLinearDamping(0.95f);
+        primitive.body->setAngularDamping(0.8f);
+        primitive.body->clearAccumulators();
+        primitive.body->setAcceleration(0,-10.0f,0);
 
-        //body->setCanSleep(false);
-        body->setAwake();
+        //primitive.body->setCanSleep(false);
+        primitive.body->setAwake();
 
-        body->calculateDerivedData();
+        primitive.body->calculateDerivedData();
     }
 
     /** Positions the box at a random location. */
@@ -127,12 +128,13 @@ public:
 
     Box()
     {
-        body = new cyclone::RigidBody;
+        primitive = cyclone::COLLISION_PRIMITIVE;
+        primitive.body = new cyclone::RigidBody;
     }
 
     ~Box()
     {
-        delete body;
+        delete primitive.body;
     }
 
     /** Draws the box, excluding its shadow. */
@@ -140,10 +142,10 @@ public:
     {
         // Get the OpenGL transformation
         GLfloat mat[16];
-        body->getGLTransform(mat);
+        primitive.body->getGLTransform(mat);
 
         if (isOverlapping) glColor3f(0.7,1.0,0.7);
-        else if (body->getAwake()) glColor3f(1.0,0.7,0.7);
+        else if (primitive.body->getAwake()) glColor3f(1.0,0.7,0.7);
         else glColor3f(0.7,0.7,1.0);
 
         glPushMatrix();
@@ -158,7 +160,7 @@ public:
     {
         // Get the OpenGL transformation
         GLfloat mat[16];
-        body->getGLTransform(mat);
+        primitive.body->getGLTransform(mat);
 
         glPushMatrix();
         glScalef(1.0f, 0, 1.0f);
@@ -176,29 +178,29 @@ public:
     {
         cyclone::vec3_t rotation = { 0, 0, 0 };
 
-        body->setPosition(position);
-        body->setOrientation(orientation);
-        body->setVelocity(velocity);
-        body->setRotation(rotation);
+        primitive.body->setPosition(position);
+        primitive.body->setOrientation(orientation);
+        primitive.body->setVelocity(velocity);
+        primitive.body->setRotation(rotation);
         halfSize = extents;
 
         cyclone::real_t mass = halfSize.x * halfSize.y * halfSize.z * 8.0f;
-        body->setMass(mass);
+        primitive.body->setMass(mass);
 
         cyclone::vec3_t hs = { halfSize.x, halfSize.y, halfSize.z };
         cyclone::mat3_t tensor = cyclone::Mat3Identity();
         tensor = cyclone::Mat3SetBlockInertiaTensor(hs, mass);
-        body->setInertiaTensor(tensor);
+        primitive.body->setInertiaTensor(tensor);
 
-        body->setLinearDamping(0.95f);
-        body->setAngularDamping(0.8f);
-        body->clearAccumulators();
-        body->setAcceleration(0,-10.0f,0);
+        primitive.body->setLinearDamping(0.95f);
+        primitive.body->setAngularDamping(0.8f);
+        primitive.body->clearAccumulators();
+        primitive.body->setAcceleration(0,-10.0f,0);
 
-        //body->setCanSleep(false);
-        body->setAwake();
+        //primitive.body->setCanSleep(false);
+        primitive.body->setAwake();
 
-        body->calculateDerivedData();
+        primitive.body->calculateDerivedData();
     }
 
     /** Positions the box at a random location. */
@@ -292,9 +294,9 @@ const char* ExplosionDemo::getTitle()
 
 void ExplosionDemo::fire()
 {
-    cyclone::vec3_t position = ballData[0].body->getPosition();
+    cyclone::vec3_t position = ballData[0].primitive.body->getPosition();
     position = Vec3Normalise( position );
-    ballData[0].body->addForce( Vec3Scale( position, -1000.0f ) );
+    ballData[0].primitive.body->addForce( Vec3Scale( position, -1000.0f ) );
 }
 
 void ExplosionDemo::reset()
@@ -338,7 +340,7 @@ void ExplosionDemo::generateContacts()
 	// store.
 
     // Create the ground plane data
-    cyclone::CollisionPlane plane;
+    cyclone::CollisionPlane plane = cyclone::COLLISION_PLANE;
     plane.direction.x = 0;
     plane.direction.y = 1;
     plane.direction.z = 0;
@@ -408,8 +410,8 @@ void ExplosionDemo::updateObjects(cyclone::real_t duration)
     for (Box *box = boxData; box < boxData+boxes; box++)
     {
         // Run the physics
-        box->body->integrate(duration);
-        box->calculateInternals();
+        box->primitive.body->integrate(duration);
+        CalculateInternals( box->primitive );
         box->isOverlapping = false;
     }
 
@@ -417,8 +419,8 @@ void ExplosionDemo::updateObjects(cyclone::real_t duration)
     for (Ball *ball = ballData; ball < ballData+balls; ball++)
     {
         // Run the physics
-        ball->body->integrate(duration);
-        ball->calculateInternals();
+        ball->primitive.body->integrate(duration);
+        CalculateInternals( ball->primitive );
     }
 ///<ExplosionUpdate
 }
@@ -446,7 +448,7 @@ void ExplosionDemo::display()
     for (Box *box = boxData; box < boxData+boxes; box++)
     {
         // Run the physics
-        box->calculateInternals();
+        CalculateInternals( box->primitive );
         box->isOverlapping = false;
     }
 
@@ -454,7 +456,7 @@ void ExplosionDemo::display()
     for (Ball *ball = ballData; ball < ballData+balls; ball++)
     {
         // Run the physics
-        ball->calculateInternals();
+        CalculateInternals( ball->primitive );
     }
 
     // Clear the viewport and set the camera direction
@@ -547,9 +549,9 @@ void ExplosionDemo::mouseDrag(int x, int y)
             (y-last_y) * 0.125f
         };
 
-        boxData[0].body->setPosition( Vec3Add( boxData[0].body->getPosition(),
+        boxData[0].primitive.body->setPosition( Vec3Add( boxData[0].primitive.body->getPosition(),
             mPos ) );
-        boxData[0].body->calculateDerivedData();
+        boxData[0].primitive.body->calculateDerivedData();
     }
     else if (upMode)
     {
@@ -559,9 +561,9 @@ void ExplosionDemo::mouseDrag(int x, int y)
             0
         };
 
-        boxData[0].body->setPosition( Vec3Add( boxData[0].body->getPosition(),
+        boxData[0].primitive.body->setPosition( Vec3Add( boxData[0].primitive.body->getPosition(),
             mPos ) );
-        boxData[0].body->calculateDerivedData();
+        boxData[0].primitive.body->calculateDerivedData();
     }
     else
     {
@@ -590,9 +592,9 @@ void ExplosionDemo::key(unsigned char key)
 
     case 'w': case 'W':
         for (Box *box = boxData; box < boxData+boxes; box++) 
-            box->body->setAwake();
+            box->primitive.body->setAwake();
         for (Ball *ball = ballData; ball < ballData+balls; ball++)
-            ball->body->setAwake();
+            ball->primitive.body->setAwake();
         return;
     }
 

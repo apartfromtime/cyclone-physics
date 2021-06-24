@@ -25,12 +25,13 @@ class Bone : public cyclone::CollisionBox
 public:
     Bone()
     {
-        body = new cyclone::RigidBody();
+        primitive = cyclone::COLLISION_PRIMITIVE;
+        primitive.body = new cyclone::RigidBody();
     }
 
     ~Bone()
     {
-        delete body;
+        delete primitive.body;
     }
 
 	/** 
@@ -39,13 +40,13 @@ public:
 	 */
 	cyclone::CollisionSphere getCollisionSphere() const
 	{
-		cyclone::CollisionSphere sphere;
-		sphere.body = body;
+		cyclone::CollisionSphere sphere = cyclone::COLLISION_SPHERE;
+		sphere.primitive.body = primitive.body;
 		sphere.radius = halfSize.x;
-		sphere.offset = cyclone::Mat4Identity();
+		sphere.primitive.offset = cyclone::Mat4Identity();
 		if (halfSize.y < sphere.radius) sphere.radius = halfSize.y;
 		if (halfSize.z < sphere.radius) sphere.radius = halfSize.z;
-		sphere.calculateInternals();
+		CalculateInternals( sphere.primitive );
 		return sphere;
 	}
 
@@ -54,9 +55,9 @@ public:
     {
         // Get the OpenGL transformation
         GLfloat mat[16];
-        body->getGLTransform(mat);
+        primitive.body->getGLTransform(mat);
 
-        if (body->getAwake()) glColor3f(0.5, 0.3, 0.3);
+        if (primitive.body->getAwake()) glColor3f(0.5, 0.3, 0.3);
         else glColor3f(0.3, 0.3, 0.5);
 
         glPushMatrix();
@@ -70,29 +71,29 @@ public:
     void setState(const cyclone::vec3_t & position,
                   const cyclone::vec3_t & extents)
     {
-        body->setPosition( position );
-		body->setOrientation( cyclone::QuatClear() );
-		body->setVelocity( cyclone::Vec3Clear() );
-        body->setRotation( cyclone::Vec3Clear() );
+        primitive.body->setPosition( position );
+		primitive.body->setOrientation( cyclone::QuatClear() );
+		primitive.body->setVelocity( cyclone::Vec3Clear() );
+        primitive.body->setRotation( cyclone::Vec3Clear() );
         halfSize = extents;
 
         cyclone::real_t mass = halfSize.x * halfSize.y * halfSize.z * 8.0f;
-        body->setMass(mass);
+        primitive.body->setMass(mass);
 
         cyclone::mat3_t tensor = cyclone::Mat3SetBlockInertiaTensor( halfSize,
             mass );
-        body->setInertiaTensor(tensor);
+        primitive.body->setInertiaTensor(tensor);
 
-        body->setLinearDamping(0.95f);
-        body->setAngularDamping(0.8f);
-        body->clearAccumulators();
-		body->setAcceleration(cyclone::GRAVITY);
+        primitive.body->setLinearDamping(0.95f);
+        primitive.body->setAngularDamping(0.8f);
+        primitive.body->clearAccumulators();
+		primitive.body->setAcceleration(cyclone::GRAVITY);
 
-        body->setCanSleep(false);
-        body->setAwake();
+        primitive.body->setCanSleep(false);
+        primitive.body->setAwake();
 
-        body->calculateDerivedData();
-		calculateInternals();
+        primitive.body->calculateDerivedData();
+		CalculateInternals( primitive );
     }
 
 };
@@ -142,76 +143,76 @@ RagdollDemo::RagdollDemo()
 	
 	// Right Knee
 	joints[0].set(
-		bones[0].body, cyclone::Vec3Construct(0, 1.07f, 0),
-		bones[1].body, cyclone::Vec3Construct(0, -1.07f, 0),
+		bones[0].primitive.body, cyclone::Vec3Construct(0, 1.07f, 0),
+		bones[1].primitive.body, cyclone::Vec3Construct(0, -1.07f, 0),
 		0.15f
 		);
 
 	// Left Knee
 	joints[1].set(
-		bones[2].body, cyclone::Vec3Construct(0, 1.07f, 0),
-		bones[3].body, cyclone::Vec3Construct(0, -1.07f, 0),
+		bones[2].primitive.body, cyclone::Vec3Construct(0, 1.07f, 0),
+		bones[3].primitive.body, cyclone::Vec3Construct(0, -1.07f, 0),
 		0.15f
 		);
 
 	// Right elbow
 	joints[2].set(
-		bones[9].body, cyclone::Vec3Construct(0, 0.96f, 0),
-		bones[8].body, cyclone::Vec3Construct(0, -0.96f, 0),
+		bones[9].primitive.body, cyclone::Vec3Construct(0, 0.96f, 0),
+		bones[8].primitive.body, cyclone::Vec3Construct(0, -0.96f, 0),
 		0.15f
 		);
 
 	// Left elbow
 	joints[3].set(
-		bones[11].body, cyclone::Vec3Construct(0, 0.96f, 0),
-		bones[10].body, cyclone::Vec3Construct(0, -0.96f, 0),
+		bones[11].primitive.body, cyclone::Vec3Construct(0, 0.96f, 0),
+		bones[10].primitive.body, cyclone::Vec3Construct(0, -0.96f, 0),
 		0.15f
 		);
 
 	// Stomach to Waist
 	joints[4].set(
-		bones[4].body, cyclone::Vec3Construct(0.054f, 0.50f, 0),
-		bones[5].body, cyclone::Vec3Construct(-0.043f, -0.45f, 0),
+		bones[4].primitive.body, cyclone::Vec3Construct(0.054f, 0.50f, 0),
+		bones[5].primitive.body, cyclone::Vec3Construct(-0.043f, -0.45f, 0),
 		0.15f
 		);
 
 	joints[5].set(
-		bones[5].body, cyclone::Vec3Construct(-0.043f, 0.411f, 0),
-		bones[6].body, cyclone::Vec3Construct(0, -0.411f, 0),
+		bones[5].primitive.body, cyclone::Vec3Construct(-0.043f, 0.411f, 0),
+		bones[6].primitive.body, cyclone::Vec3Construct(0, -0.411f, 0),
 		0.15f
 		);
 
 	joints[6].set(
-		bones[6].body, cyclone::Vec3Construct(0, 0.521f, 0),
-		bones[7].body, cyclone::Vec3Construct(0, -0.752f, 0),
+		bones[6].primitive.body, cyclone::Vec3Construct(0, 0.521f, 0),
+		bones[7].primitive.body, cyclone::Vec3Construct(0, -0.752f, 0),
 		0.15f
 		);
 
 	// Right hip
 	joints[7].set(
-		bones[1].body, cyclone::Vec3Construct(0, 1.066f, 0),
-		bones[4].body, cyclone::Vec3Construct(0, -0.458f, -0.5f),
+		bones[1].primitive.body, cyclone::Vec3Construct(0, 1.066f, 0),
+		bones[4].primitive.body, cyclone::Vec3Construct(0, -0.458f, -0.5f),
 		0.15f
 		);
 
 	// Left Hip
 	joints[8].set(
-		bones[3].body, cyclone::Vec3Construct(0, 1.066f, 0),
-		bones[4].body, cyclone::Vec3Construct(0, -0.458f, 0.5f),
+		bones[3].primitive.body, cyclone::Vec3Construct(0, 1.066f, 0),
+		bones[4].primitive.body, cyclone::Vec3Construct(0, -0.458f, 0.5f),
 		0.105f
 		);
 
 	// Right shoulder
 	joints[9].set(
-		bones[6].body, cyclone::Vec3Construct(0, 0.367f, -0.8f),
-		bones[8].body, cyclone::Vec3Construct(0, 0.888f, 0.32f),
+		bones[6].primitive.body, cyclone::Vec3Construct(0, 0.367f, -0.8f),
+		bones[8].primitive.body, cyclone::Vec3Construct(0, 0.888f, 0.32f),
 		0.15f
 		);
 
 	// Left shoulder
 	joints[10].set(
-		bones[6].body, cyclone::Vec3Construct(0, 0.367f, 0.8f),
-		bones[10].body, cyclone::Vec3Construct(0, 0.888f, -0.32f),
+		bones[6].primitive.body, cyclone::Vec3Construct(0, 0.367f, 0.8f),
+		bones[10].primitive.body, cyclone::Vec3Construct(0, 0.888f, -0.32f),
 		0.15f
 		);
 
@@ -228,7 +229,7 @@ const char* RagdollDemo::getTitle()
 void RagdollDemo::generateContacts()
 {
     // Create the ground plane data
-    cyclone::CollisionPlane plane;
+    cyclone::CollisionPlane plane = cyclone::COLLISION_PLANE;
     plane.direction = cyclone::Vec3Construct(0,1,0);
     plane.offset = 0;
 
@@ -313,11 +314,11 @@ void RagdollDemo::reset()
 	cyclone::real_t strength = -random.randomReal(500.0f, 1000.0f);
 	for (unsigned i = 0; i < NUM_BONES; i++)
 	{
-		bones[i].body->addForceAtBodyPoint(
+		bones[i].primitive.body->addForceAtBodyPoint(
 			cyclone::Vec3Construct(strength, 0, 0), cyclone::Vec3Clear()
 			);
 	}
-	bones[6].body->addForceAtBodyPoint(
+	bones[6].primitive.body->addForceAtBodyPoint(
 		cyclone::Vec3Construct(strength, 0, random.randomBinomial(1000.0f)), 
 		cyclone::Vec3Construct(random.randomBinomial(4.0f), random.randomBinomial(3.0f), 0)
 		);
@@ -330,8 +331,8 @@ void RagdollDemo::updateObjects(cyclone::real_t duration)
 {
     for (Bone *bone = bones; bone < bones+NUM_BONES; bone++)
     {
-        bone->body->integrate(duration);
-        bone->calculateInternals();
+        bone->primitive.body->integrate(duration);
+        CalculateInternals( bone->primitive );
     }
 }
 

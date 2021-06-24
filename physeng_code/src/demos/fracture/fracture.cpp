@@ -30,12 +30,13 @@ public:
     :
     exists(false)
     {
-        body = new cyclone::RigidBody();
+        primitive = cyclone::COLLISION_PRIMITIVE;
+        primitive.body = new cyclone::RigidBody();
     }
 
     ~Block()
     {
-        delete body;
+        delete primitive.body;
     }
 
     /** Draws the block. */
@@ -43,9 +44,9 @@ public:
     {
         // Get the OpenGL transformation
         GLfloat mat[16];
-        body->getGLTransform(mat);
+        primitive.body->getGLTransform(mat);
 
-        if (body->getAwake()) glColor3f(1.0,0.7,0.7);
+        if (primitive.body->getAwake()) glColor3f(1.0,0.7,0.7);
         else glColor3f(0.7,0.7,1.0);
 
         glPushMatrix();
@@ -61,27 +62,27 @@ public:
                   const cyclone::vec3_t & extents,
                   const cyclone::vec3_t & velocity)
     {
-        body->setPosition(position);
-        body->setOrientation(orientation);
-        body->setVelocity(velocity);
-        body->setRotation( cyclone::Vec3Clear() );
+        primitive.body->setPosition(position);
+        primitive.body->setOrientation(orientation);
+        primitive.body->setVelocity(velocity);
+        primitive.body->setRotation( cyclone::Vec3Clear() );
         halfSize = extents;
 
         cyclone::real_t mass = halfSize.x * halfSize.y * halfSize.z * 8.0f;
-        body->setMass(mass);
+        primitive.body->setMass(mass);
 
         cyclone::mat3_t tensor = Mat3SetBlockInertiaTensor( halfSize, mass );
-        body->setInertiaTensor(tensor);
+        primitive.body->setInertiaTensor(tensor);
 
-        body->setLinearDamping(0.95f);
-        body->setAngularDamping(0.8f);
-        body->clearAccumulators();
-        body->setAcceleration(0,-10.0f,0);
+        primitive.body->setLinearDamping(0.95f);
+        primitive.body->setAngularDamping(0.8f);
+        primitive.body->clearAccumulators();
+        primitive.body->setAcceleration(0,-10.0f,0);
 
-        //body->setCanSleep(false);
-        body->setAwake();
+        //primitive.body->setCanSleep(false);
+        primitive.body->setAwake();
 
-        body->calculateDerivedData();
+        primitive.body->calculateDerivedData();
     }
 
 ///>CalculateBlockTensor
@@ -95,8 +96,8 @@ public:
         if (invDensity <= 0)
         {
             // Just set zeros for both mass and inertia tensor
-            body->setInverseMass(0);
-            body->setInverseInertiaTensor( cyclone::Mat3Identity() );
+            primitive.body->setInverseMass(0);
+            primitive.body->setInverseInertiaTensor( cyclone::Mat3Identity() );
         }
         else
         {
@@ -104,7 +105,7 @@ public:
             cyclone::real_t volume = cyclone::Vec3Magnitude( halfSize ) * 2.0;
             cyclone::real_t mass = volume / invDensity;
 
-            body->setMass(mass);
+            primitive.body->setMass(mass);
 
             // And calculate the inertia tensor from the mass and size
             mass *= 0.333f;
@@ -113,7 +114,7 @@ public:
                 mass * halfSize.y*halfSize.x + halfSize.z*halfSize.z,
                 mass * halfSize.y*halfSize.x + halfSize.z*halfSize.y
                 );
-            body->setInertiaTensor(tensor);
+            primitive.body->setInertiaTensor(tensor);
         }
 
     }
@@ -135,7 +136,7 @@ public:
         cyclone::vec3_t normal = contact.contactNormal;
         cyclone::RigidBody *body = contact.body[0];
 
-        if (body != target->body) 
+        if (body != target->primitive.body) 
         {
             normal = Vec3Invert( normal );
             body = contact.body[1];
@@ -143,8 +144,8 @@ public:
 
         // Work out where on the body (in body coordinates) the contact is
         // and its direction.
-        cyclone::vec3_t point = body->getPointInLocalSpace(contact.contactPoint);
-        normal = body->getDirectionInLocalSpace(normal);
+        cyclone::vec3_t point = primitive.body->getPointInLocalSpace(contact.contactPoint);
+        normal = primitive.body->getDirectionInLocalSpace(normal);
 
         // Work out the centre of the split: this is the point coordinates
         // for each of the axes perpendicular to the normal, and 0 for the
@@ -157,13 +158,13 @@ public:
 
         // Take a copy also of the body's other data.
         cyclone::RigidBody tempBody;
-        tempBody.setPosition(body->getPosition());
-        tempBody.setOrientation(body->getOrientation());
-        tempBody.setVelocity(body->getVelocity());
-        tempBody.setRotation(body->getRotation());
-        tempBody.setLinearDamping(body->getLinearDamping());
-        tempBody.setAngularDamping(body->getAngularDamping());
-        tempBody.setInverseInertiaTensor(body->getInverseInertiaTensor());
+        tempBody.setPosition(primitive.body->getPosition());
+        tempBody.setOrientation(primitive.body->getOrientation());
+        tempBody.setVelocity(primitive.body->getVelocity());
+        tempBody.setRotation(primitive.body->getRotation());
+        tempBody.setLinearDamping(primitive.body->getLinearDamping());
+        tempBody.setAngularDamping(primitive.body->getAngularDamping());
+        tempBody.setInverseInertiaTensor(primitive.body->getInverseInertiaTensor());
         tempBody.calculateDerivedData();
 
         // Remove the old block
@@ -171,7 +172,7 @@ public:
 
         // Work out the inverse density of the old block
         cyclone::real_t invDensity = cyclone::Vec3Magnitude( halfSize ) * 8 *
-            body->getInverseMass();
+            primitive.body->getInverseMass();
 
         // Now split the block into eight.
         for (unsigned i = 0; i < 8; i++)
@@ -217,19 +218,19 @@ public:
 
             // Set the body's properties (we assume the block has a body
             // already that we're going to overwrite).
-            blocks[i].body->setPosition(newPos);
-            blocks[i].body->setVelocity( cyclone::Vec3Add(
+            blocks[i].primitive.body->setPosition(newPos);
+            blocks[i].primitive.body->setVelocity( cyclone::Vec3Add(
                 tempBody.getVelocity(),
                 cyclone::Vec3Scale( direction, 10.0f ) ) );
-            blocks[i].body->setOrientation(tempBody.getOrientation());
-            blocks[i].body->setRotation(tempBody.getRotation());
-            blocks[i].body->setLinearDamping(tempBody.getLinearDamping());
-            blocks[i].body->setAngularDamping(tempBody.getAngularDamping());
-			blocks[i].body->setAwake(true);
-			blocks[i].body->setAcceleration(cyclone::GRAVITY);
-			blocks[i].body->clearAccumulators();
-			blocks[i].body->calculateDerivedData();
-            blocks[i].offset = cyclone::Mat4Identity();
+            blocks[i].primitive.body->setOrientation(tempBody.getOrientation());
+            blocks[i].primitive.body->setRotation(tempBody.getRotation());
+            blocks[i].primitive.body->setLinearDamping(tempBody.getLinearDamping());
+            blocks[i].primitive.body->setAngularDamping(tempBody.getAngularDamping());
+			blocks[i].primitive.body->setAwake(true);
+			blocks[i].primitive.body->setAcceleration(cyclone::GRAVITY);
+			blocks[i].primitive.body->clearAccumulators();
+			blocks[i].primitive.body->calculateDerivedData();
+            blocks[i].primitive.offset = cyclone::Mat4Identity();
             blocks[i].exists = true;
 			blocks[i].halfSize = halfSize;
 
@@ -288,16 +289,17 @@ FractureDemo::FractureDemo()
     RigidBodyApplication()
 {
 	// Create the ball.
-	ball.body = new cyclone::RigidBody();
+    ball = cyclone::COLLISION_SPHERE;
+	ball.primitive.body = new cyclone::RigidBody();
 	ball.radius = 0.25f;
-	ball.body->setMass(5.0f);
-	ball.body->setDamping(0.9f, 0.9f);
+	ball.primitive.body->setMass(5.0f);
+	ball.primitive.body->setDamping(0.9f, 0.9f);
 	cyclone::mat3_t it = cyclone::Mat3SetDiagonal( 5.0f, 5.0f, 5.0f );
-	ball.body->setInertiaTensor(it);
-	ball.body->setAcceleration(cyclone::GRAVITY);
+	ball.primitive.body->setInertiaTensor(it);
+	ball.primitive.body->setAcceleration(cyclone::GRAVITY);
 
-	ball.body->setCanSleep(false);
-	ball.body->setAwake(true);
+	ball.primitive.body->setCanSleep(false);
+	ball.primitive.body->setAwake(true);
 
     // Set up the initial block
     reset();
@@ -313,7 +315,7 @@ void FractureDemo::generateContacts()
 	hit = false;
 
 	// Create the ground plane data
-	cyclone::CollisionPlane plane;
+	cyclone::CollisionPlane plane = cyclone::COLLISION_PLANE;
     cyclone::vec3_t direction = { 0, 1, 0 };
 	plane.direction = direction;
 	plane.offset = 0;
@@ -382,37 +384,37 @@ void FractureDemo::reset()
 	// Set the first block
     cyclone::vec3_t halfSize = { 4, 4, 4 };
 	blocks[0].halfSize = halfSize;
-	blocks[0].body->setPosition(0, 7, 0);
-	blocks[0].body->setOrientation(1,0,0,0);
-	blocks[0].body->setVelocity(0,0,0);
-	blocks[0].body->setRotation(0,0,0);
-	blocks[0].body->setMass(100.0f);
+	blocks[0].primitive.body->setPosition(0, 7, 0);
+	blocks[0].primitive.body->setOrientation(1,0,0,0);
+	blocks[0].primitive.body->setVelocity(0,0,0);
+	blocks[0].primitive.body->setRotation(0,0,0);
+	blocks[0].primitive.body->setMass(100.0f);
 	cyclone::mat3_t it = Mat3SetBlockInertiaTensor( blocks[0].halfSize,
         100.0f );
-	blocks[0].body->setInertiaTensor(it);
-	blocks[0].body->setDamping(0.9f, 0.9f);
-	blocks[0].body->calculateDerivedData();
-	blocks[0].calculateInternals();
+	blocks[0].primitive.body->setInertiaTensor(it);
+	blocks[0].primitive.body->setDamping(0.9f, 0.9f);
+	blocks[0].primitive.body->calculateDerivedData();
+	CalculateInternals( blocks[0].primitive );
 
-	blocks[0].body->setAcceleration(cyclone::GRAVITY);
-	blocks[0].body->setAwake(true);
-	blocks[0].body->setCanSleep(true);
+	blocks[0].primitive.body->setAcceleration(cyclone::GRAVITY);
+	blocks[0].primitive.body->setAwake(true);
+	blocks[0].primitive.body->setCanSleep(true);
 
 
 	ball_active = true;
 
 	// Set up the ball
-	ball.body->setPosition(0,5.0f,20.0f);
-	ball.body->setOrientation(1,0,0,0);
-	ball.body->setVelocity(
+	ball.primitive.body->setPosition(0,5.0f,20.0f);
+	ball.primitive.body->setOrientation(1,0,0,0);
+	ball.primitive.body->setVelocity(
 		random.randomBinomial(4.0f),
 		random.randomReal(1.0f, 6.0f),
 		-20.0f
 		);
-	ball.body->setRotation(0,0,0);
-	ball.body->calculateDerivedData();
-	ball.body->setAwake(true);
-	ball.calculateInternals();
+	ball.primitive.body->setRotation(0,0,0);
+	ball.primitive.body->calculateDerivedData();
+	ball.primitive.body->setAwake(true);
+	CalculateInternals( ball.primitive );
 
 	hit = false;
 
@@ -442,15 +444,15 @@ void FractureDemo::updateObjects(cyclone::real_t duration)
     {
         if (block->exists)
         {
-            block->body->integrate(duration);
-            block->calculateInternals();
+            block->primitive.body->integrate(duration);
+            CalculateInternals( block->primitive );
         }
     }
 
 	if (ball_active)
 	{
-		ball.body->integrate(duration);
-		ball.calculateInternals();
+		ball.primitive.body->integrate(duration);
+		CalculateInternals( ball.primitive );
 	}
 }
 
@@ -479,7 +481,7 @@ void FractureDemo::display()
 	{
 		glColor3f(0.4f, 0.7f, 0.4f);
 		glPushMatrix();
-		cyclone::vec3_t pos = ball.body->getPosition();
+		cyclone::vec3_t pos = ball.primitive.body->getPosition();
 		glTranslatef(pos.x, pos.y, pos.z);
 		glutSolidSphere(0.25f, 16, 8);
 		glPopMatrix();

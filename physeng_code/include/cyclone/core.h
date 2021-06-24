@@ -165,6 +165,7 @@ real_t GetSleepEpsilon(void);
         };
     } vec3_t;
 
+    const static vec3_t VECTOR3 = { 0.0f, 0.0f, 0.0f };
     const static vec3_t GRAVITY = { 0.0f, -9.81f, 0.0f };
     const static vec3_t HIGH_GRAVITY = { 0.0f, -19.62f, 0.0f };
     const static vec3_t UP = { 0.0f, 1.0f, 0.0f };
@@ -523,6 +524,8 @@ real_t GetSleepEpsilon(void);
         };
     } quat_t;
 
+    const static quat_t QUATERNION = { 1.0f, 0.0f, 0.0f, 0.0f };
+
     quat_t QuatClear(void);
     quat_t QuatNormalise(quat_t q);
     quat_t QuatMultiply(quat_t a, quat_t b);
@@ -705,6 +708,13 @@ real_t GetSleepEpsilon(void);
             real_t n[16];
         };
     } mat4_t;
+
+    const static mat4_t MATRIX4 = {
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f,
+    };
 
     mat4_t Mat4Identity(void);
     mat4_t Mat4SetDiagonal(real_t x, real_t y, real_t z);
@@ -1051,6 +1061,12 @@ real_t GetSleepEpsilon(void);
             real_t n[9];
         };
     } mat3_t;
+
+    const static mat3_t MATRIX3 = {
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f
+    };
 
     mat3_t Mat3Construct(real_t c0, real_t c1, real_t c2, real_t c3,
         real_t c4, real_t c5, real_t c6, real_t c7, real_t c8);
