@@ -234,7 +234,7 @@ void RagdollDemo::generateContacts()
     plane.offset = 0;
 
 	// Set up the collision data structure
-	cData.reset(maxContacts);
+	Reset( cData, maxContacts );
 	cData.friction = (cyclone::real_t)0.9;
 	cData.restitution = (cyclone::real_t)0.6;
 	cData.tolerance = (cyclone::real_t)0.1;
@@ -243,7 +243,7 @@ void RagdollDemo::generateContacts()
     for (Bone *bone = bones; bone < bones+NUM_BONES; bone++)
     {
         // Check for collisions with the ground plane
-		if (!cData.hasMoreContacts()) return;
+		if ( !HasContacts( cData ) ) return;
 
         /* collision detection */
         cyclone::BoxAndHalfSpace( *bone, plane, &cData );
@@ -253,7 +253,7 @@ void RagdollDemo::generateContacts()
 		// Check for collisions with each other box
 		for (Bone *other = bone+1; other < bones+NUM_BONES; other++)
 		{
-			if (!cData.hasMoreContacts()) return;
+			if ( !HasContacts( cData ) ) return;
 
 			cyclone::CollisionSphere otherSphere = other->getCollisionSphere();
 
@@ -265,9 +265,9 @@ void RagdollDemo::generateContacts()
     // Check for joint violation
     for (cyclone::Joint *joint = joints; joint < joints+NUM_JOINTS; joint++)
     {
-		if (!cData.hasMoreContacts()) return;
+		if ( !HasContacts( cData ) ) return;
         unsigned added = joint->addContact(cData.contacts, cData.contactsLeft);
-        cData.addContacts(added);
+        Add( cData, added );
     }
 }
 ///<RunJoints

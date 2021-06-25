@@ -176,6 +176,39 @@ bool cyclone::BoxAndHalfSpace(const CollisionBox & box, const CollisionPlane & p
 /* Collision Detection */
 
 
+/**
+ * Checks if there are more contacts available in the contact
+ * data.
+ */
+bool cyclone::HasContacts(CollisionData & data)
+{
+    return data.contactsLeft > 0;
+}
+
+/**
+ * Resets the data so that it has no used contacts recorded.
+ */
+void cyclone::Reset(CollisionData & data, unsigned int maxContacts)
+{
+    data.contactsLeft = maxContacts;
+    data.contactCount = 0;
+    data.contacts = data.contactArray;
+}
+
+/**
+ * Notifies the data that the given number of contacts have
+ * been added.
+ */
+void cyclone::Add(CollisionData & data, unsigned int count)
+{
+    // Reduce the number of contacts remaining, add number used and move
+    // the array forward
+    data.contactsLeft -= count;
+    data.contactCount += count;
+    data.contacts += count;
+}
+
+
 ///>SphereHalfSpace
 unsigned cyclone::SphereAndHalfSpace(const CollisionSphere & sphere,
     const CollisionPlane & plane, CollisionData * data)
@@ -204,7 +237,7 @@ unsigned cyclone::SphereAndHalfSpace(const CollisionSphere & sphere,
         Vec3Scale( plane.direction, ( ballDistance + sphere.radius ) ) );
     contact->setBodyData(sphere.primitive.body, NULL,
         data->friction, data->restitution);
-    data->addContacts( 1 );
+    Add( *data, 1 );
     return 1;
 }
 ///<SphereHalfSpace
@@ -252,7 +285,7 @@ unsigned cyclone::SphereAndTruePlane(const CollisionSphere & sphere,
     contact->setBodyData(sphere.primitive.body, NULL,
         data->friction, data->restitution);
 
-    data->addContacts(1);
+    Add( *data, 1 );
     return 1;
 }
 ///<SphereTruePlane
@@ -291,7 +324,7 @@ unsigned cyclone::SphereAndSphere(const CollisionSphere & one,
     contact->setBodyData(one.primitive.body, two.primitive.body, data->friction,
         data->restitution);
 
-    data->addContacts( 1 );
+    Add( *data, 1 );
 
     return 1;
 }
@@ -367,7 +400,7 @@ unsigned cyclone::BoxAndHalfSpace(const CollisionBox & box,
 ///<BoxPlaneTestOne
     }
 
-    data->addContacts( contactsUsed );
+    Add( *data, contactsUsed );
 
     return contactsUsed;
 }
@@ -560,7 +593,7 @@ unsigned cyclone::BoxAndBox(const CollisionBox & one, const CollisionBox & two,
 
         // We've got a vertex of box two on a face of box one.
         FillPointFaceBoxBox( one, two, toCentre, data, best, pen );
-        data->addContacts(1);
+        Add( *data, 1 );
 
         return 1;
     } else if ( best < 6 ) {
@@ -571,7 +604,7 @@ unsigned cyclone::BoxAndBox(const CollisionBox & one, const CollisionBox & two,
         // centres).
         FillPointFaceBoxBox( two, one, Vec3Scale( toCentre, -1.0f ), data,
             best - 3, pen );
-        data->addContacts( 1 );
+        Add( *data, 1 );
         
         return 1;
 
@@ -674,7 +707,7 @@ unsigned cyclone::BoxAndBox(const CollisionBox & one, const CollisionBox & two,
         contact->contactPoint = vertex;
         contact->setBodyData( one.primitive.body, two.primitive.body,
             data->friction, data->restitution );
-        data->addContacts( 1 );
+        Add( *data, 1 );
         
         return 1;
     }
@@ -736,7 +769,7 @@ unsigned cyclone::BoxAndPoint(const CollisionBox & box, const vec3_t & point,
     // this value can be left, or filled in.
     contact->setBodyData( box.primitive.body, NULL, data->friction,
         data->restitution );
-    data->addContacts( 1 );
+    Add( *data, 1 );
 
     return 1;
 }
@@ -827,7 +860,7 @@ unsigned cyclone::BoxAndSphere(const CollisionBox & box,
     contact->setBodyData( box.primitive.body, sphere.primitive.body,
         data->friction, data->restitution );
 
-    data->addContacts( 1 );
+    Add( *data, 1 );
 
     return 1;
 }

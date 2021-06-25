@@ -321,7 +321,7 @@ void FractureDemo::generateContacts()
 	plane.offset = 0;
 
 	// Set up the collision data structure
-	cData.reset(maxContacts);
+	Reset( cData, maxContacts );
 	cData.friction = (cyclone::real_t)0.9;
 	cData.restitution = (cyclone::real_t)0.2;
 	cData.tolerance = (cyclone::real_t)0.1;
@@ -332,7 +332,7 @@ void FractureDemo::generateContacts()
 		if (!block->exists) continue;
 
 		// Check for collisions with the ground plane
-		if (!cData.hasMoreContacts()) return;
+		if ( !HasContacts( cData ) ) return;
 
         /* collision detection */
 		cyclone::BoxAndHalfSpace( *block, plane, &cData );
@@ -340,7 +340,7 @@ void FractureDemo::generateContacts()
 		if (ball_active)
 		{
 			// And with the sphere
-			if (!cData.hasMoreContacts()) return;
+			if ( !HasContacts( cData ) ) return;
 
             /* collision detection */
 			if ( cyclone::BoxAndSphere( *block, ball, &cData ) ) {
@@ -355,7 +355,7 @@ void FractureDemo::generateContacts()
 		{
 			if (!other->exists) continue;
 
-			if (!cData.hasMoreContacts()) return;
+			if ( !HasContacts( cData ) ) return;
 
             /* collision detection */
 			cyclone::BoxAndBox( *block, *other, &cData );
@@ -365,7 +365,7 @@ void FractureDemo::generateContacts()
 	// Check for sphere ground collisions
 	if (ball_active)
 	{
-		if (!cData.hasMoreContacts()) return;
+		if ( !HasContacts( cData ) ) return;
 
         /* collision detection */
 		cyclone::SphereAndHalfSpace( ball, plane, &cData );

@@ -347,7 +347,7 @@ void ExplosionDemo::generateContacts()
     plane.offset = 0;
 
     // Set up the collision data structure
-    cData.reset(maxContacts);
+    Reset( cData, maxContacts );
     cData.friction = (cyclone::real_t)0.9;
     cData.restitution = (cyclone::real_t)0.6;
     cData.tolerance = (cyclone::real_t)0.1;
@@ -356,7 +356,7 @@ void ExplosionDemo::generateContacts()
     for (Box *box = boxData; box < boxData+boxes; box++)
     {
         // Check for collisions with the ground plane
-		if (!cData.hasMoreContacts()) return;
+		if ( !HasContacts( cData ) ) return;
 
         /* collision detection */
         cyclone::BoxAndHalfSpace( *box, plane, &cData );
@@ -364,7 +364,7 @@ void ExplosionDemo::generateContacts()
         // Check for collisions with each other box
         for (Box *other = box+1; other < boxData+boxes; other++)
         {
-    		if (!cData.hasMoreContacts()) return;
+    		if ( !HasContacts( cData ) ) return;
 
             /* collision detection */
 			cyclone::BoxAndBox( *box, *other, &cData );
@@ -378,7 +378,7 @@ void ExplosionDemo::generateContacts()
 		// Check for collisions with each ball
         for (Ball *other = ballData; other < ballData+balls; other++)
         { 
-    		if (!cData.hasMoreContacts()) return;
+    		if ( !HasContacts( cData ) ) return;
 
             /* collision detection */
             cyclone::BoxAndSphere( *box, *other, &cData );
@@ -388,7 +388,7 @@ void ExplosionDemo::generateContacts()
     for (Ball *ball = ballData; ball < ballData+balls; ball++)
     {
         // Check for collisions with the ground plane
-        if (!cData.hasMoreContacts()) return;
+        if ( !HasContacts( cData ) ) return;
 
         /* collision detection */
         cyclone::SphereAndHalfSpace( *ball, plane, &cData );
@@ -396,7 +396,7 @@ void ExplosionDemo::generateContacts()
         for (Ball *other = ball+1; other < ballData+balls; other++)
         {
             // Check for collisions with the ground plane
-    		if (!cData.hasMoreContacts()) return;
+    		if ( !HasContacts( cData ) ) return;
 
             cyclone::SphereAndSphere( *ball, *other, &cData );
         }

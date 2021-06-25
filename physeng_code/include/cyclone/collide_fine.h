@@ -40,11 +40,6 @@ namespace cyclone {
          * The offset of this primitive from the given rigid body.
          */
         mat4_t offset;
-
-        /**
-         * Calculates the internals for the primitive.
-         */
-/*        void calculateInternals(void);*/
  
         /**
          * The resultant transform of the primitive. This is 
@@ -182,41 +177,26 @@ namespace cyclone {
          */
         real_t tolerance;
 
-        /**
-         * Checks if there are more contacts available in the contact
-         * data.
-         */
-        bool hasMoreContacts(void)
-        {
-            return contactsLeft > 0;
-        }
-
-        /**
-         * Resets the data so that it has no used contacts recorded.
-         */
-        void reset(unsigned maxContacts)
-        {
-            contactsLeft = maxContacts;
-            contactCount = 0;
-            contacts = contactArray;
-        }
-
-        /**
-         * Notifies the data that the given number of contacts have
-         * been added.
-         */
-        void addContacts(unsigned count)
-        {
-            // Reduce the number of contacts remaining, add number used
-            contactsLeft -= count;
-            contactCount += count;
-
-            // Move the array forward
-            contacts += count;
-        }
 ///>CollisionDataIntro    
     };
 ///<CollisionDataIntro
+
+    /**
+     * Checks if there are more contacts available in the contact
+     * data.
+     */
+    bool HasContacts(CollisionData & data);
+
+    /**
+     * Resets the data so that it has no used contacts recorded.
+     */
+    void Reset(CollisionData & data, unsigned int maxContacts);
+
+    /**
+     * Notifies the data that the given number of contacts have
+     * been added.
+     */
+    void Add(CollisionData & data, unsigned int count);
     
     /**
      * A wrapper class that holds the fine grained collision detection 
