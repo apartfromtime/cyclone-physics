@@ -15,15 +15,22 @@
 
 using namespace cyclone;
 
-BoundingSphere::BoundingSphere(const vec3_t & centre, real_t radius)
+BoundingSphere cyclone::ConstructBoundingVolumeClass(vec3_t centre,
+    real_t radius)
 {
-    BoundingSphere::centre = centre;
-    BoundingSphere::radius = radius;
+    BoundingSphere newSphere;
+
+    newSphere.centre = centre;
+    newSphere.radius = radius;
+    
+    return newSphere;
 }
 
-BoundingSphere::BoundingSphere(const BoundingSphere &one,
-                               const BoundingSphere &two)
+BoundingSphere cyclone::ConstructBoundingVolumeClass(BoundingSphere one,
+    BoundingSphere two)
 {
+    BoundingSphere newSphere = ConstructBoundingVolumeClass( VECTOR3, 0.0f );
+
     vec3_t centreOffset = Vec3Subtract( two.centre, one.centre );
     real_t distance = Vec3MagnitudeSqr( centreOffset );
     real_t radiusDiff = two.radius - one.radius;
@@ -32,50 +39,58 @@ BoundingSphere::BoundingSphere(const BoundingSphere &one,
     if ( radiusDiff * radiusDiff >= distance ) {
         if ( one.radius > two.radius ) {
 
-            centre = one.centre;
-            radius = one.radius;
+            newSphere.centre = one.centre;
+            newSphere.radius = one.radius;
         } else {
 
-            centre = two.centre;
-            radius = two.radius;
+            newSphere.centre = two.centre;
+            newSphere.radius = two.radius;
         }
     }
-
     // Otherwise we need to work with partially 
     // overlapping spheres
     else {
 
         distance = R_sqrt( distance );
-        radius = ( distance + one.radius + two.radius ) * ( ( real_t )0.5f );
+        newSphere.radius = ( distance + one.radius + two.radius ) *
+            ( ( real_t )0.5f );
 
         // The new centre is based on one's centre, moved towards
         // two's centre by an ammount proportional to the spheres'
         // radii.
-        centre = one.centre;
+        newSphere.centre = one.centre;
 
         if ( distance > 0 ) {
-            centre = Vec3Add( centre, Vec3Scale( centreOffset,
-                ( ( radius - one.radius ) / distance ) ) );
+            newSphere.centre = Vec3Add( newSphere.centre,
+                Vec3Scale( centreOffset,
+                ( ( newSphere.radius - one.radius ) / distance ) ) );
         }
     }
-    
+
+    return newSphere;
 }
 
 ///>SphereBVHOverlap
-bool BoundingSphere::overlaps(const BoundingSphere *other) const
+bool cyclone::Overlaps(BoundingSphere sphere, BoundingSphere other)
 {
-    real_t distanceSquared = Vec3MagnitudeSqr( Vec3Subtract( centre,
-        other->centre ) );
-    return distanceSquared < ( radius + other->radius ) *
-        ( radius + other->radius );
+    real_t distanceSquared = Vec3MagnitudeSqr( Vec3Subtract( sphere.centre,
+        other.centre ) );
+    return distanceSquared < ( sphere.radius + other.radius ) *
+        ( sphere.radius + other.radius );
 }
 ///<SphereBVHOverlap
 
-real_t BoundingSphere::getGrowth(const BoundingSphere &other) const
+real_t cyclone::GetGrowth(BoundingSphere sphere, BoundingSphere other)
 {
-    BoundingSphere newSphere(*this, other);
+    BoundingSphere newSphere = ConstructBoundingVolumeClass( sphere, other );
 
     // We return a value proportional to the change in surface
     // area of the sphere.
-    return newSphere.radius*newSphere.radius - radius*radius;
+    return newSphere.radius * newSphere.radius - sphere.radius * sphere.radius;
+}
+
+real_t cyclone::GetSize(BoundingSphere sphere)
+{
+    return ( ( real_t )1.333333 ) * R_PI * sphere.radius * sphere.radius *
+        sphere.radius;
 }
