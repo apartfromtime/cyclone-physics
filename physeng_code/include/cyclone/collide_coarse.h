@@ -39,12 +39,12 @@ namespace cyclone {
     /**
      * Creates a new bounding sphere at the given centre and radius.
      */
-    BoundingSphere ConstructBoundingVolumeClass(vec3_t centre, real_t radius);
+    BoundingSphere ConstructBoundingVolume(vec3_t centre, real_t radius);
     /**
      * Creates a bounding sphere to enclose the two given bounding
      * spheres.
      */
-    BoundingSphere ConstructBoundingVolumeClass(BoundingSphere one,
+    BoundingSphere ConstructBoundingVolume(BoundingSphere one,
         BoundingSphere two);
     /**
      * Checks if the bounding sphere overlaps with the other given
@@ -319,7 +319,7 @@ namespace cyclone {
         }
 
         /* Use the bounding volume combining constructor. */
-        volume = ConstructBoundingVolumeClass(
+        volume = ConstructBoundingVolume(
             children[0]->volume,
             children[1]->volume
             );

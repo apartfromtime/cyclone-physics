@@ -15,7 +15,7 @@
 
 using namespace cyclone;
 
-BoundingSphere cyclone::ConstructBoundingVolumeClass(vec3_t centre,
+BoundingSphere cyclone::ConstructBoundingVolume(vec3_t centre,
     real_t radius)
 {
     BoundingSphere newSphere;
@@ -26,10 +26,10 @@ BoundingSphere cyclone::ConstructBoundingVolumeClass(vec3_t centre,
     return newSphere;
 }
 
-BoundingSphere cyclone::ConstructBoundingVolumeClass(BoundingSphere one,
+BoundingSphere cyclone::ConstructBoundingVolume(BoundingSphere one,
     BoundingSphere two)
 {
-    BoundingSphere newSphere = ConstructBoundingVolumeClass( VECTOR3, 0.0f );
+    BoundingSphere newSphere = ConstructBoundingVolume( VECTOR3, 0.0f );
 
     vec3_t centreOffset = Vec3Subtract( two.centre, one.centre );
     real_t distance = Vec3MagnitudeSqr( centreOffset );
@@ -82,7 +82,7 @@ bool cyclone::Overlaps(BoundingSphere sphere, BoundingSphere other)
 
 real_t cyclone::GetGrowth(BoundingSphere sphere, BoundingSphere other)
 {
-    BoundingSphere newSphere = ConstructBoundingVolumeClass( sphere, other );
+    BoundingSphere newSphere = ConstructBoundingVolume( sphere, other );
 
     // We return a value proportional to the change in surface
     // area of the sphere.
