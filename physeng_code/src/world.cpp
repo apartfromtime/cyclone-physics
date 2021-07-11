@@ -19,9 +19,9 @@ World::World(unsigned maxContacts, unsigned iterations)
 :
 firstBody(NULL),
 firstContactGen(NULL),
-resolver(iterations),
 maxContacts(maxContacts)
 {
+    resolver = ConstructContactResolver( iterations );
     contacts = new Contact[maxContacts];
     calculateIterations = (iterations == 0);
 }
@@ -96,10 +96,12 @@ void World::runPhysics(real_t duration)
 
     // And process them
     if ( calculateIterations ) {
-        resolver.setIterations( usedContacts * 4 );
+        
+        resolver.velocityIterations = usedContacts * 4;
+        resolver.positionIterations = usedContacts * 4;
     }
 
-    resolver.resolveContacts( contacts, usedContacts, duration );
+    ResolveContacts( resolver, contacts, usedContacts, duration );
 ///>WorldRunPhysics
 }
 ///<WorldRunPhysics

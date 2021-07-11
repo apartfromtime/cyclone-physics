@@ -193,12 +193,17 @@ RigidBodyApplication::RigidBodyApplication()
 :
     theta(0.0f), 
     phi(15.0f),
-    resolver(maxContacts*8),
-
     renderDebugInfo(false),
     pauseSimulation(true),
     autoPauseSimulation(false)
 {
+    resolver = cyclone::ConstructContactResolver( maxContacts * 8 );
+
+    for (int i = 0; i < maxContacts; ++i)
+    {
+        contacts[i] = cyclone::CONTACT;
+    }
+
     cData.contactArray = contacts;
 }
 
@@ -228,11 +233,8 @@ void RigidBodyApplication::update()
 	generateContacts();
 
     // Resolve detected contacts
-    resolver.resolveContacts(
-        cData.contactArray, 
-        cData.contactCount, 
-        duration
-        );
+    ResolveContacts( resolver, cData.contactArray, cData.contactCount,
+        duration );
 
     Application::update();
 }

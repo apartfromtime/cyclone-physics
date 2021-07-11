@@ -79,10 +79,12 @@ bool cyclone::SphereAndSphere(const CollisionSphere & one,
 static inline real_t TransformToAxis(const CollisionBox & box,
     const vec3_t & axis)
 {
-    return 
-        box.halfSize.x * R_abs( Vec3ScalarProduct( axis, Mat4AxisVector( box.primitive.transform, 0 ) ) ) +
-        box.halfSize.y * R_abs( Vec3ScalarProduct( axis, Mat4AxisVector( box.primitive.transform, 1 ) ) ) +
-        box.halfSize.z * R_abs( Vec3ScalarProduct( axis, Mat4AxisVector( box.primitive.transform, 2 ) ) );
+    return ( box.halfSize.x * R_abs( Vec3ScalarProduct( axis,
+            Mat4AxisVector( box.primitive.transform, 0 ) ) ) +
+        box.halfSize.y * R_abs( Vec3ScalarProduct( axis,
+            Mat4AxisVector( box.primitive.transform, 1 ) ) ) +
+        box.halfSize.z * R_abs( Vec3ScalarProduct( axis,
+            Mat4AxisVector( box.primitive.transform, 2 ) ) ) );
 }
 
 /**
@@ -235,7 +237,7 @@ unsigned cyclone::SphereAndHalfSpace(const CollisionSphere & sphere,
     contact->penetration = -ballDistance;
     contact->contactPoint = Vec3Subtract( position,
         Vec3Scale( plane.direction, ( ballDistance + sphere.radius ) ) );
-    contact->setBodyData(sphere.primitive.body, NULL,
+    SetBodyData( *contact, sphere.primitive.body, NULL,
         data->friction, data->restitution);
     Add( *data, 1 );
     return 1;
@@ -282,7 +284,7 @@ unsigned cyclone::SphereAndTruePlane(const CollisionSphere & sphere,
     contact->penetration = penetration;
     contact->contactPoint = Vec3Subtract( position,
         Vec3Scale( plane.direction, centreDistance ) );
-    contact->setBodyData(sphere.primitive.body, NULL,
+    SetBodyData( *contact, sphere.primitive.body, NULL,
         data->friction, data->restitution);
 
     Add( *data, 1 );
@@ -321,7 +323,7 @@ unsigned cyclone::SphereAndSphere(const CollisionSphere & one,
     contact->contactPoint = Vec3Add( positionOne,
         Vec3Scale( midline, ( real_t )0.5f ) );
     contact->penetration = ( one.radius + two.radius - size );
-    contact->setBodyData(one.primitive.body, two.primitive.body, data->friction,
+    SetBodyData( *contact, one.primitive.body, two.primitive.body, data->friction,
         data->restitution);
 
     Add( *data, 1 );
@@ -384,7 +386,7 @@ unsigned cyclone::BoxAndHalfSpace(const CollisionBox & box,
 ///<BoxPlaneTestOne
             
             // Write the appropriate data
-            contact->setBodyData( box.primitive.body, NULL,  data->friction,
+            SetBodyData( *contact,  box.primitive.body, NULL,  data->friction,
                 data->restitution );
 
             // Move onto the next contact
@@ -486,7 +488,7 @@ void FillPointFaceBoxBox(const CollisionBox & one, const CollisionBox & two,
     contact->penetration = pen;
     contact->contactPoint = Mat4Transform( vertex,
         two.primitive.transform );
-    contact->setBodyData( one.primitive.body, two.primitive.body,
+    SetBodyData( *contact,  one.primitive.body, two.primitive.body,
         data->friction, data->restitution );
 }
 
@@ -705,7 +707,7 @@ unsigned cyclone::BoxAndBox(const CollisionBox & one, const CollisionBox & two,
         contact->penetration = pen;
         contact->contactNormal = axis;
         contact->contactPoint = vertex;
-        contact->setBodyData( one.primitive.body, two.primitive.body,
+        SetBodyData( *contact,  one.primitive.body, two.primitive.body,
             data->friction, data->restitution );
         Add( *data, 1 );
         
@@ -767,7 +769,7 @@ unsigned cyclone::BoxAndPoint(const CollisionBox & box, const vec3_t & point,
     // Note that we don't know what rigid body the point
     // belongs to, so we just use NULL. Where this is called
     // this value can be left, or filled in.
-    contact->setBodyData( box.primitive.body, NULL, data->friction,
+    SetBodyData( *contact,  box.primitive.body, NULL, data->friction,
         data->restitution );
     Add( *data, 1 );
 
@@ -857,7 +859,7 @@ unsigned cyclone::BoxAndSphere(const CollisionBox & box,
         Vec3Subtract( closestPtWorld, centre ) );
     contact->contactPoint = closestPtWorld;
     contact->penetration = sphere.radius - R_sqrt(dist);
-    contact->setBodyData( box.primitive.body, sphere.primitive.body,
+    SetBodyData( *contact,  box.primitive.body, sphere.primitive.body,
         data->friction, data->restitution );
 
     Add( *data, 1 );

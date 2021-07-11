@@ -30,12 +30,6 @@
 
 namespace cyclone {
 
-    /*
-     * Forward declaration, see full declaration below for complete 
-     * documentation.
-     */
-    class ContactResolver;
-
 ///>ContactIntro
     /**
      * A contact represents two bodies in contact. Resolving a 
@@ -60,7 +54,7 @@ namespace cyclone {
 ///>ContactIntro
      */
 ///>Contact
-    class Contact
+    typedef struct Contact
     {
 ///<Contact;ContactIntro
 ///>Contact;Omit
@@ -72,18 +66,8 @@ namespace cyclone {
          * The contact resolver object needs access into the contacts to
          * set and effect the contact.
          */
-        friend ContactResolver;
 ///<ContactFriend
 
-    public:
-        Contact(void) {
-            contactPoint = Vec3Clear();
-            contactNormal = Vec3Clear();
-            contactToWorld = Mat3Identity();
-            relativeContactPosition[0] = Vec3Clear();
-            relativeContactPosition[1] = Vec3Clear();
-            contactVelocity = Vec3Clear();
-        }
         /**
          * Holds the bodies that are involved in the contact. The
          * second of these can be NULL, for contacts with the scenery.
@@ -119,15 +103,7 @@ namespace cyclone {
         real_t penetration;
 ///<ContactIntro
 
-        /**
-         * Sets the data that doesn't normally depend on the position
-         * of the contact (i.e. the bodies, and their material properties).
-         */
-        void setBodyData(RigidBody * one, RigidBody * two, real_t friction,
-            real_t restitution);
-
 ///>ContactInternalData
-    protected:
 
         /**
          * A transform matrix that converts co-ordinates in the contact's
@@ -157,72 +133,90 @@ namespace cyclone {
 ///<ContactInternalData
 
 ///>ContactCalculateInternals
-    protected:
-        /**
-         * Calculates internal data from state data. This is called before
-         * the resolution algorithm tries to do any resolution. It should
-         * never need to be called manually.
-         */
-        void calculateInternals(real_t duration);
 
-        /**
-         * Reverses the contact. This involves swapping the two rigid bodies
-         * and reversing the contact normal. The internal values should then
-         * be recalculated using calculateInternals (this is not done 
-         * automatically). 
-         */
-        void swapBodies();
 ///<ContactCalculateInternals
 
-        /**
-         * Updates the awake state of rigid bodies that are taking
-         * place in the given contact. A body will be made awake if it
-         * is in contact with a body that is awake. 
-         */
-        void matchAwakeState();
-
-        /**
-         * Calculates and sets the internal value for the desired delta 
-         * velocity.
-         */
-        void calculateDesiredDeltaVelocity(real_t duration);
-
-        /**
-         * Calculates and returns the velocity of the contact
-         * point on the given body.
-         */
-        vec3_t calculateLocalVelocity(unsigned bodyIndex, real_t duration);
-
-        /**
-         * Calculates an orthonormal basis for the contact point, based on
-         * the primary friction direction (for anisotropic friction) or
-         * a random orientation (for isotropic friction).
-         */
-        void calculateContactBasis();
-
-        /**
-         * Applies an impulse to the given body, returning the 
-         * change in velocities.
-         */
-        void applyImpulse(const vec3_t & impulse, RigidBody * body,
-            vec3_t * velocityChange, vec3_t * rotationChange);
-
-        /**
-         * Performs an inertia-weighted impulse based resolution of this 
-         * contact alone.
-         */
-        void applyVelocityChange(vec3_t velocityChange[2],
-            vec3_t rotationChange[2]);
-
-        /**
-         * Performs an inertia weighted penetration resolution of this 
-         * contact alone.
-         */
-        void applyPositionChange(vec3_t velocityChange[2],
-            vec3_t rotationDirection[2], real_t rotationAmount[2],
-            real_t penetration);
 ///>Contact;ContactIntro
-    };
+    } Contact;
+///<Contact;ContactIntro
+
+///>Contact;ContactIntro
+
+    extern const Contact CONTACT;
+
+    /**
+     * Sets the data that doesn't normally depend on the position
+     * of the contact (i.e. the bodies, and their material properties).
+     */
+    void SetBodyData(Contact & contact, RigidBody * one, RigidBody * two,
+        real_t friction, real_t restitution);
+
+    /**
+     * Calculates internal data from state data. This is called before
+     * the resolution algorithm tries to do any resolution. It should
+     * never need to be called manually.
+     */
+    void CalculateInternals(Contact & contact, real_t duration);
+
+    /**
+     * Reverses the contact. This involves swapping the two rigid bodies
+     * and reversing the contact normal. The internal values should then
+     * be recalculated using calculateInternals (this is not done 
+     * automatically). 
+     */
+    void SwapBodies(Contact & contact);
+
+    /**
+     * Updates the awake state of rigid bodies that are taking
+     * place in the given contact. A body will be made awake if it
+     * is in contact with a body that is awake. 
+     */
+    void MatchAwakeState(Contact & contact);
+
+    /**
+     * Calculates and sets the internal value for the desired delta 
+     * velocity.
+     */
+    void CalculateDesiredDeltaVelocity(Contact & contact, real_t duration);
+
+    /**
+     * Calculates and returns the velocity of the contact
+     * point on the given body.
+     */
+    vec3_t CalculateLocalVelocity(Contact & contact, unsigned bodyIndex,
+        real_t duration);
+
+    /**
+     * Calculates an orthonormal basis for the contact point, based on
+     * the primary friction direction (for anisotropic friction) or
+     * a random orientation (for isotropic friction).
+     */
+    void CalculateContactBasis(Contact & contact);
+
+    /**
+     * Applies an impulse to the given body, returning the 
+     * change in velocities.
+     * 
+     * TODO:: implement this
+     */
+    void ApplyImpulse(Contact & contact, const vec3_t & impulse, RigidBody * body,
+        vec3_t * velocityChange, vec3_t * rotationChange);
+
+    /**
+     * Performs an inertia-weighted impulse based resolution of this 
+     * contact alone.
+     */
+    void ApplyVelocityChange(Contact & contact, vec3_t velocityChange[2],
+        vec3_t rotationChange[2]);
+
+    /**
+     * Performs an inertia weighted penetration resolution of this 
+     * contact alone.
+     */
+    void ApplyPositionChange(Contact & contact, vec3_t velocityChange[2],
+        vec3_t rotationDirection[2], real_t rotationAmount[2],
+        real_t penetration);
+
 ///<Contact;ContactIntro
 
 ///>ContactResolver
@@ -276,10 +270,9 @@ namespace cyclone {
      * situations.
 ///>ContactResolver
      */
-    class ContactResolver
+    typedef struct ContactResolver
     {
 ///<ContactResolver
-    protected:
         /** 
          * Holds the number of iterations to perform when resolving
          * velocity. 
@@ -310,7 +303,6 @@ namespace cyclone {
          */
         real_t positionEpsilon;
 
-    public:
         /**
          * Stores the number of velocity iterations used in the 
          * last call to resolve contacts.
@@ -323,125 +315,101 @@ namespace cyclone {
          */
         unsigned positionIterationsUsed;
 
-    private:
         /**
          * Keeps track of whether the internal settings are valid.
          */
         bool validSettings;
 
+///>ContactResolver
+    } ContactResolver;
+///<ContactResolver
+
 ///>ContactResolverBase
-    public:
+
+    extern const ContactResolver RESOLVER;
+
+    /** 
+     * Creates a new contact resolver with the given number of iterations
+     * per resolution call, and optional epsilon values.
+     */
+    ContactResolver ConstructContactResolver(unsigned iterations,
+        real_t velocityEpsilon = ( real_t )0.01,
+        real_t positionEpsilon = ( real_t )0.01);
+
+    /** 
+     * Creates a new contact resolver with the given number of iterations
+     * for each kind of resolution, and optional epsilon values.
+     */
+    ContactResolver ConstructContactResolver(unsigned velocityIterations, 
+        unsigned positionIterations, real_t velocityEpsilon = ( real_t )0.01,
+        real_t positionEpsilon = ( real_t )0.01);
+
+    /** 
+     * Returns true if the resolver has valid settings and is ready to go. 
+     */
+    bool IsValid(ContactResolver & resolver);
 ///<ContactResolverBase
-        /** 
-         * Creates a new contact resolver with the given number of iterations
-         * per resolution call, and optional epsilon values.
-         */
-        ContactResolver(unsigned iterations, 
-            real_t velocityEpsilon=(real_t)0.01,
-            real_t positionEpsilon=(real_t)0.01);
-
-        /** 
-         * Creates a new contact resolver with the given number of iterations
-         * for each kind of resolution, and optional epsilon values.
-         */
-        ContactResolver(unsigned velocityIterations, 
-            unsigned positionIterations,
-            real_t velocityEpsilon=(real_t)0.01,
-            real_t positionEpsilon=(real_t)0.01);
-
-        /** 
-         * Returns true if the resolver has valid settings and is ready to go. 
-         */
-        bool isValid()
-        {
-            return (velocityIterations > 0) && 
-                   (positionIterations > 0) &&
-                   (positionEpsilon >= 0.0f) && 
-                   (positionEpsilon >= 0.0f);
-        }
-
-        /**
-         * Sets the number of iterations for each resolution stage.
-         */
-        void setIterations(unsigned velocityIterations, 
-                           unsigned positionIterations);
-
-        /**
-         * Sets the number of iterations for both resolution stages.
-         */
-        void setIterations(unsigned iterations);
-
-        /**
-         * Sets the tolerance value for both velocity and position.
-         */
-        void setEpsilon(real_t velocityEpsilon, 
-                        real_t positionEpsilon);
 
 ///>ContactResolverBase
-        /**
-         * Resolves a set of contacts for both penetration and velocity.
+    /**
+     * Resolves a set of contacts for both penetration and velocity.
 ///<ContactResolverBase
-         *
-         * Contacts that cannot interact with
-         * each other should be passed to separate calls to resolveContacts,
-         * as the resolution algorithm takes much longer for lots of 
-         * contacts than it does for the same number of contacts in small 
-         * sets. 
-         *
-         * @param contactArray Pointer to an array of contact objects.
-         *
-         * @param numContacts The number of contacts in the array to resolve.
-         *
-         * @param numIterations The number of iterations through the 
-         * resolution algorithm. This should be at least the number of
-         * contacts (otherwise some constraints will not be resolved - 
-         * although sometimes this is not noticable). If the iterations are
-         * not needed they will not be used, so adding more iterations may
-         * not make any difference. In some cases you would need millions
-         * of iterations. Think about the number of iterations as a bound:
-         * if you specify a large number, sometimes the algorithm WILL use
-         * it, and you may drop lots of frames.
-         *
-         * @param duration The duration of the previous integration step. 
-         * This is used to compensate for forces applied. 
-         */
+     *
+     * Contacts that cannot interact with
+     * each other should be passed to separate calls to resolveContacts,
+     * as the resolution algorithm takes much longer for lots of 
+     * contacts than it does for the same number of contacts in small 
+     * sets. 
+     *
+     * @param contactArray Pointer to an array of contact objects.
+     *
+     * @param numContacts The number of contacts in the array to resolve.
+     *
+     * @param numIterations The number of iterations through the 
+     * resolution algorithm. This should be at least the number of
+     * contacts (otherwise some constraints will not be resolved - 
+     * although sometimes this is not noticable). If the iterations are
+     * not needed they will not be used, so adding more iterations may
+     * not make any difference. In some cases you would need millions
+     * of iterations. Think about the number of iterations as a bound:
+     * if you specify a large number, sometimes the algorithm WILL use
+     * it, and you may drop lots of frames.
+     *
+     * @param duration The duration of the previous integration step. 
+     * This is used to compensate for forces applied. 
+     */
 ///>ContactResolverBase
-        void resolveContacts(Contact *contactArray, 
-            unsigned numContacts,
-            real_t duration);
+    void ResolveContacts(ContactResolver & resolver, Contact * contacts,
+        unsigned numContacts, real_t duration);
 ///<ContactResolverBase
 
 ///>ContactResolverAux
-    protected:
-///<ContactResolverAux
+
 ///>PrepareContacts
-        /** 
-         * Sets up contacts ready for processing. This makes sure their 
-         * internal data is configured correctly and the correct set of bodies
-         * is made alive.
-         */
-        void prepareContacts(Contact *contactArray, unsigned numContacts,
-            real_t duration);
+    /** 
+     * Sets up contacts ready for processing. This makes sure their 
+     * internal data is configured correctly and the correct set of bodies
+     * is made alive.
+     */
+    void PrepareContacts(Contact * contacts, unsigned numContacts,
+        real_t duration);
 ///<PrepareContacts
 
-        /**
-         * Resolves the velocity issues with the given array of constraints,
-         * using the given number of iterations.
-         */
-        void adjustVelocities(Contact *contactArray,
-            unsigned numContacts,
-            real_t duration);
+    /**
+     * Resolves the velocity issues with the given array of constraints,
+     * using the given number of iterations.
+     */
+    void AdjustVelocities(ContactResolver & resolver, Contact * contacts,
+        unsigned numContacts, real_t duration);
 
-        /**
-         * Resolves the positional issues with the given array of constraints,
-         * using the given number of iterations.
-         */
-        void adjustPositions(Contact *contacts, 
-            unsigned numContacts,
-            real_t duration);
-///>ContactResolver
-    };
-///<ContactResolver
+    /**
+     * Resolves the positional issues with the given array of constraints,
+     * using the given number of iterations.
+     */
+    void AdjustPositions(ContactResolver & resolver, Contact * contacts,
+        unsigned numContacts, real_t duration);
+
+///<ContactResolverAux
 
     /**
      * This is the basic polymorphic interface for contact generators
